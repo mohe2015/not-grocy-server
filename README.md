@@ -14,6 +14,8 @@ Specify a database in the `.env` file:
 DATABASE_URL=development.db
 ```
 
+Currently you need to copy the database file from grocy.
+
 Add pre-commit hook:
 ```bash
 ln -s ../../pre-commit.sh .git/hooks/pre-commit

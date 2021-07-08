@@ -1,4 +1,24 @@
+#[macro_use]
+extern crate diesel;
+extern crate dotenv;
+
+pub mod models;
+pub mod schema;
+
+use diesel::prelude::*;
+use diesel::sqlite::SqliteConnection;
+use dotenv::dotenv;
+use std::env;
+
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+
+pub fn establish_connection() -> SqliteConnection {
+    dotenv().ok();
+
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    SqliteConnection::establish(&database_url)
+        .expect(&format!("Error connecting to {}", database_url))
+}
 
 #[get("/")]
 async fn hello() -> impl Responder {
@@ -16,6 +36,8 @@ async fn manual_hello() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let _connection = establish_connection();
+
     HttpServer::new(|| {
         App::new()
             .service(hello)
