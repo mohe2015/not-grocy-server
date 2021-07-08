@@ -5,6 +5,7 @@ extern crate dotenv;
 pub mod models;
 pub mod schema;
 
+use self::models::*;
 use diesel::prelude::*;
 use diesel::sqlite::SqliteConnection;
 use dotenv::dotenv;
@@ -36,7 +37,17 @@ async fn manual_hello() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let _connection = establish_connection();
+    use self::schema::stock::dsl::*;
+    let connection = establish_connection();
+    let results = stock
+        .load::<Stock>(&connection)
+        .expect("Error loading stock");
+
+    println!("Displaying {} stock", results.len());
+    for stock_item in results {
+        println!("{:?}", stock_item);
+        println!("----------\n");
+    }
 
     HttpServer::new(|| {
         App::new()

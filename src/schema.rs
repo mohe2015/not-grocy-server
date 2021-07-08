@@ -294,7 +294,7 @@ table! {
         stock_id -> Text,
         price -> Nullable<Double>,
         open -> Bool,
-        opened_date -> Nullable<Timestamp>,
+        opened_date -> Nullable<Date>,
         row_created_timestamp -> Nullable<Timestamp>,
         location_id -> Nullable<Integer>,
         shopping_location_id -> Nullable<Integer>,
