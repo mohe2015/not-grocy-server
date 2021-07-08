@@ -13,3 +13,8 @@ Specify a database in the `.env` file:
 ```
 DATABASE_URL=development.db
 ```
+
+Add pre-commit hook:
+```bash
+ln -s ../../pre-commit.sh .git/hooks/pre-commit
+```
