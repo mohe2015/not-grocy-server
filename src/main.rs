@@ -2,58 +2,31 @@
 extern crate diesel;
 extern crate dotenv;
 
+pub mod api;
 pub mod models;
 pub mod schema;
 
-use self::models::*;
-use diesel::prelude::*;
+use diesel::r2d2::ConnectionManager;
 use diesel::sqlite::SqliteConnection;
 use dotenv::dotenv;
 use std::env;
 
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
-
-pub fn establish_connection() -> SqliteConnection {
-    dotenv().ok();
-
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    SqliteConnection::establish(&database_url)
-        .expect(&format!("Error connecting to {}", database_url))
-}
-
-#[get("/")]
-async fn hello() -> impl Responder {
-    HttpResponse::Ok().body("Hello world!")
-}
-
-#[post("/echo")]
-async fn echo(req_body: String) -> impl Responder {
-    HttpResponse::Ok().body(req_body)
-}
-
-async fn manual_hello() -> impl Responder {
-    HttpResponse::Ok().body("Hey there!")
-}
+use actix_web::{App, HttpServer};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    use self::schema::stock::dsl::*;
-    let connection = establish_connection();
-    let results = stock
-        .load::<Stock>(&connection)
-        .expect("Error loading stock");
+    dotenv().ok();
 
-    println!("Displaying {} stock", results.len());
-    for stock_item in results {
-        println!("{:?}", stock_item);
-        println!("----------\n");
-    }
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let manager = ConnectionManager::<SqliteConnection>::new(database_url);
+    let pool = r2d2::Pool::builder()
+        .build(manager)
+        .expect("Failed to create database connection pool.");
 
-    HttpServer::new(|| {
+    HttpServer::new(move || {
         App::new()
-            .service(hello)
-            .service(echo)
-            .route("/hey", web::get().to(manual_hello))
+            .data(pool.clone())
+            .service(api::stock::overview::index)
     })
     .bind("127.0.0.1:8080")?
     .run()

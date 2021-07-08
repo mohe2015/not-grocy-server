@@ -1,7 +1,8 @@
 use chrono::NaiveDate;
 use chrono::NaiveDateTime;
+use serde::{Deserialize, Serialize};
 
-#[derive(Queryable, Debug)]
+#[derive(Queryable, Debug, Serialize, Deserialize)]
 pub struct Stock {
     pub id: i32,
     pub product_id: i32,
