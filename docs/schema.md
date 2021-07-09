@@ -1,0 +1,139 @@
+# api_keys
+
+https://github.com/mistressofjellyfish/not-grocy/blob/vuejs/php/Services/ApiKeyService.php
+
+In the current implementation it seems (GetOrCreateApiKey) like they get reused for different users / are not associated with a user. If this actually happens reusing is not a good idea as you can't revoke single api keys from a specific usage then.
+https://github.com/mistressofjellyfish/not-grocy/blob/246c7fcb64d63caf1a4a1e8dafb0308d9fa4264b/php/Controllers/CalendarApiController.php#L57 they're reused for the ical sharing link so you can't revoke access per person you gave the link to. This may not be that important as it's a household management software but still could be better.
+
+## id
+
+type: integer
+
+primary key
+
+### improvements
+
+remove and make api_key the primary key
+
+## api_key
+
+type: text
+
+unique
+
+the api key to authenticate with.
+
+
+## user_id
+
+type: integer
+
+references a row in users table?
+
+### improvements
+
+make foreign key to users?
+
+## expires
+
+type: datetime?
+
+when the api key expires. By default this is set to a date in 2999.
+
+### improvements
+
+could be non-null
+
+## last_used
+
+type: datetime?
+
+usage unknown
+
+### improvements
+
+could be non-null if we consider creation a use (which is questionable)
+
+## row_created_timestamp
+
+type: datetime? default now
+
+the time this row was created (usage unknown)
+
+### improvements
+
+non-null
+
+## key_type
+
+type: text (one of "default", "special-purpose-calendar-ical")
+
+probably what permissions the api key has
+
+### improvements
+
+possibly type enum if database support exists
+
+could possibly be unified with the permission system of users - so an api key is a (sub)user or whatever. Maybe this may also be too complicated though.
+
+# batteries
+
+# battery_charge_cycles
+
+# chores
+
+# chores_log
+
+# equipment
+
+# locations
+
+# meal_plan
+
+# permission_hierarchy
+
+# product_barcodes
+
+# product_groups
+
+# products
+
+# quantity_unit_conversions
+
+# quantity_units
+
+# recipes
+
+# recipes_nestings
+
+# recipes_pos
+
+# sessions
+
+# shopping_list
+
+# shopping_lists
+
+# shopping_locations
+
+# stock
+
+# stock_log
+
+# task_categories
+
+# tasks
+
+# user_permissions
+
+# user_settings
+
+# userentities
+
+# userfield_values
+
+# userfields
+
+# userobjects
+
+# users
