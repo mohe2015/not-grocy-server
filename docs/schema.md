@@ -1,3 +1,10 @@
+# Common things
+
+row_created_timestamp, undone, undone_timestamp
+
+also that many tables have the table and a logging table
+
+
 # api_keys
 
 https://github.com/mistressofjellyfish/not-grocy/blob/vuejs/php/Services/ApiKeyService.php
@@ -22,7 +29,6 @@ type: text
 unique
 
 the api key to authenticate with.
-
 
 ## user_id
 
@@ -78,7 +84,109 @@ could possibly be unified with the permission system of users - so an api key is
 
 # batteries
 
+## id
+
+type: integer
+
+primary key
+
+## name
+
+type: text
+
+unique
+
+the name of the battery
+
+### improvements
+
+not sure if uniqueness needs to be enforced - should not matter
+
+## description
+
+type: text?
+
+the description of the battery
+
+## used_in
+
+type: text?
+
+where the battery is used in
+
+## charge_interval_days
+
+type: integer default 0
+
+the interval you want to charge the battery at in days
+
+### improvements
+
+depending on what 0 is supposed to mean maybe use null? As in I want this battery tracked when I charge it but I don't have a specific charge cycle.
+
+## row_created_timestamp
+
+type: datetime default now
+
+## active
+
+type: tinyint
+
+whether the battery is still in use
+
+### improvements
+
+probably an sqlite thing but is a bool
+
 # battery_charge_cycles
+
+## id
+
+type: integer primary key
+
+## battery_id
+
+type: text (wtf)
+
+the battery this charge cycle belongs to
+
+### improvements
+
+should be type integer and foreign key battery(id)
+
+## tracked_time
+
+type: datetime?
+
+the time at which you charged the battery
+
+### improvements
+
+non-null.
+
+## row_created_timestamp
+
+type: datetime? default now
+
+### improvements
+
+non-null (probably also for the others).
+
+## undone
+
+type: tinyint (bool)
+
+whether this charge cycle was undone
+
+### improvements
+
+think about merging into undone_timestamp and use null instead? / use no timestamp?
+
+## undone_timestamp
+
+type: datetime?
+
+when it was undone
 
 # chores
 
