@@ -12,6 +12,7 @@
           devShell = pkgs.mkShell {
             nativeBuildInputs = [
               pkgs.pkg-config
+              pkgs.diesel-cli
             ];
 
             buildInputs = [
