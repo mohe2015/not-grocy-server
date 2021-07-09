@@ -1,3 +1,4 @@
+// This file contains parts of https://github.com/grocy/grocy Copyright (c) 2017 Bernd Bestel which is licensed under the MIT License.
 use chrono::NaiveDate;
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
@@ -12,8 +13,8 @@ pub struct Stock {
     pub stock_id: String,
     pub price: Option<f64>,
     pub open: bool,
-    pub opened_date: Option<NaiveDate>,
     pub row_created_timestamp: Option<NaiveDateTime>,
     pub location_id: Option<i32>,
     pub shopping_location_id: Option<i32>,
+    pub opened_date: Option<NaiveDate>,
 }
