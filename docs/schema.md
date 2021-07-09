@@ -561,6 +561,36 @@ type: datetime? default now
 
 # permission_hierarchy
 
+hierarchy of permissions connected using their parents
+
+https://github.com/mistressofjellyfish/not-grocy/blob/246c7fcb64d63caf1a4a1e8dafb0308d9fa4264b/php/Services/UsersService.php#L19
+
+## id
+
+type: integer primary key
+
+## name
+
+type: text unique
+
+e.g. ADMIN
+
+### improvements
+
+check if id could be merged into name
+
+## parent
+
+type: integer?
+
+the parent of this permission or null
+
+### improvements
+
+foreign key to permission_hierarchy(id)
+
+from the permissions in the table this seems to be not super worth it although creating an admin is significantly easier in this way
+
 # product_barcodes
 
 # product_groups
@@ -579,6 +609,20 @@ type: datetime? default now
 
 # sessions
 
+these are the active sessions of the users
+
+## id
+
+## session_key
+
+## user_id
+
+## expires
+
+## last_used
+
+## row_created_timestamp
+
 # shopping_list
 
 # shopping_lists
@@ -595,14 +639,126 @@ type: datetime? default now
 
 # user_permissions
 
+the permissions of a user
+
+## id
+
+### improvements
+
+remove? and make the other two fields composed primary key
+
+## permissions_id
+
+### improvements
+
+foreign key of permission_hierarchy(id)
+
+## user_id
+
+### improvements
+
+foreign key of user(id)
+
 # user_settings
 
 # userentities
 
+userentities are in the master data
+
+they are shown in the navigation as an entry
+
+as far as I understand them they're just custom tables
+
+they reference multiple user fields
+
+## id
+
+## name
+
+## caption
+
+## description
+
+## show_in_sidebar_menu
+
+## icon_css_class
+
+## row_created_timestamp
+
 # userfield_values
+
+this probably contains the values of these custom tables
+
+## id
+
+## field_id
+
+## object_id
+
+## value
+
+## row_created_timestamp
 
 # userfields
 
+this is probably the list of columns for a user entity
+
+## id
+
+## entity
+
+## name
+
+## caption
+
+## type
+
+## show_as_column_in_tables
+
+### improvements
+
+this is probably the foreign key userentities(id)
+
+## row_created_timestamp
+
+## config
+
+## sort_number
+
 # userobjects
 
+where is this in the hierarchy?
+
+don't understand where userobjects and userfields belongs
+
+maybe it's something completely different
+
+## id
+
+## userentity_id
+
+probably foreign key userentities(id)
+
+## row_created_timestamp
+
 # users
+
+this seems to be the actual list of the users
+
+## id
+
+## username
+
+## first_name
+
+## last_name
+
+## password
+
+### improvements
+
+rename to password_hash and also check that it is one (I'm pretty sure it is right now)
+
+## row_created_timestamp
+
+## picture_file_name
