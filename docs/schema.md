@@ -14,38 +14,6 @@ enums in postgres
 
 bool (maybe some bools are nullable - then also fix that)
 
-# permission_hierarchy
-
-hierarchy of permissions connected using their parents
-
-https://github.com/mistressofjellyfish/not-grocy/blob/246c7fcb64d63caf1a4a1e8dafb0308d9fa4264b/php/Services/UsersService.php#L19
-
-## id
-
-type: integer primary key
-
-## name
-
-type: text unique
-
-e.g. ADMIN
-
-### improvements
-
-check if id could be merged into name
-
-## parent
-
-type: integer?
-
-the parent of this permission or null
-
-### improvements
-
-foreign key to permission_hierarchy(id)
-
-from the permissions in the table this seems to be not super worth it although creating an admin is significantly easier in this way
-
 # product_barcodes
 
 # product_groups
