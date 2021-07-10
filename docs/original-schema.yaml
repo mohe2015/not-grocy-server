@@ -157,53 +157,76 @@ could possibly be unified with the permission system of users - so an api key is
           format: date-time
           nullable: true
           description: "when it was undone"
-    Pet:
-      required:
-      - name
-      - photoUrls
+    Chore:
       type: object
+      description: "table chores - for the non-native speakers: [a job or piece of work that is often boring or unpleasant but needs to be done regularly](https://dictionary.cambridge.org/dictionary/english/chore) \
+  couldn't the battery handling be merged into this? \
+  maybe look at a calendar implementation to find a proper way to implement the recurring things here - maybe another relation is needed for the repetitions - so one chore can be repeated multiple times at different intervals. maybe we could just use some calendar implementation? \
+  so my calendar implementation is as follows: \
+  repetition_type: never, day, week, month, year \
+  repetition_amount: number of that when to repeat \
+  for week: weekday \
+  for month: day of month or (first/.../last/second-last weekday) but this is probably overkill \
+  for year: month and (first/.../last/second-last weekday) of that month"
       properties:
         id:
           type: integer
-          format: int64
-        category:
-          $ref: '#/components/schemas/Category'
+          description: primary key
         name:
           type: string
-          example: doggie
-        photoUrls:
-          type: array
-          xml:
-            name: photoUrl
-            wrapped: true
-          items:
-            type: string
-        tags:
-          type: array
-          xml:
-            name: tag
-            wrapped: true
-          items:
-            $ref: '#/components/schemas/Tag'
-        status:
+          description: "unique improvements: really needs to be unique?"
+        description:
           type: string
-          description: pet status in the store
+          nullable: true
+        period_type:
+          type: string
+          description: https://github.com/mistressofjellyfish/not-grocy/blob/vuejs/php/Services/ChoresService.php#L12
           enum:
-          - available
-          - pending
-          - sold
-      xml:
-        name: Pet
-    ApiResponse:
-      type: object
-      properties:
-        code:
+          - manually
+          - dynamic-regular
+          - daily
+          - weekly
+          - monthly
+          - yearly
+        period_days:
           type: integer
-          format: int32
-        type:
+          description: relation to period_type not exactly understood yet
+        row_created_timestamp:
           type: string
-        message:
+          format: date-time
+          nullable: true
+          default: now
+        period_config:
           type: string
+          nullable: true
+          description: "probably: comma separated list of weekdays if period_type == weekly"
+        track_date_only:
+          type: boolean
+          description: "whether to only track the date but not the time - improvements: Is this even needed?"
+        rollover:
+          type: boolean
+          description: "- New option \"Due date rollover\" per chore which means the chore can never be overdue, the due date will shift forward each day when due - improvements: Is this really needed? What's the intention? (I really wanna know - is it like mow the lawn, well we can just ignore that nobody cares)"
+        assignment_type:
+          type: string
+          nullable: true
+          description: "decides who's next doing this chore
+random means a random user of the assigned users is chosen
+
+no-assignment means nobody gets assigned
+
+in-alphabetical-order means the next one in the list of assigned users is chosen based on alphabetical order of the names.
+
+who-least-did-first spies the history and gets the person who did it the least times in total past history. details in view chores_execution_users_statistics
+
+https://github.com/mistressofjellyfish/not-grocy/blob/vuejs/php/Services/ChoresService.php#L7 - improvements: for in-alphabetical-order why not simply choose the next one in the list, so not alphabetical (maybe for \"determinism\"?)
+
+for who-least-did-first - this probably doesn't work if you get added later"
+          enum:
+            - in-alphabetical-order
+            - no-assignment
+            - random
+            - who-least-did-first
+          
   securitySchemes:
     petstore_auth:
       type: oauth2
