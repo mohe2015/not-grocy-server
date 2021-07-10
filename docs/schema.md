@@ -751,11 +751,6 @@ this seems to be the actual list of the users
 |username  |text unique        |||
 |first_name|text?
 |last_name |text?
-|password  |text               ||rename to password_hash and also check that it is one (I'm pretty sure it is right now)
-
-### improvements
-
-
-## row_created_timestamp
-
-## picture_file_name
+|password  |text               ||
+|row_created_timestamp|
+|picture_file_name    |
