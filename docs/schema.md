@@ -23,7 +23,7 @@ primary key
 
 ### improvements
 
-remove and make api_key the primary key
+~~remove and make api_key the primary key~~ probably joins are to inefficient then especially as sqlite doesn't have custom datatypes like uuids
 
 ## api_key
 
@@ -745,19 +745,16 @@ probably foreign key userentities(id)
 
 this seems to be the actual list of the users
 
-## id
-
-## username
-
-## first_name
-
-## last_name
-
-## password
+|column    |type               |description|improvements|
+|----------|-------------------|-----------|------------|
+|id        |integer primary key|||
+|username  |text unique        |||
+|first_name|text?
+|last_name |text?
+|password  |text               ||rename to password_hash and also check that it is one (I'm pretty sure it is right now)
 
 ### improvements
 
-rename to password_hash and also check that it is one (I'm pretty sure it is right now)
 
 ## row_created_timestamp
 
