@@ -129,16 +129,34 @@ could possibly be unified with the permission system of users - so an api key is
         active:
           type: boolean
           description: "whether the battery is still in use"
-    Tag:
+    BatteryChargeCycle:
       type: object
+      description: "table battery_charge_cycles"
       properties:
         id:
           type: integer
-          format: int64
-        name:
+          description: "primary key"
+        battery_id:
           type: string
-      xml:
-        name: Tag
+          description: "the battery this charge cycle belongs to improvements: should be type integer and foreign key battery(id)"
+        tracked_time:
+          type: string
+          format: date-time
+          nullable: true
+          description: "the time at which you charged the battery improvements: non-null"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          default: now
+          description: "improvements: non-null (probably also for the others)."
+        undone:
+          type: boolean
+          description: "whether this charge cycle was undone improvements: think about merging into undone_timestamp and use null instead? / use no timestamp?"
+        undone_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          description: "when it was undone"
     Pet:
       required:
       - name

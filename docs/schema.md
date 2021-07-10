@@ -10,56 +10,6 @@ for types question mark means can be null.
 
 all tinyints to booleans (for postgres)
 
-# battery_charge_cycles
-
-## id
-
-type: integer primary key
-
-## battery_id
-
-type: text (wtf)
-
-the battery this charge cycle belongs to
-
-### improvements
-
-should be type integer and foreign key battery(id)
-
-## tracked_time
-
-type: datetime?
-
-the time at which you charged the battery
-
-### improvements
-
-non-null.
-
-## row_created_timestamp
-
-type: datetime? default now
-
-### improvements
-
-non-null (probably also for the others).
-
-## undone
-
-type: tinyint (bool)
-
-whether this charge cycle was undone
-
-### improvements
-
-think about merging into undone_timestamp and use null instead? / use no timestamp?
-
-## undone_timestamp
-
-type: datetime?
-
-when it was undone
-
 # chores
 
 for the non-native speakers: [a job or piece of work that is often boring or unpleasant but needs to be done regularly](https://dictionary.cambridge.org/dictionary/english/chore)
