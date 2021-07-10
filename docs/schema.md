@@ -8,61 +8,7 @@ also that many tables have the table and a logging table
 
 for types question mark means can be null.
 
-# batteries
-
-## id
-
-type: integer
-
-primary key
-
-## name
-
-type: text
-
-unique
-
-the name of the battery
-
-### improvements
-
-not sure if uniqueness needs to be enforced - should not matter
-
-## description
-
-type: text?
-
-the description of the battery
-
-## used_in
-
-type: text?
-
-where the battery is used in
-
-## charge_interval_days
-
-type: integer default 0
-
-the interval you want to charge the battery at in days
-
-### improvements
-
-depending on what 0 is supposed to mean maybe use null? As in I want this battery tracked when I charge it but I don't have a specific charge cycle.
-
-## row_created_timestamp
-
-type: datetime default now
-
-## active
-
-type: tinyint
-
-whether the battery is still in use
-
-### improvements
-
-probably an sqlite thing but is a bool
+all tinyints to booleans (for postgres)
 
 # battery_charge_cycles
 
