@@ -84,30 +84,6 @@ foreign key of user(id)
 
 # user_settings
 
-# userentities
-
-userentities are in the master data
-
-they are shown in the navigation as an entry
-
-as far as I understand them they're just custom tables
-
-they reference multiple user fields
-
-## id
-
-## name
-
-## caption
-
-## description
-
-## show_in_sidebar_menu
-
-## icon_css_class
-
-## row_created_timestamp
-
 # userfield_values
 
 this probably contains the values of these custom tables

@@ -256,7 +256,7 @@ it seems like undo doesn't undo this? - improvements: foreign key to users"
         active:
           type: boolean
           description: "whether this chore is active"
-    ChoresLogEntry:
+    ChoreLogEntry:
       type: object
       description: "table chores_log"
       properties:
@@ -411,6 +411,36 @@ https://github.com/mistressofjellyfish/not-grocy/blob/246c7fcb64d63caf1a4a1e8daf
           description: "the parent of this permission or null improvements: foreign key to permission_hierarchy(id)
 
 from the permissions in the table this seems to be not super worth it although creating an admin is significantly easier in this way"
+    CustomEntity:
+      description: "table userentities userentities are in the master data
+
+they are shown in the navigation as an entry
+
+as far as I understand them they're just custom tables
+
+they reference multiple user fields"
+      properties:
+        id:
+          type: integer
+          description: unique
+        name:
+          type: string
+        caption:
+          type: string
+        description:
+          type: string
+          nullable: true
+        show_in_sidebar_menu:
+          type: boolean
+          description: "whether to show this entity in the sidebar / navbar"
+        icon_css_class:
+          type: string
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
   securitySchemes:
     api_key:
       type: apiKey
