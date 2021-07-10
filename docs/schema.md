@@ -12,69 +12,7 @@ all tinyints to booleans (for postgres)
 
 enums in postgres
 
-# chores
-
-## assignment_config
-
-type: text?
-
-comma-separated list of user_id's that can potentially be assigned to this chore.
-
-It seems like null doesn't mean everybody but doesn't work
-
-who-least-did-first seems to not support this.
-
-## next_execution_assigned_to_user_id
-
-type: int?
-
-the person who has to do this next
-
-it seems like undo doesn't undo this?
-
-## consume_product_on_execution
-
-type: tinyint / bool (maybe some bools are nullable - then also fix that)
-
-wether to consume a product on executing this chore
-
-### improvements
-
-merge into product_id - it being null means false
-
-## product_id
-
-type: tinyint (why tinyint?!?!?)
-
-the product to consume on execution
-
-### improvements
-
-foreign key to products(id)
-
-## product_amount
-
-type: real
-
-the amount of the product to consume on execution
-
-### improvements
-
-real is an interesting choice (is there not a "quantum" unit for everything?)
-
-## period_interval
-
-type: integer > 0 default 1
-
-the amount of period_type
-
-what is period_days then? look at https://github.com/mistressofjellyfish/not-grocy/blob/1f1c13dda13ec2a41c047bd16a078315ac9a97a5/js/viewjs/choreform.js and all the views to find out
-
-## active
-
-type: tinyint (bool)
-
-whether this chore is active
+bool (maybe some bools are nullable - then also fix that)
 
 # chores_log
 

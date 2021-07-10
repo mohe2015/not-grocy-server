@@ -167,7 +167,7 @@ could possibly be unified with the permission system of users - so an api key is
   repetition_amount: number of that when to repeat \
   for week: weekday \
   for month: day of month or (first/.../last/second-last weekday) but this is probably overkill \
-  for year: month and (first/.../last/second-last weekday) of that month"
+  for year: month and (first/last/second-last weekday) of that month"
       properties:
         id:
           type: integer
@@ -180,7 +180,7 @@ could possibly be unified with the permission system of users - so an api key is
           nullable: true
         period_type:
           type: string
-          description: https://github.com/mistressofjellyfish/not-grocy/blob/vuejs/php/Services/ChoresService.php#L12
+          description: "https://github.com/mistressofjellyfish/not-grocy/blob/vuejs/php/Services/ChoresService.php#L12"
           enum:
           - manually
           - dynamic-regular
@@ -205,7 +205,7 @@ could possibly be unified with the permission system of users - so an api key is
           description: "whether to only track the date but not the time - improvements: Is this even needed?"
         rollover:
           type: boolean
-          description: "- New option \"Due date rollover\" per chore which means the chore can never be overdue, the due date will shift forward each day when due - improvements: Is this really needed? What's the intention? (I really wanna know - is it like mow the lawn, well we can just ignore that nobody cares)"
+          description: "New option \"Due date rollover\" per chore which means the chore can never be overdue, the due date will shift forward each day when due - improvements: Is this really needed? What's the intention? (I really wanna know - is it like mow the lawn, well we can just ignore that nobody cares)"
         assignment_type:
           type: string
           nullable: true
@@ -226,16 +226,37 @@ for who-least-did-first - this probably doesn't work if you get added later"
             - no-assignment
             - random
             - who-least-did-first
-          
+        assignment_config:
+          type: string
+          nullable: true
+          description: "comma-separated list of user_id's that can potentially be assigned to this chore.
+
+It seems like null doesn't mean everybody but doesn't work
+
+who-least-did-first seems to not support this."
+        next_execution_assigned_to_user_id:
+          type: integer
+          nullable: true
+          description: "the person who has to do this next
+it seems like undo doesn't undo this? - improvements: foreign key to users"
+        consume_product_on_execution:
+          type: boolean
+          description: "whether to consume a product on executing this chore improvements: merge into product_id - it being null means false"
+        product_id:
+          type: integer
+          description: "the product to consume on execution - improvements: tinyint -> integer, foreign key to products(id)"
+        product_amount:
+          type: number
+          description: "the amount of the product to consume on execution - improvements: real is an interesting choice (is there not a \"quantum\" unit for everything?)"
+        period_interval:
+          type: integer
+          minimum: 1
+          default: 1
+          description: "the amount of period_type - what is period_days then? look at https://github.com/mistressofjellyfish/not-grocy/blob/1f1c13dda13ec2a41c047bd16a078315ac9a97a5/js/viewjs/choreform.js and all the views to find out"
+        active:
+          type: boolean
+          description: "whether this chore is active"
   securitySchemes:
-    petstore_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: http://petstore.swagger.io/oauth/dialog
-          scopes:
-            write:pets: modify pets in your account
-            read:pets: read your pets
     api_key:
       type: apiKey
       name: api_key
