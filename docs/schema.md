@@ -10,28 +10,6 @@ for types question mark means can be null.
 
 # api_keys
 
-https://github.com/mistressofjellyfish/not-grocy/blob/vuejs/php/Services/ApiKeyService.php
-
-In the current implementation it seems (GetOrCreateApiKey) like they get reused for different users / are not associated with a user. If this actually happens reusing is not a good idea as you can't revoke single api keys from a specific usage then.
-https://github.com/mistressofjellyfish/not-grocy/blob/246c7fcb64d63caf1a4a1e8dafb0308d9fa4264b/php/Controllers/CalendarApiController.php#L57 they're reused for the ical sharing link so you can't revoke access per person you gave the link to. This may not be that important as it's a household management software but still could be better.
-
-## id
-
-type: integer
-
-primary key
-
-### improvements
-
-~~remove and make api_key the primary key~~ probably joins are to inefficient then especially as sqlite doesn't have custom datatypes like uuids
-
-## api_key
-
-type: text
-
-unique
-
-the api key to authenticate with.
 
 ## user_id
 
