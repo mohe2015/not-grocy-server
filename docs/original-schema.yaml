@@ -287,6 +287,61 @@ maybe non-null - somebody must have done it"
           type: string
           format: date-time
           nullable: true
+    Equipment:
+      type: object
+      description: "some equipment mostly to associate it with an instruction manual.
+
+may be unified with something else if descriptions can contain files (in a rich text field)."
+      properties:
+        id:
+          type: integer
+          description: primary key
+        name:
+          type: string
+          description: "unique - improvements: unique really needed?"
+        description:
+          type: string
+          nullable: true
+        instruction_manual_file_name:
+          type: string
+          nullable: true
+          description: "file name of the instruction manual
+
+what exactly does file name mean?"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: primary key
+        name:
+          type: string
+          description: unique
+        description:
+          type: string
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          default: now
+        is_freezer:
+          type: boolean
+          description: "interesting - for what is this used?
+
+I realize - food is complicated.
+
+there are different best before dates depending on from where to where you move the food (I think it should only matter to where you move it)
+
+default_best_before_days_after_freezing
+
+default_best_before_days_after_thawing
+
+still lot's of details missing here"
   securitySchemes:
     api_key:
       type: apiKey
