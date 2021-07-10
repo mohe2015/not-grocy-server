@@ -14,54 +14,6 @@ enums in postgres
 
 bool (maybe some bools are nullable - then also fix that)
 
-# chores_log
-
-## id
-
-type: integer primary key
-
-## chore_id
-
-type: integer
-
-### improvements
-
-foreign key chore(id)
-
-## tracked_time
-
-type: datetime?
-
-time when this was done
-
-### improvements
-
-non-null
-
-## done_by_user_id
-
-type: integer?
-
-who did the chore
-
-### improvements
-
-foreign key user_id
-
-maybe non-null - somebody must have done it
-
-## row_created_timestamp
-
-type: datetime? default now
-
-## undone
-
-type: tinyint (bool)
-
-## undone_timestamp
-
-type: datetime?
-
 # equipment
 
 some equipment mostly to associate it with an instruction manual.

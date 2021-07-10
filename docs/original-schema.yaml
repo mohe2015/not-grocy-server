@@ -256,6 +256,37 @@ it seems like undo doesn't undo this? - improvements: foreign key to users"
         active:
           type: boolean
           description: "whether this chore is active"
+    ChoresLogEntry:
+      type: object
+      description: "table chores_log"
+      properties:
+        id:
+          type: integer
+          description: primary key
+        chore_id:
+          type: integer
+          description: "improvements: foreign key chore(id)"
+        tracked_time:
+          type: string
+          format: date-time
+          nullable: true
+          description: "time when this was done - improvements: non-null"
+        done_by_user_id:
+          type: integer
+          nullable: true
+          description: "who did the chore - improvements: foreign key user_id
+maybe non-null - somebody must have done it"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+        undone:
+          type: boolean
+        undone_timestamp:
+          type: string
+          format: date-time
+          nullable: true
   securitySchemes:
     api_key:
       type: apiKey
