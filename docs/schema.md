@@ -740,17 +740,3 @@ maybe it's something completely different
 probably foreign key userentities(id)
 
 ## row_created_timestamp
-
-# users
-
-this seems to be the actual list of the users
-
-|column    |type               |description|improvements|
-|----------|-------------------|-----------|------------|
-|id        |integer primary key|||
-|username  |text unique        |||
-|first_name|text?
-|last_name |text?
-|password  |text               ||
-|row_created_timestamp|
-|picture_file_name    |

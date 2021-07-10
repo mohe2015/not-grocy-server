@@ -585,14 +585,16 @@ paths:
 components:
   schemas:
     User:
+      description: users table contains list of all users
       type: object
+      required:
+        - username # just a test
       properties:
         id:
           type: integer
           description: primary key
         username:
           type: string
-          format: text
           description: unique
         first_name:
           type: string
@@ -603,15 +605,14 @@ components:
         password:
           type: string
           format: password
-          description: "improvements: rename to password_hash"
+          description: "improvements: rename to password_hash in database"
         row_created_timestamp:
           type: string
           format: date-time
+          nullable: true
         picture_file_name:
           type: string
           nullable: true
-      xml:
-        name: User
     Order:
       type: object
       properties:
