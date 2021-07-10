@@ -342,6 +342,56 @@ default_best_before_days_after_freezing
 default_best_before_days_after_thawing
 
 still lot's of details missing here"
+    Meal:
+      description: "table meal_plan, repetition planning problems seem similar like for chores / batteries but usually a meal plan is per week / different every day"
+      properties:
+        id:
+          type: integer
+          description: primary key
+        day:
+          type: string
+          format: date
+          description: "improvements: rename field to date?"
+        type:
+          type: text
+          nullable: true
+          description: "type of the entry in the meal plan improvements: crazy and probably stupid idea: why is a product not a recipe with no preparation?"
+          enum:
+            - recipe
+            - product
+            - note
+        recipe_id:
+          type: integer
+          nullable: true
+          description: "improvements: foreign key to recipes?"
+        recipe_servings:
+          type: integer
+          nullable: true
+          description: "number of servings of the recipe"
+        note:
+          type: string
+          nullable: true
+          description: "a note (probably only valid when type==note). Generally here are three different types - I know relational databases don't like columns that depend on enums - maybe there is still a better way (e.g (remove type) and allow note always? possibly this is already the case)"
+        product_id:
+          type: integer
+          nullable: true
+          description: "improvements: foreign key to products"
+        product_amount:
+          type: number
+          nullable: true
+          default: 0
+          description: "the amount of the product - interesting that the default here is 0. improvements: merge into recipe_servings?"
+        product_qu_id:
+          type: integer
+          nullable: true
+          description: "probably quantity unit id improvements: rename to a more understandable name
+
+foreign key to quantity_units(id)?"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
   securitySchemes:
     api_key:
       type: apiKey
