@@ -82,6 +82,15 @@ https://github.com/mistressofjellyfish/not-grocy/blob/246c7fcb64d63caf1a4a1e8daf
           format: date-time
           nullable: true
           description: "when the api key expires. By default this is set to a date in 2999. - improvements: could be non-null"
+        last_used:
+          type: string
+          format: date-time
+          nullable: true
+          description: "improvements: usage unknown - could be non-null if we consider creation a use (which is questionable"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
         status:
           type: string
           description: Order Status

@@ -8,61 +8,6 @@ also that many tables have the table and a logging table
 
 for types question mark means can be null.
 
-# api_keys
-
-
-## user_id
-
-type: integer
-
-references a row in users table?
-
-### improvements
-
-make foreign key to users?
-
-## expires
-
-type: datetime?
-
-when the api key expires. By default this is set to a date in 2999.
-
-### improvements
-
-could be non-null
-
-## last_used
-
-type: datetime?
-
-usage unknown
-
-### improvements
-
-could be non-null if we consider creation a use (which is questionable)
-
-## row_created_timestamp
-
-type: datetime? default now
-
-the time this row was created (usage unknown)
-
-### improvements
-
-non-null
-
-## key_type
-
-type: text (one of "default", "special-purpose-calendar-ical")
-
-probably what permissions the api key has
-
-### improvements
-
-possibly type enum if database support exists
-
-could possibly be unified with the permission system of users - so an api key is a (sub)user or whatever. Maybe this may also be too complicated though.
-
 # batteries
 
 ## id
