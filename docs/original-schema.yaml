@@ -574,6 +574,30 @@ they reference multiple user fields"
         note:
           type: string
           nullable: true
+    QuantityUnit:
+      description: "table quantity_units"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        name:
+          type: string
+          description: "unique"
+        description:
+          type: string
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          default: now
+          nullable: true
+        name_plural:
+          type: string
+          nullable: true
+        plural_forms:
+          type: string
+          nullable: true
+          description: "unknown usage"
   securitySchemes:
     api_key:
       type: apiKey

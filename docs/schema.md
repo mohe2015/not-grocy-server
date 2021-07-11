@@ -18,8 +18,6 @@ bool (maybe some bools are nullable - then also fix that)
 
 # quantity_unit_conversions
 
-# quantity_units
-
 # recipes
 
 # recipes_nestings
