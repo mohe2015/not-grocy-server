@@ -598,6 +598,31 @@ they reference multiple user fields"
           type: string
           nullable: true
           description: "unknown usage"
+    QuantityUnitConversion:
+      description: "table quantity_unit_conversions"
+      properties:
+        id:
+          type: integer
+          description: "primary key - improvements: probably not needed"
+        from_qu_id:
+          type: integer
+          description: "the quantity unit to convert from, improvements: foreign key to quantity_units"
+        to_qu_id:
+          type: integer
+          description: "the quantity unit to convert to, improvements: foreign key to quantity_units"
+        factor:
+          type: integer
+          format: real
+          description: "conversion factor how many of the target unit is one of the source unit"
+        product_id:
+          type: integer
+          nullable: true
+          description: "the product this conversion belongs to, improvements: why is this associated with a product?"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          default: now
+          nullable: true
   securitySchemes:
     api_key:
       type: apiKey

@@ -16,8 +16,6 @@ bool (maybe some bools are nullable - then also fix that)
 
 # product_groups
 
-# quantity_unit_conversions
-
 # recipes
 
 # recipes_nestings
