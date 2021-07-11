@@ -539,6 +539,41 @@ they reference multiple user fields"
           type: integer
           default: 0
           description: "unknown"
+    ProductBarcode:
+      description: "table product_barcodes - barcode for a product"
+      properties:
+        id:
+          type: number
+          description: "primary key"
+        product_id:
+          type: number
+          description: "improvements: foreign key to products"
+        barcode:
+          type: string
+        qu_id:
+          type: string
+          nullable: true
+          description: "quantity unit, improvemnts: foreign key to quantity_units, non-null"
+        amount:
+          type: number
+          format: real
+          nullable: true
+          description: "amount of the quantity unit"
+        shopping_location_id:
+          type: integer
+          nullable: true
+          description: "improvements: foreign key to locations"
+        last_price:
+          type: number
+          format: decimal(15, 2)
+        row_created_timestamp:
+          type: string
+          format: date-time
+          default: now
+          nullable: true
+        note:
+          type: string
+          nullable: true
   securitySchemes:
     api_key:
       type: apiKey
