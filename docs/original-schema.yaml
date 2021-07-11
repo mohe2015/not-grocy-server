@@ -441,6 +441,104 @@ they reference multiple user fields"
           format: date-time
           nullable: true
           default: now
+    Product:
+      description: "table products"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        name:
+          type: string
+          description: "unique"
+        description:
+          type: string
+          nullable: true
+        product_group_id:
+          type: integer
+          nullable: true
+          description: "improvements: foreign-key product_groups"
+        active:
+          type: boolean
+          default: true
+        location_id:
+          type: integer
+          description: "improvemetns: foreign-key locations"
+        shopping_location_id:
+          type: integer
+          description: "improvements: foreign-key shopping_locations"
+        qu_id_purchase:
+          type: integer
+          description: "quantity unit for purchase - default unit when adding product to shopping list - improvements: foreignkey to quantity_units"
+        qu_id_stock:
+          type: integer
+          description: "the quantity unit in the stock - can't be changed later. probably this is used to store the amount of things you have in stock - improvements: foreign-key quantity_units"
+        qu_factor_purchase_to_stock:
+          type: integer
+          description: "probably the factor when converting from purchase to stock unit - improvements: why is the quantity_unit_conversions not used? or does this mean something else"
+        min_stock_amount:
+          type: integer
+          default: 0
+        default_best_before_days:
+          type: integer
+          default: 0
+          description: "improvements: maybe use null instead of 0?"
+        default_best_before_days_after_open:
+          type: integer
+          default: 0
+        default_best_before_days_after_freezing:
+          type: integer
+          default: 0
+        default_best_before_days_after_thawing:
+          type: integer
+          default: 0
+        picture_file_name:
+          type: string
+          nullable: true
+        enable_tare_weight_handling:
+          type: boolean
+          description: "This is useful e.g. for flour in jars - on purchase/consume/inventory you always weigh the whole jar, the amount to be posted is then automatically calculated based on what is in stock and the tare weight defined below (probably in  quantity unit stock but why?)"
+        tare_weight:
+          type: number
+          default: 0
+          description: "improvement: merge enable_tare_weight_handling into this? / 0 works as it wouldn't subtract anything"
+        not_check_stock_fulfillment_for_recipes:
+          type: boolean
+          description: "will be used as default when adding to a recipe"
+        parent_product_id:
+          type: integer
+          description: "improvements: usage / use unknown - i imagine you add a product like cookies and then add different cookie types as children?"
+        calories:
+          type: integer
+        cumulate_min_stock_amount_of_sub_products:
+          type: boolean
+          nullable: true
+          description: "improvements: non-null"
+        due_type:
+          type: integer
+          default: best-before-date
+          enum:
+            - FIXME-best-before-date
+            - FIXME-expiration-date
+        quick_consume_amount:
+          type: number
+          format: real
+          default: 1
+        hide_on_stock_overview:
+          type: boolean
+          default: false
+        row_created_timestamp:
+          type: string
+          format: date-time
+          default: now
+          nullable: true
+        default_print_stock_label:
+          type: integer
+          default: 0
+          description: "unknown"
+        allow_label_per_unit:
+          type: integer
+          default: 0
+          description: "unknown"
   securitySchemes:
     api_key:
       type: apiKey
