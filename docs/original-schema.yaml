@@ -661,6 +661,75 @@ they reference multiple user fields"
         user_id:
           type: integer
           description: "improvements: foreign key of user(id)"
+        user:
+          $ref: '#/components/schemas/User'
+    ProductGroup:
+      description: "table product_groups"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        name:
+          type: string
+          description: "unique"
+        description:
+          type: string
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          default: now
+          nullable: true
+    Stock:
+      description: "table stock"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        product_id:
+          type: integer
+          description: "improvements foreign_key product(id)"
+        amount:
+          type: number
+          format: decimal(15, 2)
+          description: "improvements: precision problems"
+        best_before_date:
+          type: string
+          format: date-time
+          nullable: true
+        purchased_date:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+        stock_id:
+          type: string
+          description: "usage unknown, some strange hex-encoded \"random\" identifier"
+        price:
+          type: number
+          format: decimal(15, 2)
+          nullable: true
+          description: "improvements: precision problems"
+        open:
+          type: boolean
+        opened_date:
+          type: string
+          format: date-time
+          nullable: true
+          description: "improvements: merge open into this"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          default: now
+          nullable: true
+        location_id:
+          type: integer
+          nullable: true
+          description: "improvements: foreign_key locations(id)"
+        shopping_location_id:
+          type: integer
+          nullable: true
+          description: "where you bought this - improvements: foreign_key shopping_locations(id)"
   securitySchemes:
     api_key:
       type: apiKey

@@ -14,8 +14,6 @@ enums in postgres
 
 bool (maybe some bools are nullable - then also fix that)
 
-# product_groups
-
 # recipes
 
 # recipes_nestings
