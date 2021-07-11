@@ -22,22 +22,6 @@ bool (maybe some bools are nullable - then also fix that)
 
 # recipes_pos
 
-# sessions
-
-these are the active sessions of the users
-
-## id
-
-## session_key
-
-## user_id
-
-## expires
-
-## last_used
-
-## row_created_timestamp
-
 # shopping_list
 
 # shopping_lists
@@ -51,28 +35,6 @@ these are the active sessions of the users
 # task_categories
 
 # tasks
-
-# user_permissions
-
-the permissions of a user
-
-## id
-
-### improvements
-
-remove? and make the other two fields composed primary key
-
-## permissions_id
-
-### improvements
-
-foreign key of permission_hierarchy(id)
-
-## user_id
-
-### improvements
-
-foreign key of user(id)
 
 # user_settings
 

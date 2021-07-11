@@ -623,6 +623,44 @@ they reference multiple user fields"
           format: date-time
           default: now
           nullable: true
+    Session:
+      description: "these are the active sessions of the users"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        session_key:
+          type: string
+          description: "unique"
+        user_id:
+          type: integer
+          description: "improvements: foreign key to users"
+        expires:
+          type: string
+          format: date-time
+          nullable: true
+          description: "when this session becomes invalid"
+        last_used:
+          type: string
+          format: date-time
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+    UserPermission:
+      description: the permissions of a user
+      properties:
+        id:
+          type: integer
+          description: "primary key, improvements: remove? and make the other two fields composed primary key"
+        permissions_id:
+          type: integer
+          description: "improvements: foreign key of permission_hierarchy(id)"
+        user_id:
+          type: integer
+          description: "improvements: foreign key of user(id)"
   securitySchemes:
     api_key:
       type: apiKey
