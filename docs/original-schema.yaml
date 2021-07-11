@@ -730,6 +730,91 @@ they reference multiple user fields"
           type: integer
           nullable: true
           description: "where you bought this - improvements: foreign_key shopping_locations(id)"
+    StockLogEntry:
+      description: "table stock_log"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        product_id:
+          type: integer
+          description: "improvements: foreign_key products(id)"
+        amount:
+          type: number
+          format: decimal(15,2)
+        best_before_date:
+          type: string
+          format: date-time
+          nullable: true
+        purchased_date:
+          type: string
+          format: date-time
+          nullable: true
+        used_date:
+          type: string
+          format: date-time
+          nullable: true
+        spoiled:
+          type: boolean
+          default: false
+        stock_id:
+          type: string
+          description: "usage unknown, some strange hex-encoded \"random\" identifier, also used in stock table"
+        transaction_type:
+          type: string
+          enum:
+            - purchase
+            - product-opened
+            - consume
+            - TODO-probably-some-missing
+        price:
+          type: number
+          format: decimal(15, 2)
+        undone:
+          type: boolean
+          default: false
+        undone_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          description: "improvements: merge undone into this"
+        opened_date:
+          type: string
+          format: date-time
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+        location_id:
+          type: integer
+          nullable: true
+          description: "improvements: foreign_key locations(id)"
+        recipe_id:
+          type: integer
+          nullable: true
+          description: "improvements: foreign-key recipe(id)"
+        correlation_id:
+          type: string
+          nullable: true
+          description: "usage unknown"
+        transaction_id:
+          type: string
+          nullable: true
+          description: "usage unknown, some strange hex-encoded \"random\" identifier"
+        stock_row_id:
+          type: integer
+          nullable: true
+          description: "usage unknown"
+        shopping_location_id:
+          type: integer
+          nullable: true
+          description: "where you bought this - improvements: foreign-key shopping_location(id)"
+        user_id:
+          type: integer
+          default: 1
+          description: "improvements: why default? foreign-key users(id)"
   securitySchemes:
     api_key:
       type: apiKey
