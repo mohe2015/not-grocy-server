@@ -12,13 +12,13 @@ externalDocs:
   description: Documentation
   url: https://github.com/mohe2015/not-grocy-server/tree/schema-doc/docs
 servers:
-- url: https://example.org/v1
+- url: https://editor.swagger.io/
 tags:
 - name: users
   description: Everything about your users
   externalDocs:
     description: Find out more
-    url: https://example.org
+    url: https://editor.swagger.io/
 paths:
   /user/logout:
     get:
@@ -815,6 +815,81 @@ they reference multiple user fields"
           type: integer
           default: 1
           description: "improvements: why default? foreign-key users(id)"
+    UserSetting:
+      description: "table user_settings"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        user_id:
+          type: integer
+          description: "improvements: foreign key users"
+        key:
+          type: string
+        value:
+          type: string
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          default: now
+          nullable: true
+        row_updated_timestamp:
+          type: string
+          format: date-time
+          default: now
+          nullable: true
+    Task:
+      description: "table tasks"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        due_date:
+          type: string
+          format: date-time
+          nullable: true
+        done:
+          type: boolean
+        done_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+        category_id:
+          type: integer
+          nullable: true
+          description: "foreign_key tasks_categories"
+        assigned_to_user_id:
+          type: integer
+          nullable: true
+          description: "foreign-key to users"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+    TaskCategory:
+      description: "table task_categories"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        name:
+          type: string
+          description: "unique - improvements: maybe not needed (uses index which needs storage and is slow to update)"
+        description:
+          type: string
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
   securitySchemes:
     api_key:
       type: apiKey

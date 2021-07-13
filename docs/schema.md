@@ -26,16 +26,6 @@ bool (maybe some bools are nullable - then also fix that)
 
 # shopping_locations
 
-# stock
-
-# stock_log
-
-# task_categories
-
-# tasks
-
-# user_settings
-
 # userfield_values
 
 this probably contains the values of these custom tables
