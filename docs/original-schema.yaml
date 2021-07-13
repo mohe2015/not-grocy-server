@@ -890,6 +890,118 @@ they reference multiple user fields"
           format: date-time
           nullable: true
           default: now
+    Recipe:
+      description: "table recipes"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+        picture_file_name:
+          type: string
+          nullable: true
+        base_servings:
+          type: integer
+          default: 1
+          nullable: true
+          description: "improvements: don't know what this is - probably non-null?"
+        desired_servings:
+          type: integer
+          default: 1
+          nullable: true
+          description: "improvements: don't know what this is - probably non-null?"
+        not_check_shoppinglist:
+          type: boolean
+          default: false
+        type:
+          type: string
+          nullable: true
+          default: normal
+          enum:
+            - normal
+            - TODO_FIXME_MISSING
+        product_id:
+          type: integer
+          nullable: true
+          description: "Improvements: foreign-key products - non-null"
+    NestedRecipe:
+      description: "table recipes_nestings"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        recipe_id:
+          type: integer
+          description: "improvements: foreign-key recipes"
+        includes_recipe_id:
+          type: integer
+          description: "improvements: foreign-key recipes - exact usage unknown"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+        servings:
+          type: integer
+          nullable: true
+          default: 1
+    RecipePosition:
+      description: "table recipes_pos"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        recipe_id:
+          type: integer
+          description: "improvements: foreign-key recipes"
+        product_id:
+          type: integer
+          nullable: true
+          description: "improvements: foreign-key products"
+        amount:
+          type: number
+          format: real
+          default: 0
+        note:
+          type: string
+          nullable: true
+        qu_id:
+          type: integer
+          nullable: true
+          description: "improvements: non-null, foreign-key quantity_units"
+        only_check_single_unit_in_stock:
+          type: boolean
+          description: "unkown usage"
+        ingredient_group:
+          type: string
+          nullable: true
+          description: "usage and possible values unknown"
+        not_check_stock_fulfillment:
+          type: boolean
+          default: false
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+        variable_amount:
+          type: string
+          nullable: true
+          description: "improvements: non-null, values unknown"
+        price_factor:
+          type: number
+          format: real
+          default: 1
+          description: "meaning unknown"
   securitySchemes:
     api_key:
       type: apiKey
