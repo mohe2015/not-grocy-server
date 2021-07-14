@@ -14,11 +14,8 @@ enums in postgres
 
 bool (maybe some bools are nullable - then also fix that)
 
-# shopping_list
 
-# shopping_lists
 
-# shopping_locations
 
 # userfield_values
 
@@ -33,6 +30,11 @@ this probably contains the values of these custom tables
 ## value
 
 ## row_created_timestamp
+
+
+
+
+
 
 # userfields
 
@@ -59,6 +61,11 @@ this is probably the foreign key userentities(id)
 ## config
 
 ## sort_number
+
+
+
+
+
 
 # userobjects
 

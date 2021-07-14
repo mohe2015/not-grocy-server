@@ -1002,6 +1002,74 @@ they reference multiple user fields"
           format: real
           default: 1
           description: "meaning unknown"
+    ShoppingLocation:
+      description: "table shopping_locations"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        name:
+          type: string
+          description: "improvements: unique really needed?"
+        description:
+          type: string
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+    ShoppingList:
+      description: "table shopping_lists"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        name:
+          type: string
+          description: "improvements: unique really needed?"
+        description:
+          type: string
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+    ShoppingListEntry:
+      description: "table shopping_list"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        product_id:
+          type: integer
+          nullable: true
+          description: "improvements: foreign-key products"
+        note:
+          type: string
+          nullable: true
+        amount:
+          type: number
+          format: decimal(15, 2)
+          default: 0
+          description: "improvements why default 0?"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+        shopping_list_id:
+          type: integer
+          default: 1
+          nullable: true
+          description: "improvements: why nullable, why default 1, foreign-key to shopping_lists"
+        done:
+          type: boolean
+          default: false
+        qu_id:
+          type: integer
+          description: "quantity unit, improvements: foreign-key to quantity_units"
   securitySchemes:
     api_key:
       type: apiKey
