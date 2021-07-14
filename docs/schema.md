@@ -14,59 +14,6 @@ enums in postgres
 
 bool (maybe some bools are nullable - then also fix that)
 
-
-
-
-# userfield_values
-
-this probably contains the values of these custom tables
-
-## id
-
-## field_id
-
-## object_id
-
-## value
-
-## row_created_timestamp
-
-
-
-
-
-
-# userfields
-
-this is probably the list of columns for a user entity
-
-## id
-
-## entity
-
-## name
-
-## caption
-
-## type
-
-## show_as_column_in_tables
-
-### improvements
-
-this is probably the foreign key userentities(id)
-
-## row_created_timestamp
-
-## config
-
-## sort_number
-
-
-
-
-
-
 # userobjects
 
 where is this in the hierarchy?
@@ -74,6 +21,8 @@ where is this in the hierarchy?
 don't understand where userobjects and userfields belongs
 
 maybe it's something completely different
+
+maybe to add additional fields to the other things
 
 ## id
 

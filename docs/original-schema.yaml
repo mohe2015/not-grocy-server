@@ -1070,6 +1070,58 @@ they reference multiple user fields"
         qu_id:
           type: integer
           description: "quantity unit, improvements: foreign-key to quantity_units"
+    CustomEntityColumn:
+      description: "table userfields"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        entity:
+          type: string
+          description: "string name of the entity, TODO understand if referenced anywhere, seems to be not needed - please tell me this is not used to reference the entity"
+        name:
+          type: string
+        caption:
+          type: string
+        type:
+          type: string
+          enum:
+            - text-single-line
+            - TODO-MISSING
+        show_as_column_in_table:
+          type: boolean
+          description: "MAYBE whether to show this in the table"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+        config:
+          type: string
+          nullable: true
+          description: "usage unknown"
+        sort_number:
+          type: integer
+          nullable: true
+    CustomEntityCellValue:
+      description: "table userfield_values"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        field_id:
+          type: integer
+          description: "improvements: probably foreign-key userfields, maybe make this a primary key with object_id"
+        object_id:
+          type: integer
+          description: "probably the row (maybe directly the id)"
+        value:
+          type: string
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
   securitySchemes:
     api_key:
       type: apiKey
