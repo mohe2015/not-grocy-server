@@ -7,8 +7,6 @@ use crate::models::*;
 use actix_web::{get, web, HttpResponse};
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
-use diesel::sqlite::SqliteConnection;
-type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
 use r2d2::PooledConnection;
 use serde::{Deserialize, Serialize};
 
@@ -30,8 +28,8 @@ impl fmt::Display for DieselError {
 
 impl actix_web::error::ResponseError for DieselError {}
 
-fn action_stock_overview(
-    connection: PooledConnection<ConnectionManager<SqliteConnection>>,
+fn action_stock_overview<T: Connection + 'static>(
+    connection: PooledConnection<ConnectionManager<T>>,
 ) -> QueryResult<StockOverviewResponse> {
     use crate::schema::stock::dsl::*;
     Ok(StockOverviewResponse {
@@ -52,8 +50,7 @@ impl fmt::Display for R2D2Error {
 impl actix_web::error::ResponseError for R2D2Error {}
 
 // https://github.com/mistressofjellyfish/not-grocy/blob/ddc2dad07ec26f854cca78bbdbec92b2213ad235/php/Controllers/StockApiController.php#L332
-#[get("/api/stock/overview")]
-pub async fn index(pool: web::Data<DbPool>) -> actix_web::Result<HttpResponse> {
+pub async fn index<T: Connection + 'static>(pool: web::Data<r2d2::Pool<ConnectionManager<T>>>) -> actix_web::Result<HttpResponse> {
     let connection = pool.get().map_err(R2D2Error)?;
     Ok(HttpResponse::Ok()
         .json(web::block(move || action_stock_overview(connection).map_err(DieselError)).await?))

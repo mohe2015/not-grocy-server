@@ -17,6 +17,7 @@
 
             buildInputs = [
                 pkgs.sqlite
+                pkgs.postgresql
             ];
           };
         }
