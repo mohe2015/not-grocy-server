@@ -285,11 +285,11 @@ table! {
     stock (id) {
         id -> Integer,
         product_id -> Integer,
-        amount -> Double,
+        //amount -> Double,
         best_before_date -> Nullable<Date>,
         purchased_date -> Nullable<Date>,
         stock_id -> Text,
-        price -> Nullable<Double>,
+        //price -> Nullable<Double>,
         open -> Bool,
         row_created_timestamp -> Nullable<Timestamp>,
         location_id -> Nullable<Integer>,

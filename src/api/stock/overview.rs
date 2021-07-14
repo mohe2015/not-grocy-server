@@ -37,12 +37,13 @@ impl fmt::Display for DieselError {
 impl actix_web::error::ResponseError for DieselError {}
 
 // https://stackoverflow.com/questions/62746540/diesel-with-custom-wrapper-types
-fn action_stock_overview<T>(
+fn action_stock_overview<T, U>(
     connection: PooledConnection<ConnectionManager<T>>,
 ) -> QueryResult<StockOverviewResponse>
 where
+    U: ?Sized + 'static,
     T: Connection<TransactionManager = AnsiTransactionManager> + 'static,
-    T::Backend: Backend<RawValue=[u8]>,
+    T::Backend: Backend<RawValue = U>,
     NaiveDate: FromSql<diesel::sql_types::Date, <T as diesel::Connection>::Backend>,
     <T as diesel::Connection>::Backend: HasSqlType<diesel::sql_types::Bool>,
     <T as diesel::Connection>::Backend: UsesAnsiSavepointSyntax,
@@ -69,12 +70,13 @@ impl fmt::Display for R2D2Error {
 impl actix_web::error::ResponseError for R2D2Error {}
 
 // https://github.com/mistressofjellyfish/not-grocy/blob/ddc2dad07ec26f854cca78bbdbec92b2213ad235/php/Controllers/StockApiController.php#L332
-pub async fn index<T>(
+pub async fn index<T, U>(
     pool: web::Data<r2d2::Pool<ConnectionManager<T>>>,
 ) -> actix_web::Result<HttpResponse>
 where
+    U: ?Sized + 'static,
     T: Connection<TransactionManager = AnsiTransactionManager> + 'static,
-    T::Backend: Backend<RawValue=[u8]>,
+    T::Backend: Backend<RawValue = U>,
     NaiveDate: FromSql<diesel::sql_types::Date, <T as diesel::Connection>::Backend>,
     <T as diesel::Connection>::Backend: HasSqlType<diesel::sql_types::Bool>,
     <T as diesel::Connection>::Backend: UsesAnsiSavepointSyntax,
