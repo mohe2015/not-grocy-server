@@ -1,0 +1,1129 @@
+openapi: 3.0.1
+info:
+  title: not-grocy
+  description: ''
+  contact:
+    email: Moritz.Hedtke@t-online.de
+  license:
+    name: MIT
+    url: https://mit-license.org/
+  version: 0.0.1
+externalDocs:
+  description: Documentation
+  url: https://github.com/mohe2015/not-grocy-server/tree/schema-doc/docs
+servers:
+- url: https://editor.swagger.io/
+tags:
+- name: users
+  description: Everything about your users
+  externalDocs:
+    description: Find out more
+    url: https://editor.swagger.io/
+paths:
+  /user/logout:
+    get:
+      tags:
+      - user
+      summary: Logs out current logged in user session
+      operationId: logoutUser
+      responses:
+        default:
+          description: successful operation
+          content: {}
+components:
+  schemas:
+    User:
+      type: object
+      description: users table contains list of all users
+      required:
+        - username # just a test
+      properties:
+        id:
+          type: integer
+          description: primary key
+        username:
+          type: string
+          description: unique
+        first_name:
+          type: string
+          nullable: true
+        last_name:
+          type: string
+          nullable: true
+        password:
+          type: string
+          format: password
+          description: "improvements: rename to password_hash in database"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+        picture_file_name:
+          type: string
+          nullable: true
+    ApiKey:
+      type: object
+      description: "https://github.com/mistressofjellyfish/not-grocy/blob/vuejs/php/Services/ApiKeyService.php
+
+In the current implementation it seems (GetOrCreateApiKey) like they get reused for different users / are not associated with a user. If this actually happens reusing is not a good idea as you can't revoke single api keys from a specific usage then.
+https://github.com/mistressofjellyfish/not-grocy/blob/246c7fcb64d63caf1a4a1e8dafb0308d9fa4264b/php/Controllers/CalendarApiController.php#L57 they're reused for the ical sharing link so you can't revoke access per person you gave the link to. This may not be that important as it's a household management software but still could be better."
+      properties:
+        id:
+          type: integer
+          description: "primary key - improvements: ~~remove and make api_key the primary key~~ probably joins are to inefficient then especially as sqlite doesn't have custom datatypes like uuids"
+        api_key:
+          type: string
+          description: unique - the api key to authenticate with.
+        user_id:
+          type: integer
+          description: "references a row in users table? - improvements: make foreign key to users?"
+        expires:
+          type: string
+          format: date-time
+          nullable: true
+          description: "when the api key expires. By default this is set to a date in 2999. - improvements: could be non-null"
+        last_used:
+          type: string
+          format: date-time
+          nullable: true
+          description: "improvements: usage unknown - could be non-null if we consider creation a use (which is questionable"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+          description: "the time this row was created (usage unknown) - improvements: non-null"
+        key_type:
+          type: string
+          description: "probably what permissions the api key has - improvements: possibly type enum if database support exists
+
+could possibly be unified with the permission system of users - so an api key is a (sub)user or whatever. Maybe this may also be too complicated though."
+          enum:
+          - default
+          - special-purpose-calendar-ical
+    Battery:
+      type: object
+      description: table batteries
+      properties:
+        id:
+          type: integer
+          description: primary key
+        name:
+          type: string
+          description: "unique - not sure if uniqueness needs to be enforced - should not matter"
+        description:
+          type: string
+          nullable: true
+        used_in:
+          type: string
+          nullable: true
+          description: where the battery is used in
+        charge_interval_days:
+          type: number
+          default: 0
+          description: "the interval you want to charge the battery at in days - improvements: depending on what 0 is supposed to mean maybe use null? As in I want this battery tracked when I charge it but I don't have a specific charge cycle."
+        row_created_timestamp:
+          type: string
+          format: date-time
+          default: now
+        active:
+          type: boolean
+          description: "whether the battery is still in use"
+    BatteryChargeCycle:
+      type: object
+      description: "table battery_charge_cycles"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        battery_id:
+          type: string
+          description: "the battery this charge cycle belongs to improvements: should be type integer and foreign key battery(id)"
+        tracked_time:
+          type: string
+          format: date-time
+          nullable: true
+          description: "the time at which you charged the battery improvements: non-null"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          default: now
+          description: "improvements: non-null (probably also for the others)."
+        undone:
+          type: boolean
+          description: "whether this charge cycle was undone improvements: think about merging into undone_timestamp and use null instead? / use no timestamp?"
+        undone_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          description: "when it was undone"
+    Chore:
+      type: object
+      description: "table chores - for the non-native speakers: [a job or piece of work that is often boring or unpleasant but needs to be done regularly](https://dictionary.cambridge.org/dictionary/english/chore) \
+  couldn't the battery handling be merged into this? \
+  maybe look at a calendar implementation to find a proper way to implement the recurring things here - maybe another relation is needed for the repetitions - so one chore can be repeated multiple times at different intervals. maybe we could just use some calendar implementation? \
+  so my calendar implementation is as follows: \
+  repetition_type: never, day, week, month, year \
+  repetition_amount: number of that when to repeat \
+  for week: weekday \
+  for month: day of month or (first/.../last/second-last weekday) but this is probably overkill \
+  for year: month and (first/last/second-last weekday) of that month"
+      properties:
+        id:
+          type: integer
+          description: primary key
+        name:
+          type: string
+          description: "unique improvements: really needs to be unique?"
+        description:
+          type: string
+          nullable: true
+        period_type:
+          type: string
+          description: "https://github.com/mistressofjellyfish/not-grocy/blob/vuejs/php/Services/ChoresService.php#L12"
+          enum:
+          - manually
+          - dynamic-regular
+          - daily
+          - weekly
+          - monthly
+          - yearly
+        period_days:
+          type: integer
+          description: relation to period_type not exactly understood yet
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+        period_config:
+          type: string
+          nullable: true
+          description: "probably: comma separated list of weekdays if period_type == weekly"
+        track_date_only:
+          type: boolean
+          description: "whether to only track the date but not the time - improvements: Is this even needed?"
+        rollover:
+          type: boolean
+          description: "New option \"Due date rollover\" per chore which means the chore can never be overdue, the due date will shift forward each day when due - improvements: Is this really needed? What's the intention? (I really wanna know - is it like mow the lawn, well we can just ignore that nobody cares)"
+        assignment_type:
+          type: string
+          nullable: true
+          description: "decides who's next doing this chore
+random means a random user of the assigned users is chosen
+
+no-assignment means nobody gets assigned
+
+in-alphabetical-order means the next one in the list of assigned users is chosen based on alphabetical order of the names.
+
+who-least-did-first spies the history and gets the person who did it the least times in total past history. details in view chores_execution_users_statistics
+
+https://github.com/mistressofjellyfish/not-grocy/blob/vuejs/php/Services/ChoresService.php#L7 - improvements: for in-alphabetical-order why not simply choose the next one in the list, so not alphabetical (maybe for \"determinism\"?)
+
+for who-least-did-first - this probably doesn't work if you get added later"
+          enum:
+            - in-alphabetical-order
+            - no-assignment
+            - random
+            - who-least-did-first
+        assignment_config:
+          type: string
+          nullable: true
+          description: "comma-separated list of user_id's that can potentially be assigned to this chore.
+
+It seems like null doesn't mean everybody but doesn't work
+
+who-least-did-first seems to not support this."
+        next_execution_assigned_to_user_id:
+          type: integer
+          nullable: true
+          description: "the person who has to do this next
+it seems like undo doesn't undo this? - improvements: foreign key to users"
+        consume_product_on_execution:
+          type: boolean
+          description: "whether to consume a product on executing this chore improvements: merge into product_id - it being null means false"
+        product_id:
+          type: integer
+          description: "the product to consume on execution - improvements: tinyint -> integer, foreign key to products(id)"
+        product_amount:
+          type: number
+          description: "the amount of the product to consume on execution - improvements: real is an interesting choice (is there not a \"quantum\" unit for everything?)"
+        period_interval:
+          type: integer
+          minimum: 1
+          default: 1
+          description: "the amount of period_type - what is period_days then? look at https://github.com/mistressofjellyfish/not-grocy/blob/1f1c13dda13ec2a41c047bd16a078315ac9a97a5/js/viewjs/choreform.js and all the views to find out"
+        active:
+          type: boolean
+          description: "whether this chore is active"
+    ChoreLogEntry:
+      type: object
+      description: "table chores_log"
+      properties:
+        id:
+          type: integer
+          description: primary key
+        chore_id:
+          type: integer
+          description: "improvements: foreign key chore(id)"
+        tracked_time:
+          type: string
+          format: date-time
+          nullable: true
+          description: "time when this was done - improvements: non-null"
+        done_by_user_id:
+          type: integer
+          nullable: true
+          description: "who did the chore - improvements: foreign key user_id
+maybe non-null - somebody must have done it"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+        undone:
+          type: boolean
+        undone_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+    Equipment:
+      type: object
+      description: "some equipment mostly to associate it with an instruction manual.
+
+may be unified with something else if descriptions can contain files (in a rich text field)."
+      properties:
+        id:
+          type: integer
+          description: primary key
+        name:
+          type: string
+          description: "unique - improvements: unique really needed?"
+        description:
+          type: string
+          nullable: true
+        instruction_manual_file_name:
+          type: string
+          nullable: true
+          description: "file name of the instruction manual
+
+what exactly does file name mean?"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: primary key
+        name:
+          type: string
+          description: unique
+        description:
+          type: string
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          default: now
+        is_freezer:
+          type: boolean
+          description: "interesting - for what is this used?
+
+I realize - food is complicated.
+
+there are different best before dates depending on from where to where you move the food (I think it should only matter to where you move it)
+
+default_best_before_days_after_freezing
+
+default_best_before_days_after_thawing
+
+still lot's of details missing here"
+    Meal:
+      description: "table meal_plan, repetition planning problems seem similar like for chores / batteries but usually a meal plan is per week / different every day"
+      properties:
+        id:
+          type: integer
+          description: primary key
+        day:
+          type: string
+          format: date
+          description: "improvements: rename field to date?"
+        type:
+          type: string
+          nullable: true
+          description: "type of the entry in the meal plan improvements: crazy and probably stupid idea: why is a product not a recipe with no preparation?"
+          enum:
+            - recipe
+            - product
+            - note
+        recipe_id:
+          type: integer
+          nullable: true
+          description: "improvements: foreign key to recipes?"
+        recipe_servings:
+          type: integer
+          nullable: true
+          description: "number of servings of the recipe"
+        note:
+          type: string
+          nullable: true
+          description: "a note (probably only valid when type==note). Generally here are three different types - I know relational databases don't like columns that depend on enums - maybe there is still a better way (e.g (remove type) and allow note always? possibly this is already the case)"
+        product_id:
+          type: integer
+          nullable: true
+          description: "improvements: foreign key to products"
+        product_amount:
+          type: number
+          nullable: true
+          default: 0
+          description: "the amount of the product - interesting that the default here is 0. improvements: merge into recipe_servings?"
+        product_qu_id:
+          type: integer
+          nullable: true
+          description: "probably quantity unit id improvements: rename to a more understandable name
+
+foreign key to quantity_units(id)?"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+    Permission:
+      type: object
+      description: "table permission_hierarchy, hierarchy of permissions connected using their parents
+
+https://github.com/mistressofjellyfish/not-grocy/blob/246c7fcb64d63caf1a4a1e8dafb0308d9fa4264b/php/Services/UsersService.php#L19"
+      properties:
+        id:
+          type: integer
+          description: primary key
+        name:
+          type: string
+          description: "unique improvements: check if id could be merged into name (probably don't do because of string join performance)"
+          example: ADMIN
+        parent:
+          type: integer
+          nullable: true
+          description: "the parent of this permission or null improvements: foreign key to permission_hierarchy(id)
+
+from the permissions in the table this seems to be not super worth it although creating an admin is significantly easier in this way"
+    CustomEntity:
+      description: "table userentities userentities are in the master data
+
+they are shown in the navigation as an entry
+
+as far as I understand them they're just custom tables
+
+they reference multiple user fields"
+      properties:
+        id:
+          type: integer
+          description: unique
+        name:
+          type: string
+        caption:
+          type: string
+        description:
+          type: string
+          nullable: true
+        show_in_sidebar_menu:
+          type: boolean
+          description: "whether to show this entity in the sidebar / navbar"
+        icon_css_class:
+          type: string
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+    Product:
+      description: "table products"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        name:
+          type: string
+          description: "unique"
+        description:
+          type: string
+          nullable: true
+        product_group_id:
+          type: integer
+          nullable: true
+          description: "improvements: foreign-key product_groups"
+        active:
+          type: boolean
+          default: true
+        location_id:
+          type: integer
+          description: "improvemetns: foreign-key locations"
+        shopping_location_id:
+          type: integer
+          description: "improvements: foreign-key shopping_locations"
+        qu_id_purchase:
+          type: integer
+          description: "quantity unit for purchase - default unit when adding product to shopping list - improvements: foreignkey to quantity_units"
+        qu_id_stock:
+          type: integer
+          description: "the quantity unit in the stock - can't be changed later. probably this is used to store the amount of things you have in stock - improvements: foreign-key quantity_units"
+        qu_factor_purchase_to_stock:
+          type: integer
+          description: "probably the factor when converting from purchase to stock unit - improvements: why is the quantity_unit_conversions not used? or does this mean something else"
+        min_stock_amount:
+          type: integer
+          default: 0
+        default_best_before_days:
+          type: integer
+          default: 0
+          description: "improvements: maybe use null instead of 0?"
+        default_best_before_days_after_open:
+          type: integer
+          default: 0
+        default_best_before_days_after_freezing:
+          type: integer
+          default: 0
+        default_best_before_days_after_thawing:
+          type: integer
+          default: 0
+        picture_file_name:
+          type: string
+          nullable: true
+        enable_tare_weight_handling:
+          type: boolean
+          description: "This is useful e.g. for flour in jars - on purchase/consume/inventory you always weigh the whole jar, the amount to be posted is then automatically calculated based on what is in stock and the tare weight defined below (probably in  quantity unit stock but why?)"
+        tare_weight:
+          type: number
+          default: 0
+          description: "improvement: merge enable_tare_weight_handling into this? / 0 works as it wouldn't subtract anything"
+        not_check_stock_fulfillment_for_recipes:
+          type: boolean
+          description: "will be used as default when adding to a recipe"
+        parent_product_id:
+          type: integer
+          description: "improvements: usage / use unknown - i imagine you add a product like cookies and then add different cookie types as children?"
+        calories:
+          type: integer
+        cumulate_min_stock_amount_of_sub_products:
+          type: boolean
+          nullable: true
+          description: "improvements: non-null"
+        due_type:
+          type: integer
+          default: best-before-date
+          enum:
+            - FIXME-best-before-date
+            - FIXME-expiration-date
+        quick_consume_amount:
+          type: number
+          format: real
+          default: 1
+        hide_on_stock_overview:
+          type: boolean
+          default: false
+        row_created_timestamp:
+          type: string
+          format: date-time
+          default: now
+          nullable: true
+        default_print_stock_label:
+          type: integer
+          default: 0
+          description: "unknown"
+        allow_label_per_unit:
+          type: integer
+          default: 0
+          description: "unknown"
+    ProductBarcode:
+      description: "table product_barcodes - barcode for a product"
+      properties:
+        id:
+          type: number
+          description: "primary key"
+        product_id:
+          type: number
+          description: "improvements: foreign key to products"
+        barcode:
+          type: string
+        qu_id:
+          type: string
+          nullable: true
+          description: "quantity unit, improvemnts: foreign key to quantity_units, non-null"
+        amount:
+          type: number
+          format: real
+          nullable: true
+          description: "amount of the quantity unit"
+        shopping_location_id:
+          type: integer
+          nullable: true
+          description: "improvements: foreign key to locations"
+        last_price:
+          type: number
+          format: decimal(15, 2)
+        row_created_timestamp:
+          type: string
+          format: date-time
+          default: now
+          nullable: true
+        note:
+          type: string
+          nullable: true
+    QuantityUnit:
+      description: "table quantity_units"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        name:
+          type: string
+          description: "unique"
+        description:
+          type: string
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          default: now
+          nullable: true
+        name_plural:
+          type: string
+          nullable: true
+        plural_forms:
+          type: string
+          nullable: true
+          description: "unknown usage"
+    QuantityUnitConversion:
+      description: "table quantity_unit_conversions"
+      properties:
+        id:
+          type: integer
+          description: "primary key - improvements: probably not needed"
+        from_qu_id:
+          type: integer
+          description: "the quantity unit to convert from, improvements: foreign key to quantity_units"
+        to_qu_id:
+          type: integer
+          description: "the quantity unit to convert to, improvements: foreign key to quantity_units"
+        factor:
+          type: integer
+          format: real
+          description: "conversion factor how many of the target unit is one of the source unit"
+        product_id:
+          type: integer
+          nullable: true
+          description: "the product this conversion belongs to, improvements: why is this associated with a product?"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          default: now
+          nullable: true
+    Session:
+      description: "these are the active sessions of the users"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        session_key:
+          type: string
+          description: "unique"
+        user_id:
+          type: integer
+          description: "improvements: foreign key to users"
+        expires:
+          type: string
+          format: date-time
+          nullable: true
+          description: "when this session becomes invalid"
+        last_used:
+          type: string
+          format: date-time
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+    UserPermission:
+      description: the permissions of a user
+      properties:
+        id:
+          type: integer
+          description: "primary key, improvements: remove? and make the other two fields composed primary key"
+        permissions_id:
+          type: integer
+          description: "improvements: foreign key of permission_hierarchy(id)"
+        user_id:
+          type: integer
+          description: "improvements: foreign key of user(id)"
+        user:
+          $ref: '#/components/schemas/User'
+    ProductGroup:
+      description: "table product_groups"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        name:
+          type: string
+          description: "unique"
+        description:
+          type: string
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          default: now
+          nullable: true
+    Stock:
+      description: "table stock"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        product_id:
+          type: integer
+          description: "improvements foreign_key product(id)"
+        amount:
+          type: number
+          format: decimal(15, 2)
+          description: "improvements: precision problems"
+        best_before_date:
+          type: string
+          format: date-time
+          nullable: true
+        purchased_date:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+        stock_id:
+          type: string
+          description: "usage unknown, some strange hex-encoded \"random\" identifier"
+        price:
+          type: number
+          format: decimal(15, 2)
+          nullable: true
+          description: "improvements: precision problems"
+        open:
+          type: boolean
+        opened_date:
+          type: string
+          format: date-time
+          nullable: true
+          description: "improvements: merge open into this"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          default: now
+          nullable: true
+        location_id:
+          type: integer
+          nullable: true
+          description: "improvements: foreign_key locations(id)"
+        shopping_location_id:
+          type: integer
+          nullable: true
+          description: "where you bought this - improvements: foreign_key shopping_locations(id)"
+    StockLogEntry:
+      description: "table stock_log"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        product_id:
+          type: integer
+          description: "improvements: foreign_key products(id)"
+        amount:
+          type: number
+          format: decimal(15,2)
+        best_before_date:
+          type: string
+          format: date-time
+          nullable: true
+        purchased_date:
+          type: string
+          format: date-time
+          nullable: true
+        used_date:
+          type: string
+          format: date-time
+          nullable: true
+        spoiled:
+          type: boolean
+          default: false
+        stock_id:
+          type: string
+          description: "usage unknown, some strange hex-encoded \"random\" identifier, also used in stock table"
+        transaction_type:
+          type: string
+          enum:
+            - purchase
+            - product-opened
+            - consume
+            - TODO-probably-some-missing
+        price:
+          type: number
+          format: decimal(15, 2)
+        undone:
+          type: boolean
+          default: false
+        undone_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          description: "improvements: merge undone into this"
+        opened_date:
+          type: string
+          format: date-time
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+        location_id:
+          type: integer
+          nullable: true
+          description: "improvements: foreign_key locations(id)"
+        recipe_id:
+          type: integer
+          nullable: true
+          description: "improvements: foreign-key recipe(id)"
+        correlation_id:
+          type: string
+          nullable: true
+          description: "usage unknown"
+        transaction_id:
+          type: string
+          nullable: true
+          description: "usage unknown, some strange hex-encoded \"random\" identifier"
+        stock_row_id:
+          type: integer
+          nullable: true
+          description: "usage unknown"
+        shopping_location_id:
+          type: integer
+          nullable: true
+          description: "where you bought this - improvements: foreign-key shopping_location(id)"
+        user_id:
+          type: integer
+          default: 1
+          description: "improvements: why default? foreign-key users(id)"
+    UserSetting:
+      description: "table user_settings"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        user_id:
+          type: integer
+          description: "improvements: foreign key users"
+        key:
+          type: string
+        value:
+          type: string
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          default: now
+          nullable: true
+        row_updated_timestamp:
+          type: string
+          format: date-time
+          default: now
+          nullable: true
+    Task:
+      description: "table tasks"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        due_date:
+          type: string
+          format: date-time
+          nullable: true
+        done:
+          type: boolean
+        done_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+        category_id:
+          type: integer
+          nullable: true
+          description: "foreign_key tasks_categories"
+        assigned_to_user_id:
+          type: integer
+          nullable: true
+          description: "foreign-key to users"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+    TaskCategory:
+      description: "table task_categories"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        name:
+          type: string
+          description: "unique - improvements: maybe not needed (uses index which needs storage and is slow to update)"
+        description:
+          type: string
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+    Recipe:
+      description: "table recipes"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+        picture_file_name:
+          type: string
+          nullable: true
+        base_servings:
+          type: integer
+          default: 1
+          nullable: true
+          description: "improvements: don't know what this is - probably non-null?"
+        desired_servings:
+          type: integer
+          default: 1
+          nullable: true
+          description: "improvements: don't know what this is - probably non-null?"
+        not_check_shoppinglist:
+          type: boolean
+          default: false
+        type:
+          type: string
+          nullable: true
+          default: normal
+          enum:
+            - normal
+            - TODO_FIXME_MISSING
+        product_id:
+          type: integer
+          nullable: true
+          description: "Improvements: foreign-key products - non-null"
+    NestedRecipe:
+      description: "table recipes_nestings"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        recipe_id:
+          type: integer
+          description: "improvements: foreign-key recipes"
+        includes_recipe_id:
+          type: integer
+          description: "improvements: foreign-key recipes - exact usage unknown"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+        servings:
+          type: integer
+          nullable: true
+          default: 1
+    RecipePosition:
+      description: "table recipes_pos"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        recipe_id:
+          type: integer
+          description: "improvements: foreign-key recipes"
+        product_id:
+          type: integer
+          nullable: true
+          description: "improvements: foreign-key products"
+        amount:
+          type: number
+          format: real
+          default: 0
+        note:
+          type: string
+          nullable: true
+        qu_id:
+          type: integer
+          nullable: true
+          description: "improvements: non-null, foreign-key quantity_units"
+        only_check_single_unit_in_stock:
+          type: boolean
+          description: "unkown usage"
+        ingredient_group:
+          type: string
+          nullable: true
+          description: "usage and possible values unknown"
+        not_check_stock_fulfillment:
+          type: boolean
+          default: false
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+        variable_amount:
+          type: string
+          nullable: true
+          description: "improvements: non-null, values unknown"
+        price_factor:
+          type: number
+          format: real
+          default: 1
+          description: "meaning unknown"
+    ShoppingLocation:
+      description: "table shopping_locations"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        name:
+          type: string
+          description: "improvements: unique really needed?"
+        description:
+          type: string
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+    ShoppingList:
+      description: "table shopping_lists"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        name:
+          type: string
+          description: "improvements: unique really needed?"
+        description:
+          type: string
+          nullable: true
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+    ShoppingListEntry:
+      description: "table shopping_list"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        product_id:
+          type: integer
+          nullable: true
+          description: "improvements: foreign-key products"
+        note:
+          type: string
+          nullable: true
+        amount:
+          type: number
+          format: decimal(15, 2)
+          default: 0
+          description: "improvements why default 0?"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+        shopping_list_id:
+          type: integer
+          default: 1
+          nullable: true
+          description: "improvements: why nullable, why default 1, foreign-key to shopping_lists"
+        done:
+          type: boolean
+          default: false
+        qu_id:
+          type: integer
+          description: "quantity unit, improvements: foreign-key to quantity_units"
+    CustomEntityColumn:
+      description: "table userfields"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        entity:
+          type: string
+          description: "string name of the entity, TODO understand if referenced anywhere, seems to be not needed - please tell me this is not used to reference the entity"
+        name:
+          type: string
+        caption:
+          type: string
+        type:
+          type: string
+          enum:
+            - text-single-line
+            - TODO-MISSING
+        show_as_column_in_table:
+          type: boolean
+          description: "MAYBE whether to show this in the table"
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+        config:
+          type: string
+          nullable: true
+          description: "usage unknown"
+        sort_number:
+          type: integer
+          nullable: true
+    CustomEntityCellValue:
+      description: "table userfield_values"
+      properties:
+        id:
+          type: integer
+          description: "primary key"
+        field_id:
+          type: integer
+          description: "improvements: probably foreign-key userfields, maybe make this a primary key with object_id"
+        object_id:
+          type: integer
+          description: "probably the row (maybe directly the id)"
+        value:
+          type: string
+        row_created_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+          default: now
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
