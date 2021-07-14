@@ -8,6 +8,7 @@ use crate::models::*;
 use actix_web::{web, HttpResponse};
 use chrono::NaiveDate;
 use chrono::NaiveDateTime;
+use diesel::backend::Backend;
 use diesel::backend::UsesAnsiSavepointSyntax;
 use diesel::connection::AnsiTransactionManager;
 use diesel::prelude::*;
@@ -35,11 +36,13 @@ impl fmt::Display for DieselError {
 
 impl actix_web::error::ResponseError for DieselError {}
 
+// https://stackoverflow.com/questions/62746540/diesel-with-custom-wrapper-types
 fn action_stock_overview<T>(
     connection: PooledConnection<ConnectionManager<T>>,
 ) -> QueryResult<StockOverviewResponse>
 where
     T: Connection<TransactionManager = AnsiTransactionManager> + 'static,
+    T::Backend: Backend<RawValue=[u8]>,
     NaiveDate: FromSql<diesel::sql_types::Date, <T as diesel::Connection>::Backend>,
     <T as diesel::Connection>::Backend: HasSqlType<diesel::sql_types::Bool>,
     <T as diesel::Connection>::Backend: UsesAnsiSavepointSyntax,
@@ -71,6 +74,7 @@ pub async fn index<T>(
 ) -> actix_web::Result<HttpResponse>
 where
     T: Connection<TransactionManager = AnsiTransactionManager> + 'static,
+    T::Backend: Backend<RawValue=[u8]>,
     NaiveDate: FromSql<diesel::sql_types::Date, <T as diesel::Connection>::Backend>,
     <T as diesel::Connection>::Backend: HasSqlType<diesel::sql_types::Bool>,
     <T as diesel::Connection>::Backend: UsesAnsiSavepointSyntax,

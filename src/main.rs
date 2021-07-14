@@ -8,7 +8,7 @@ pub mod schema;
 
 use actix_web::web;
 use chrono::{NaiveDate, NaiveDateTime};
-use diesel::backend::UsesAnsiSavepointSyntax;
+use diesel::backend::{Backend, UsesAnsiSavepointSyntax};
 use diesel::connection::AnsiTransactionManager;
 use diesel::r2d2::ConnectionManager;
 use diesel::sqlite::SqliteConnection;
@@ -25,6 +25,7 @@ use actix_web::{App, HttpServer};
 async fn run<T>(manager: ConnectionManager<T>) -> std::io::Result<()>
 where
     T: Connection<TransactionManager = AnsiTransactionManager> + 'static,
+    T::Backend: Backend<RawValue=[u8]>,
     NaiveDate: FromSql<diesel::sql_types::Date, <T as diesel::Connection>::Backend>,
     <T as diesel::Connection>::Backend: HasSqlType<diesel::sql_types::Bool>,
     <T as diesel::Connection>::Backend: UsesAnsiSavepointSyntax,
