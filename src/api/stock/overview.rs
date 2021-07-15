@@ -43,10 +43,13 @@ fn action_stock_overview<T>(
 where
     T: Connection<TransactionManager = AnsiTransactionManager> + 'static,
     <T>::Backend: UsesAnsiSavepointSyntax,
+    <T>::Backend: HasSqlType<diesel::sql_types::Bool>,
     bool: FromSql<diesel::sql_types::Bool, <T>::Backend>,
     NaiveDate: FromSql<diesel::sql_types::Date, <T>::Backend>,
     NaiveDateTime: FromSql<diesel::sql_types::Timestamp, <T>::Backend>,
     i32: FromSql<diesel::sql_types::Integer, <T as diesel::Connection>::Backend>,
+    f64: FromSql<diesel::sql_types::Double, <T as diesel::Connection>::Backend>,
+    *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
     use crate::schema::stock::dsl::*;
     Ok(StockOverviewResponse {
@@ -73,10 +76,13 @@ pub async fn index<T>(
 where
     T: Connection<TransactionManager = AnsiTransactionManager> + 'static,
     <T>::Backend: UsesAnsiSavepointSyntax,
+    <T>::Backend: HasSqlType<diesel::sql_types::Bool>,
     bool: FromSql<diesel::sql_types::Bool, <T>::Backend>,
     NaiveDate: FromSql<diesel::sql_types::Date, <T>::Backend>,
     NaiveDateTime: FromSql<diesel::sql_types::Timestamp, <T>::Backend>,
     i32: FromSql<diesel::sql_types::Integer, <T as diesel::Connection>::Backend>,
+    f64: FromSql<diesel::sql_types::Double, <T as diesel::Connection>::Backend>,
+    *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
     let connection = pool.get().map_err(R2D2Error)?;
     Ok(HttpResponse::Ok()

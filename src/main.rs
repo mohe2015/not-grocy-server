@@ -26,10 +26,13 @@ async fn run<T>(manager: ConnectionManager<T>) -> std::io::Result<()>
 where
     T: Connection<TransactionManager = AnsiTransactionManager> + 'static,
     <T>::Backend: UsesAnsiSavepointSyntax,
+    <T>::Backend: HasSqlType<diesel::sql_types::Bool>,
     bool: FromSql<diesel::sql_types::Bool, <T>::Backend>,
     NaiveDate: FromSql<diesel::sql_types::Date, <T>::Backend>,
     NaiveDateTime: FromSql<diesel::sql_types::Timestamp, <T>::Backend>,
     i32: FromSql<diesel::sql_types::Integer, <T as diesel::Connection>::Backend>,
+    f64: FromSql<diesel::sql_types::Double, <T as diesel::Connection>::Backend>,
+    *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
     let pool: Pool<ConnectionManager<T>> = r2d2::Pool::builder()
         .build(manager)
