@@ -12,6 +12,7 @@ cargo install diesel_cli --no-default-features --features sqlite
 Specify a database in the `.env` file:
 ```
 DATABASE_URL=development.db
+# DATABASE_URL=postgres://not-grocy:not-grocy@not-grocy/not-grocy
 ```
 
 Currently you need to copy the database file from grocy.
@@ -19,4 +20,9 @@ Currently you need to copy the database file from grocy.
 Add pre-commit hook:
 ```bash
 ln -s ../../pre-commit.sh .git/hooks/pre-commit
+```
+
+Run migrations:
+```bash
+diesel migration run
 ```

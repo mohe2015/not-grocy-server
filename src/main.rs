@@ -8,7 +8,7 @@ pub mod schema;
 
 use actix_web::web;
 use chrono::{NaiveDate, NaiveDateTime};
-use diesel::backend::{Backend, UsesAnsiSavepointSyntax};
+use diesel::backend::UsesAnsiSavepointSyntax;
 use diesel::connection::AnsiTransactionManager;
 use diesel::r2d2::ConnectionManager;
 use diesel::sqlite::SqliteConnection;
@@ -55,11 +55,9 @@ async fn main() -> std::io::Result<()> {
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
-    let database_type: i32 = 1;
-
-    if database_type == 1 {
-        run(ConnectionManager::<SqliteConnection>::new(database_url)).await
-    } else {
+    if database_url.starts_with("postgres://") {
         run(ConnectionManager::<PgConnection>::new(database_url)).await
+    } else {
+        run(ConnectionManager::<SqliteConnection>::new(database_url)).await
     }
 }

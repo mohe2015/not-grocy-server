@@ -8,7 +8,6 @@ use crate::models::*;
 use actix_web::{web, HttpResponse};
 use chrono::NaiveDate;
 use chrono::NaiveDateTime;
-use diesel::backend::Backend;
 use diesel::backend::UsesAnsiSavepointSyntax;
 use diesel::connection::AnsiTransactionManager;
 use diesel::prelude::*;
