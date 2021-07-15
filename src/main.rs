@@ -22,16 +22,14 @@ use std::env;
 use actix_web::{App, HttpServer};
 
 // https://stackoverflow.com/questions/65645622/how-do-i-pass-a-trait-as-application-data-to-actix-web
-async fn run<T, U>(manager: ConnectionManager<T>) -> std::io::Result<()>
+async fn run<T>(manager: ConnectionManager<T>) -> std::io::Result<()>
 where
-    U: ?Sized + 'static,
     T: Connection<TransactionManager = AnsiTransactionManager> + 'static,
-    T::Backend: Backend<RawValue = U>,
-    NaiveDate: FromSql<diesel::sql_types::Date, <T as diesel::Connection>::Backend>,
-    <T as diesel::Connection>::Backend: HasSqlType<diesel::sql_types::Bool>,
-    <T as diesel::Connection>::Backend: UsesAnsiSavepointSyntax,
-    NaiveDateTime: FromSql<diesel::sql_types::Timestamp, <T as diesel::Connection>::Backend>,
-    bool: FromSql<diesel::sql_types::Bool, <T as diesel::Connection>::Backend>,
+    <T>::Backend: UsesAnsiSavepointSyntax,
+    bool: FromSql<diesel::sql_types::Bool, <T>::Backend>,
+    NaiveDate: FromSql<diesel::sql_types::Date, <T>::Backend>,
+    NaiveDateTime: FromSql<diesel::sql_types::Timestamp, <T>::Backend>,
+    i32: FromSql<diesel::sql_types::Integer, <T as diesel::Connection>::Backend>,
 {
     let pool: Pool<ConnectionManager<T>> = r2d2::Pool::builder()
         .build(manager)
@@ -40,7 +38,7 @@ where
     HttpServer::new(move || {
         App::new().data(pool.clone()).route(
             "/api/stock/overview",
-            web::get().to(api::stock::overview::index::<T, U>),
+            web::get().to(api::stock::overview::index::<T>),
         )
     })
     .bind("127.0.0.1:8080")?

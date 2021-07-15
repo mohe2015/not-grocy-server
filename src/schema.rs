@@ -286,15 +286,15 @@ table! {
         id -> Integer,
         product_id -> Integer,
         //amount -> Double,
-        best_before_date -> Nullable<Date>,
-        purchased_date -> Nullable<Date>,
-        stock_id -> Text,
+        //best_before_date -> Nullable<Date>,
+        //purchased_date -> Nullable<Date>,
+        //stock_id -> Text,
         //price -> Nullable<Double>,
-        open -> Bool,
-        row_created_timestamp -> Nullable<Timestamp>,
-        location_id -> Nullable<Integer>,
-        shopping_location_id -> Nullable<Integer>,
-        opened_date -> Nullable<Date>,
+        //open -> Bool,
+        //row_created_timestamp -> Nullable<Timestamp>,
+        //location_id -> Nullable<Integer>,
+        //shopping_location_id -> Nullable<Integer>,
+        //opened_date -> Nullable<Date>,
     }
 }
 

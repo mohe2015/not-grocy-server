@@ -37,19 +37,16 @@ impl fmt::Display for DieselError {
 impl actix_web::error::ResponseError for DieselError {}
 
 // https://stackoverflow.com/questions/62746540/diesel-with-custom-wrapper-types
-fn action_stock_overview<T, U>(
+fn action_stock_overview<T>(
     connection: PooledConnection<ConnectionManager<T>>,
 ) -> QueryResult<StockOverviewResponse>
 where
-    U: ?Sized + 'static,
     T: Connection<TransactionManager = AnsiTransactionManager> + 'static,
-    T::Backend: Backend<RawValue = U>,
-    NaiveDate: FromSql<diesel::sql_types::Date, <T as diesel::Connection>::Backend>,
-    <T as diesel::Connection>::Backend: HasSqlType<diesel::sql_types::Bool>,
-    <T as diesel::Connection>::Backend: UsesAnsiSavepointSyntax,
-    NaiveDateTime: FromSql<diesel::sql_types::Timestamp, <T as diesel::Connection>::Backend>,
-    bool: FromSql<diesel::sql_types::Bool, <T as diesel::Connection>::Backend>,
-    <T as diesel::Connection>::Backend: HasSqlType<diesel::sql_types::Text>,
+    <T>::Backend: UsesAnsiSavepointSyntax,
+    bool: FromSql<diesel::sql_types::Bool, <T>::Backend>,
+    NaiveDate: FromSql<diesel::sql_types::Date, <T>::Backend>,
+    NaiveDateTime: FromSql<diesel::sql_types::Timestamp, <T>::Backend>,
+    i32: FromSql<diesel::sql_types::Integer, <T as diesel::Connection>::Backend>,
 {
     use crate::schema::stock::dsl::*;
     Ok(StockOverviewResponse {
@@ -70,18 +67,16 @@ impl fmt::Display for R2D2Error {
 impl actix_web::error::ResponseError for R2D2Error {}
 
 // https://github.com/mistressofjellyfish/not-grocy/blob/ddc2dad07ec26f854cca78bbdbec92b2213ad235/php/Controllers/StockApiController.php#L332
-pub async fn index<T, U>(
+pub async fn index<T>(
     pool: web::Data<r2d2::Pool<ConnectionManager<T>>>,
 ) -> actix_web::Result<HttpResponse>
 where
-    U: ?Sized + 'static,
     T: Connection<TransactionManager = AnsiTransactionManager> + 'static,
-    T::Backend: Backend<RawValue = U>,
-    NaiveDate: FromSql<diesel::sql_types::Date, <T as diesel::Connection>::Backend>,
-    <T as diesel::Connection>::Backend: HasSqlType<diesel::sql_types::Bool>,
-    <T as diesel::Connection>::Backend: UsesAnsiSavepointSyntax,
-    NaiveDateTime: FromSql<diesel::sql_types::Timestamp, <T as diesel::Connection>::Backend>,
-    bool: FromSql<diesel::sql_types::Bool, <T as diesel::Connection>::Backend>,
+    <T>::Backend: UsesAnsiSavepointSyntax,
+    bool: FromSql<diesel::sql_types::Bool, <T>::Backend>,
+    NaiveDate: FromSql<diesel::sql_types::Date, <T>::Backend>,
+    NaiveDateTime: FromSql<diesel::sql_types::Timestamp, <T>::Backend>,
+    i32: FromSql<diesel::sql_types::Integer, <T as diesel::Connection>::Backend>,
 {
     let connection = pool.get().map_err(R2D2Error)?;
     Ok(HttpResponse::Ok()
