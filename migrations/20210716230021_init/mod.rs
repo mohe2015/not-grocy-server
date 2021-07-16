@@ -1,10 +1,10 @@
 /// Handle up migrations 
 fn up(migr: &mut Migration) {
     migr.create_table("api_keys", |t| {
-        t.add_column("id", types::integer().increments(true).unique(true));
-        t.add_column("api_key", types::varchar(255));
-        t.add_column("age", types::integer());
-        t.add_column("owns_plushy_sharks", types::boolean());
+        t.add_column("id", types::integer().increments(true).primary(true));
+        t.add_column("api_key", types::text().unique(true));
+        t.add_column("user_id", types::integer());
+        t.add_column("expires", types::custom("DATETIME").default(types::WrappedDefault::Custom("NOW()")));
     });
 } 
 
