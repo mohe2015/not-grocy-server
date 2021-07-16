@@ -12,13 +12,15 @@
           devShell = pkgs.mkShell {
             nativeBuildInputs = [
               pkgs.pkg-config
-              pkgs.diesel-cli
+              #pkgs.diesel-cli
               pkgs.nixpkgs-fmt
+              pkgs.sqlitebrowser
             ];
 
             buildInputs = [
               pkgs.sqlite
               pkgs.postgresql
+              pkgs.mariadb
             ];
           };
 

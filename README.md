@@ -6,7 +6,7 @@ I personally recommend to use [rustup](https://www.rust-lang.org/tools/install) 
 
 Also the Diesel CLI may be useful:
 ```bash
-cargo install diesel_cli --no-default-features --features sqlite
+cargo install diesel_cli --features="barrel-migrations,barrel/sqlite3,sqlite"
 ```
 
 Specify a database in the `.env` file:
@@ -24,5 +24,17 @@ ln -s ../../pre-commit.sh .git/hooks/pre-commit
 
 Run migrations:
 ```bash
-diesel migration run
+~/.cargo/bin/diesel migration run
 ```
+
+Generate migration:
+```bash
+~/.cargo/bin/diesel migration generate setup --format="barrel"
+```
+
+## Barrel docs
+
+https://docs.rs/barrel/0.6.5/barrel/migration/struct.Migration.html
+https://docs.rs/barrel/0.6.5/barrel/table/struct.Table.html
+https://docs.rs/barrel/0.6.5/barrel/types/index.html
+https://docs.rs/barrel/0.6.5/barrel/types/struct.Type.html
