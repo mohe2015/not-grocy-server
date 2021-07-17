@@ -4,7 +4,10 @@ fn up(migr: &mut Migration) {
         t.add_column("id", types::integer().increments(true).primary(true));
         t.add_column("api_key", types::text().unique(true));
         t.add_column("user_id", types::integer());
-        t.add_column("expires", types::custom("DATETIME").default(types::WrappedDefault::Custom("NOW()")));
+        // TODO FIXME this doesnt work because the internally generated thing uses it's own barrel?
+        // see https://git.irde.st/spacekookie/barrel/-/blob/main/src/integrations/diesel.rs
+        // maybe instead write the code above manually
+        t.add_column("expires", types::datetime());
     });
 } 
 
