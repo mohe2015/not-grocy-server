@@ -3,18 +3,23 @@ use std::path::Path;
 
 use barrel::backend::Sqlite;
 use diesel::connection::SimpleConnection;
-use diesel::migration::{Migration, RunMigrationsError};
+use diesel::migration::RunMigrationsError;
 use diesel::Connection;
+use diesel::ExpressionMethods;
+use diesel::QueryDsl;
+use diesel::RunQueryDsl;
 use diesel::SqliteConnection;
+use diesel_migrations::run_migrations;
+use diesel_migrations::Migration;
+use diesel_migrations::MigrationConnection;
 use dotenv::dotenv;
+use migrations_internals::schema::__diesel_schema_migrations::dsl::*;
 
-/// Represents a migration run inside Diesel
-///
-/// 1. Path
-/// 2. Version
-/// 3. Up
-/// 4. Down
-pub struct BarrelMigration(String, String, String);
+pub struct BarrelMigration {
+    version: String,
+    up: String,
+    down: String,
+}
 
 impl Migration for BarrelMigration {
     fn file_path(&self) -> Option<&Path> {
@@ -22,16 +27,16 @@ impl Migration for BarrelMigration {
     }
 
     fn version(&self) -> &str {
-        &self.0
+        &self.version
     }
 
     fn run(&self, conn: &dyn SimpleConnection) -> Result<(), RunMigrationsError> {
-        conn.batch_execute(&self.1)?;
+        conn.batch_execute(&self.up)?;
         Ok(())
     }
 
     fn revert(&self, conn: &dyn SimpleConnection) -> Result<(), RunMigrationsError> {
-        conn.batch_execute(&self.2)?;
+        conn.batch_execute(&self.down)?;
         Ok(())
     }
 }
@@ -49,11 +54,29 @@ fn main() -> Result<(), RunMigrationsError> {
     not_grocy_server::migrations::m20210716230021_init::down(&mut m_down);
     println!("{}", m_down.make::<Sqlite>());
 
-    let migration = BarrelMigration(
-        "20210716230021".to_string(),
-        m_up.make::<Sqlite>(),
-        m_down.make::<Sqlite>(),
-    );
+    let migration = BarrelMigration {
+        version: "20210716230021".to_string(),
+        up: m_up.make::<Sqlite>(),
+        down: m_down.make::<Sqlite>(),
+    };
 
-    migration.run(&connection)
+    let migration_to_revert = BarrelMigration {
+        version: "20210716230021".to_string(),
+        up: m_up.make::<Sqlite>(),
+        down: m_down.make::<Sqlite>(),
+    };
+
+    let migrations = [migration];
+
+    println!("{:?}", connection.latest_run_migration_version()?);
+
+    /*connection.transaction::<_, RunMigrationsError, _>(|| {
+        println!("Rolling back migration {}", migration_to_revert.version());
+        migration_to_revert.revert(&connection)?;
+        let target = __diesel_schema_migrations.filter(version.eq(migration_to_revert.version()));
+        ::diesel::delete(target).execute(&connection)?;
+        Ok(())
+    })?;*/
+
+    run_migrations(&connection, migrations, &mut std::io::stdout())
 }

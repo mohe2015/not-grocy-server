@@ -1054,6 +1054,7 @@ dependencies = [
  "diesel",
  "diesel_migrations",
  "dotenv",
+ "migrations_internals",
  "r2d2",
  "serde",
  "serde_json",
