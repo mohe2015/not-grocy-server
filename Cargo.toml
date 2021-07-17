@@ -1,5 +1,5 @@
 [package]
-name = "not-grocy-server"
+name = "not_grocy_server"
 version = "0.1.0"
 edition = "2018"
 
@@ -8,7 +8,6 @@ edition = "2018"
 [dependencies]
 actix-web = "3"
 diesel = { version = "1.4", features = ["sqlite", "postgres", "chrono", "r2d2"] }
-diesel_cli = { version = "1.4", features = ["barrel-migrations","barrel","sqlite"] }
 diesel_migrations = { version = "1.4" }
 dotenv = "0.15"
 chrono = { version = "0.4", features = ["serde"] }

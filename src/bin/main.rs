@@ -1,11 +1,3 @@
-#[macro_use]
-extern crate diesel;
-extern crate dotenv;
-
-pub mod api;
-pub mod models;
-pub mod schema;
-
 use actix_web::web;
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::backend::UsesAnsiSavepointSyntax;
@@ -16,6 +8,7 @@ use diesel::types::{FromSql, HasSqlType};
 use diesel::Connection;
 use diesel::PgConnection;
 use dotenv::dotenv;
+use not_grocy_server::api;
 use r2d2::Pool;
 use std::env;
 
