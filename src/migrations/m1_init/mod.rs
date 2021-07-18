@@ -40,6 +40,14 @@ fn undone(t: &mut Table) {
     t.add_column("undone_timestamp", datetime().nullable(true));
 }
 
+fn name(t: &mut Table) {
+    t.add_column("name", text().unique(true));
+}
+
+fn description(t: &mut Table) {
+    t.add_column("description", text().nullable(true));
+}
+
 impl<T: SqlGenerator> Migration for BarrelMigration<T> {
     fn file_path(&self) -> Option<&Path> {
         None
@@ -68,8 +76,8 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
 
         migr.create_table("batteries", |t| {
             id(t);
-            t.add_column("name", text().unique(true));
-            t.add_column("description", text().nullable(true));
+            name(t);
+            description(t);
             t.add_column("used_in", text().nullable(true));
             t.add_column("charge_interval_days", integer().default(0));
             created(t);
@@ -86,8 +94,8 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
 
         migr.create_table("chores", |t| {
             id(t);
-            t.add_column("name", text().unique(true));
-            t.add_column("description", text().nullable(true));
+            name(t);
+            description(t);
             t.add_column("period_type", text());
             t.add_column("period_days", integer().nullable(true));
             created(t);
@@ -105,6 +113,44 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("product_amount", double().nullable(true));
             t.add_column("period_interval", integer().default(1));
             t.add_column("active", boolean().default(true));
+        });
+
+        migr.create_table("chores_log", |t| {
+            id(t);
+            t.add_column("chore_id", integer());
+            t.add_column("tracked_time", datetime().nullable(true));
+            t.add_column("done_by_user_id", integer().nullable(true));
+            created(t);
+            undone(t);
+        });
+
+        migr.create_table("equipment", |t| {
+            id(t);
+            name(t);
+            description(t);
+            t.add_column("instruction_manual_file_name", text().nullable(true));
+            created(t);
+        });
+
+        migr.create_table("locations", |t| {
+            id(t);
+            name(t);
+            description(t);
+            created(t);
+            t.add_column("is_freezer", boolean().default(false));
+        });
+
+        migr.create_table("meal_plan", |t| {
+            id(t);
+            t.add_column("day", date());
+            t.add_column("type", text().default("recipe"));
+            t.add_column("recipe_id", integer().nullable(true));
+            t.add_column("recipe_servings", integer().default(1));
+            t.add_column("note", text().nullable(true));
+            t.add_column("product_id", integer().nullable(true));
+            t.add_column("product_amount", double().default(0));
+            t.add_index("product_qu_id", integer().nullable(true));
+            created(t);
         });
 
         conn.batch_execute(&migr.make::<T>())?;
