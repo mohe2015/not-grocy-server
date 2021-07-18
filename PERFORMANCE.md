@@ -46,4 +46,5 @@ https://github.com/the-lean-crate/cargo-diet
 cargo install cargo-diet
 
 
-
+https://doc.rust-lang.org/cargo/faq.html
+CARGO_LOG=cargo::core::compiler::fingerprint=info cargo build

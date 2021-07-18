@@ -6,9 +6,6 @@ include = ["src/**/*", "LICENSE", "README.md"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[build]
-rustflags = ["-C", "link-arg=-fuse-ld=lld"]
-
 [profile.dev]
 incremental = true
 

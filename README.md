@@ -2,6 +2,12 @@
 
 # Development
 
+If you are using Nix:
+```
+nix develop --command fish
+```
+otherwise install dependencies manually.
+
 I personally recommend to use [rustup](https://www.rust-lang.org/tools/install) and [VSCodium](https://vscodium.com/#install) with the [rust-analyzer extension](https://marketplace.visualstudio.com/items?itemName=matklad.rust-analyzer)
 
 Also the Diesel CLI may be useful:
