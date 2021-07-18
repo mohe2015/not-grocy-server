@@ -1,10 +1,7 @@
 use std::env;
 use std::marker::PhantomData;
-use std::path::Path;
 
 use barrel::backend::SqlGenerator;
-use barrel::backend::Sqlite;
-use diesel::connection::SimpleConnection;
 use diesel::migration::RunMigrationsError;
 use diesel::Connection;
 use diesel::ExpressionMethods;
@@ -26,12 +23,6 @@ enum Cli {
     Rollback { version: String },
 }
 
-pub struct BarrelMigration {
-    version: String,
-    up: String,
-    down: String,
-}
-
 // we roll our own cli because the official one creates terrible errors if the migrations have compilation errors
 // and developing migrations has no good ide support.
 // also switching databases is not supported.
@@ -41,7 +32,7 @@ fn migrate<T: SqlGenerator>(database_url: &str) -> Result<(), RunMigrationsError
     let connection = SqliteConnection::establish(&database_url)
         .expect(&format!("Error connecting to {}", database_url));
     let migrations = [
-        not_grocy_server::migrations::m20210716230021_init::BarrelMigration::<T> {
+        not_grocy_server::migrations::m1_init::BarrelMigration::<T> {
             phantom_data: PhantomData,
         },
     ];
@@ -51,7 +42,10 @@ fn migrate<T: SqlGenerator>(database_url: &str) -> Result<(), RunMigrationsError
         Cli::Migrate => run_migrations(&connection, migrations, &mut std::io::stdout()),
         Cli::ListMigrations => Ok(()), // https://lib.rs/crates/dialoguer
         Cli::Rollback { version: v } => {
-            let migration_to_revert = &migrations[0];
+            let migration_to_revert = migrations
+                .iter()
+                .find(|f| f.version() == v)
+                .expect("Could not find migration with that version");
             connection.transaction::<_, RunMigrationsError, _>(|| {
                 println!("Rolling back migration {}", migration_to_revert.version());
                 migration_to_revert.revert(&connection)?;

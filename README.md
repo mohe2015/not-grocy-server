@@ -44,3 +44,7 @@ If you get
 thread 'main' panicked at 'index out of bounds: the len is 1 but the index is 1', barrel-0.6.5/src/integrations/diesel.rs:182:29
 ```
 you probably have a syntax error in your migration file.
+
+```
+cargo +nightly build -Ztimings
+```
