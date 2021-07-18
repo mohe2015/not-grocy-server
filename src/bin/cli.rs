@@ -30,26 +30,6 @@ pub struct BarrelMigration {
     down: String,
 }
 
-impl Migration for BarrelMigration {
-    fn file_path(&self) -> Option<&Path> {
-        None
-    }
-
-    fn version(&self) -> &str {
-        &self.version
-    }
-
-    fn run(&self, conn: &dyn SimpleConnection) -> Result<(), RunMigrationsError> {
-        conn.batch_execute(&self.up)?;
-        Ok(())
-    }
-
-    fn revert(&self, conn: &dyn SimpleConnection) -> Result<(), RunMigrationsError> {
-        conn.batch_execute(&self.down)?;
-        Ok(())
-    }
-}
-
 // we roll our own cli because the official one creates terrible errors if the migrations have compilation errors
 // and developing migrations has no good ide support.
 // also switching databases is not supported.
@@ -61,23 +41,12 @@ fn main() -> Result<(), RunMigrationsError> {
     let connection = SqliteConnection::establish(&database_url)
         .expect(&format!("Error connecting to {}", database_url));
 
-    let mut m_up = barrel::Migration::new();
-    not_grocy_server::migrations::m20210716230021_init::up(&mut m_up);
-    let mut m_down = barrel::Migration::new();
-    not_grocy_server::migrations::m20210716230021_init::down(&mut m_down);
-
-    let migration = BarrelMigration {
-        version: "20210716230021".to_string(),
-        up: m_up.make::<Sqlite>(),
-        down: m_down.make::<Sqlite>(),
-    };
-
-    let migrations = [migration];
+    let migrations = [not_grocy_server::migrations::m20210716230021_init::BarrelMigration {}];
     println!("{:?}", connection.latest_run_migration_version()?);
 
     match args {
         Cli::Migrate => run_migrations(&connection, migrations, &mut std::io::stdout()),
-        Cli::ListMigrations => Ok(()),
+        Cli::ListMigrations => Ok(()), // https://lib.rs/crates/dialoguer
         Cli::Rollback { version: v } => {
             let migration_to_revert = BarrelMigration {
                 version: "20210716230021".to_string(),
