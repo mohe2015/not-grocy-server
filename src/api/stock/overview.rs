@@ -2,13 +2,18 @@
 
 use std::fmt;
 use std::fmt::Debug;
+use std::str;
 
 use crate::models::*;
-use actix_web::{get, web, HttpResponse};
+use actix_web::{web, HttpResponse};
+use chrono::NaiveDate;
+use chrono::NaiveDateTime;
+use diesel::backend::UsesAnsiSavepointSyntax;
+use diesel::connection::AnsiTransactionManager;
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
-use diesel::sqlite::SqliteConnection;
-type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
+use diesel::types::FromSql;
+use diesel::types::HasSqlType;
 use r2d2::PooledConnection;
 use serde::{Deserialize, Serialize};
 
@@ -30,9 +35,21 @@ impl fmt::Display for DieselError {
 
 impl actix_web::error::ResponseError for DieselError {}
 
-fn action_stock_overview(
-    connection: PooledConnection<ConnectionManager<SqliteConnection>>,
-) -> QueryResult<StockOverviewResponse> {
+// https://stackoverflow.com/questions/62746540/diesel-with-custom-wrapper-types
+fn action_stock_overview<T>(
+    connection: PooledConnection<ConnectionManager<T>>,
+) -> QueryResult<StockOverviewResponse>
+where
+    T: Connection<TransactionManager = AnsiTransactionManager> + 'static,
+    <T>::Backend: UsesAnsiSavepointSyntax,
+    <T>::Backend: HasSqlType<diesel::sql_types::Bool>,
+    bool: FromSql<diesel::sql_types::Bool, <T>::Backend>,
+    NaiveDate: FromSql<diesel::sql_types::Date, <T>::Backend>,
+    NaiveDateTime: FromSql<diesel::sql_types::Timestamp, <T>::Backend>,
+    i32: FromSql<diesel::sql_types::Integer, <T as diesel::Connection>::Backend>,
+    f64: FromSql<diesel::sql_types::Double, <T as diesel::Connection>::Backend>,
+    *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
+{
     use crate::schema::stock::dsl::*;
     Ok(StockOverviewResponse {
         current_stock: stock.load::<Stock>(&connection)?,
@@ -52,8 +69,20 @@ impl fmt::Display for R2D2Error {
 impl actix_web::error::ResponseError for R2D2Error {}
 
 // https://github.com/mistressofjellyfish/not-grocy/blob/ddc2dad07ec26f854cca78bbdbec92b2213ad235/php/Controllers/StockApiController.php#L332
-#[get("/api/stock/overview")]
-pub async fn index(pool: web::Data<DbPool>) -> actix_web::Result<HttpResponse> {
+pub async fn index<T>(
+    pool: web::Data<r2d2::Pool<ConnectionManager<T>>>,
+) -> actix_web::Result<HttpResponse>
+where
+    T: Connection<TransactionManager = AnsiTransactionManager> + 'static,
+    <T>::Backend: UsesAnsiSavepointSyntax,
+    <T>::Backend: HasSqlType<diesel::sql_types::Bool>,
+    bool: FromSql<diesel::sql_types::Bool, <T>::Backend>,
+    NaiveDate: FromSql<diesel::sql_types::Date, <T>::Backend>,
+    NaiveDateTime: FromSql<diesel::sql_types::Timestamp, <T>::Backend>,
+    i32: FromSql<diesel::sql_types::Integer, <T as diesel::Connection>::Backend>,
+    f64: FromSql<diesel::sql_types::Double, <T as diesel::Connection>::Backend>,
+    *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
+{
     let connection = pool.get().map_err(R2D2Error)?;
     Ok(HttpResponse::Ok()
         .json(web::block(move || action_stock_overview(connection).map_err(DieselError)).await?))

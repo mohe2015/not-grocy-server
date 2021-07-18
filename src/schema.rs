@@ -1,3 +1,5 @@
+use diesel::table;
+
 table! {
     api_keys (id) {
         id -> Integer,
