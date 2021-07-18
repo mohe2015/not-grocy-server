@@ -1,8 +1,14 @@
-use barrel::{types, Migration};
+use std::{marker::PhantomData, path::Path};
 
-pub struct BarrelMigration<T>;
+use barrel::{backend::SqlGenerator, types};
+use diesel::connection::SimpleConnection;
+use diesel_migrations::{Migration, RunMigrationsError};
 
-impl Migration for BarrelMigration<T> {
+pub struct BarrelMigration<T: SqlGenerator> {
+    pub phantom_data: PhantomData<T>,
+}
+
+impl<T: SqlGenerator> Migration for BarrelMigration<T> {
     fn file_path(&self) -> Option<&Path> {
         None
     }
@@ -12,7 +18,7 @@ impl Migration for BarrelMigration<T> {
     }
 
     fn run(&self, conn: &dyn SimpleConnection) -> Result<(), RunMigrationsError> {
-        let migr = barrel::Migration::new();
+        let mut migr = barrel::Migration::new();
         migr.create_table("api_keys", |t| {
             t.add_column("id", types::integer().increments(true).primary(true));
             t.add_column("api_key", types::text().unique(true));
@@ -23,14 +29,16 @@ impl Migration for BarrelMigration<T> {
             t.add_column("expires", types::datetime());
         });
 
-        conn.batch_execute(migr.make::<T>())
+        conn.batch_execute(&migr.make::<T>())?;
+        Ok(())
     }
 
     fn revert(&self, conn: &dyn SimpleConnection) -> Result<(), RunMigrationsError> {
-        let migr = barrel::Migration::new();
+        let mut migr = barrel::Migration::new();
         // TODO FIXME remove later to prevent data loss
         migr.drop_table("api_keys");
 
-        conn.batch_execute(migr.make::<T>())
+        conn.batch_execute(&migr.make::<T>())?;
+        Ok(())
     }
 }

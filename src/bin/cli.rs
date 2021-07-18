@@ -1,6 +1,8 @@
 use std::env;
+use std::marker::PhantomData;
 use std::path::Path;
 
+use barrel::backend::SqlGenerator;
 use barrel::backend::Sqlite;
 use diesel::connection::SimpleConnection;
 use diesel::migration::RunMigrationsError;
@@ -34,26 +36,22 @@ pub struct BarrelMigration {
 // and developing migrations has no good ide support.
 // also switching databases is not supported.
 
-fn main() -> Result<(), RunMigrationsError> {
+fn migrate<T: SqlGenerator>(database_url: &str) -> Result<(), RunMigrationsError> {
     let args = Cli::from_args();
-    dotenv().ok();
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let connection = SqliteConnection::establish(&database_url)
         .expect(&format!("Error connecting to {}", database_url));
-
-    let migrations = [not_grocy_server::migrations::m20210716230021_init::BarrelMigration {}];
+    let migrations = [
+        not_grocy_server::migrations::m20210716230021_init::BarrelMigration::<T> {
+            phantom_data: PhantomData,
+        },
+    ];
     println!("{:?}", connection.latest_run_migration_version()?);
 
     match args {
         Cli::Migrate => run_migrations(&connection, migrations, &mut std::io::stdout()),
         Cli::ListMigrations => Ok(()), // https://lib.rs/crates/dialoguer
         Cli::Rollback { version: v } => {
-            let migration_to_revert = BarrelMigration {
-                version: "20210716230021".to_string(),
-                up: m_up.make::<Sqlite>(),
-                down: m_down.make::<Sqlite>(),
-            };
-
+            let migration_to_revert = &migrations[0];
             connection.transaction::<_, RunMigrationsError, _>(|| {
                 println!("Rolling back migration {}", migration_to_revert.version());
                 migration_to_revert.revert(&connection)?;
@@ -63,5 +61,16 @@ fn main() -> Result<(), RunMigrationsError> {
                 Ok(())
             })
         }
+    }
+}
+
+fn main() -> Result<(), RunMigrationsError> {
+    dotenv().ok();
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+
+    if database_url.starts_with("postgres://") {
+        migrate::<barrel::backend::Pg>(&database_url)
+    } else {
+        migrate::<barrel::backend::Sqlite>(&database_url)
     }
 }
