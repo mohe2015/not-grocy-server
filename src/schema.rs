@@ -1,5 +1,3 @@
-use diesel::table;
-
 table! {
     api_keys (id) {
         id -> Integer,
@@ -44,14 +42,14 @@ table! {
         period_days -> Nullable<Integer>,
         row_created_timestamp -> Nullable<Timestamp>,
         period_config -> Nullable<Text>,
-        track_date_only -> Nullable<Bool>,
-        rollover -> Nullable<Bool>,
+        track_date_only -> Bool,
+        rollover -> Bool,
         assignment_type -> Nullable<Text>,
         assignment_config -> Nullable<Text>,
         next_execution_assigned_to_user_id -> Nullable<Integer>,
         consume_product_on_execution -> Bool,
-        product_id -> Nullable<Bool>,
-        product_amount -> Nullable<Float>,
+        product_id -> Nullable<Integer>,
+        product_amount -> Nullable<Double>,
         period_interval -> Integer,
         active -> Bool,
     }
@@ -94,21 +92,14 @@ table! {
         id -> Integer,
         day -> Date,
         #[sql_name = "type"]
-        type_ -> Nullable<Text>,
+        type_ -> Text,
         recipe_id -> Nullable<Integer>,
-        recipe_servings -> Nullable<Integer>,
+        recipe_servings -> Integer,
         note -> Nullable<Text>,
         product_id -> Nullable<Integer>,
-        product_amount -> Nullable<Float>,
+        product_amount -> Double,
         product_qu_id -> Nullable<Integer>,
         row_created_timestamp -> Nullable<Timestamp>,
-    }
-}
-
-table! {
-    migrations (migration) {
-        migration -> Integer,
-        execution_time_timestamp -> Nullable<Timestamp>,
     }
 }
 
@@ -126,7 +117,7 @@ table! {
         product_id -> Integer,
         barcode -> Text,
         qu_id -> Nullable<Integer>,
-        amount -> Nullable<Float>,
+        amount -> Nullable<Double>,
         shopping_location_id -> Nullable<Integer>,
         last_price -> Nullable<Double>,
         row_created_timestamp -> Nullable<Timestamp>,
@@ -154,7 +145,7 @@ table! {
         shopping_location_id -> Nullable<Integer>,
         qu_id_purchase -> Integer,
         qu_id_stock -> Integer,
-        qu_factor_purchase_to_stock -> Float,
+        qu_factor_purchase_to_stock -> Double,
         min_stock_amount -> Integer,
         default_best_before_days -> Integer,
         default_best_before_days_after_open -> Integer,
@@ -162,13 +153,13 @@ table! {
         default_best_before_days_after_thawing -> Integer,
         picture_file_name -> Nullable<Text>,
         enable_tare_weight_handling -> Bool,
-        tare_weight -> Float,
+        tare_weight -> Double,
         not_check_stock_fulfillment_for_recipes -> Nullable<Bool>,
         parent_product_id -> Nullable<Integer>,
         calories -> Nullable<Integer>,
         cumulate_min_stock_amount_of_sub_products -> Nullable<Bool>,
-        due_type -> Bool,
-        quick_consume_amount -> Float,
+        due_type -> Integer,
+        quick_consume_amount -> Double,
         hide_on_stock_overview -> Bool,
         row_created_timestamp -> Nullable<Timestamp>,
         default_print_stock_label -> Integer,
@@ -181,7 +172,7 @@ table! {
         id -> Integer,
         from_qu_id -> Integer,
         to_qu_id -> Integer,
-        factor -> Float,
+        factor -> Double,
         product_id -> Nullable<Integer>,
         row_created_timestamp -> Nullable<Timestamp>,
     }
@@ -229,15 +220,15 @@ table! {
         id -> Integer,
         recipe_id -> Integer,
         product_id -> Integer,
-        amount -> Float,
-        note -> Nullable<Text>,
+        amount -> Double,
+        node -> Nullable<Text>,
         qu_id -> Nullable<Integer>,
         only_check_single_unit_in_stock -> Bool,
         ingredient_group -> Nullable<Text>,
         not_check_stock_fulfillment -> Bool,
         row_created_timestamp -> Nullable<Timestamp>,
         variable_amount -> Nullable<Text>,
-        price_factor -> Float,
+        price_factor -> Double,
     }
 }
 
@@ -260,7 +251,7 @@ table! {
         amount -> Double,
         row_created_timestamp -> Nullable<Timestamp>,
         shopping_list_id -> Nullable<Integer>,
-        done -> Nullable<Integer>,
+        done -> Nullable<Bool>,
         qu_id -> Nullable<Integer>,
     }
 }
@@ -308,7 +299,7 @@ table! {
         best_before_date -> Nullable<Date>,
         purchased_date -> Nullable<Date>,
         used_date -> Nullable<Date>,
-        spoiled -> Integer,
+        spoiled -> Bool,
         stock_id -> Text,
         transaction_type -> Text,
         price -> Nullable<Double>,
@@ -362,9 +353,9 @@ table! {
         id -> Integer,
         user_id -> Integer,
         key -> Text,
-        value -> Nullable<Text>,
+        value -> Text,
         row_created_timestamp -> Nullable<Timestamp>,
-        row_updated_timestamp -> Nullable<Timestamp>,
+        row_updated_timestamp -> Timestamp,
     }
 }
 
@@ -434,7 +425,6 @@ allow_tables_to_appear_in_same_query!(
     equipment,
     locations,
     meal_plan,
-    migrations,
     permission_hierarchy,
     product_barcodes,
     product_groups,

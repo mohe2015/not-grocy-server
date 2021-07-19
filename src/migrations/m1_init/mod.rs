@@ -31,7 +31,9 @@ fn id(t: &mut Table) {
 fn created(t: &mut Table) {
     t.add_column(
         "row_created_timestamp",
-        datetime().default(AutogenFunction::CurrentTimestamp),
+        datetime()
+            .nullable(true)
+            .default(AutogenFunction::CurrentTimestamp),
     );
 }
 
@@ -316,15 +318,17 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("best_before_date", date().nullable(true));
             t.add_column(
                 "purchased_date",
-                date().default(AutogenFunction::CurrentTimestamp),
+                date()
+                    .nullable(true)
+                    .default(AutogenFunction::CurrentTimestamp),
             );
             t.add_column("stock_id", text());
             t.add_column("price", double().nullable(true)); // DECIMAL
             t.add_column("open", boolean().default(false));
-            t.add_column("opened_date", datetime().nullable(true));
             created(t);
             t.add_column("location_id", integer().nullable(true));
             t.add_column("shopping_location_id", integer().nullable(true));
+            t.add_column("opened_date", date().nullable(true));
         });
 
         migr.create_table("stock_log", |t| {
