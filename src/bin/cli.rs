@@ -1,3 +1,6 @@
+#[path = "../migrations/mod.rs"]
+pub mod migrations;
+
 use std::env;
 use std::marker::PhantomData;
 
@@ -31,11 +34,9 @@ fn migrate<T: SqlGenerator>(database_url: &str) -> Result<(), RunMigrationsError
     let args = Cli::from_args();
     let connection = SqliteConnection::establish(&database_url)
         .expect(&format!("Error connecting to {}", database_url));
-    let migrations = [
-        not_grocy_server::migrations::m1_init::BarrelMigration::<T> {
-            phantom_data: PhantomData,
-        },
-    ];
+    let migrations = [migrations::m1_init::BarrelMigration::<T> {
+        phantom_data: PhantomData,
+    }];
     println!("{:?}", connection.latest_run_migration_version()?);
 
     match args {
