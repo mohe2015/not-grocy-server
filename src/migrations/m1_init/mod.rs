@@ -284,6 +284,156 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             created(t);
         });
 
+        migr.create_table("shopping_list", |t| {
+            id(t);
+            t.add_column("product_id", integer().nullable(true));
+            t.add_column("note", text().nullable(true));
+            t.add_column("amount", double().default(0)); // DECIMAL
+            created(t);
+            t.add_column("shopping_list_id", integer().nullable(true).default(1));
+            t.add_column("done", boolean().nullable(true).default(false));
+            t.add_column("qu_id", integer().nullable(true));
+        });
+
+        migr.create_table("shopping_lists", |t| {
+            id(t);
+            name(t);
+            description(t);
+            created(t);
+        });
+
+        migr.create_table("shopping_locations", |t| {
+            id(t);
+            name(t);
+            description(t);
+            created(t);
+        });
+
+        migr.create_table("stock", |t| {
+            id(t);
+            t.add_column("product_id", integer());
+            t.add_column("amount", double()); // DECIMAL
+            t.add_column("best_before_date", date().nullable(true));
+            t.add_column(
+                "purchased_date",
+                date().default(AutogenFunction::CurrentTimestamp),
+            );
+            t.add_column("stock_id", text());
+            t.add_column("price", double().nullable(true)); // DECIMAL
+            t.add_column("open", boolean().default(false));
+            t.add_column("opened_date", datetime().nullable(true));
+            created(t);
+            t.add_column("location_id", integer().nullable(true));
+            t.add_column("shopping_location_id", integer().nullable(true));
+        });
+
+        migr.create_table("stock_log", |t| {
+            id(t);
+            t.add_column("product_id", integer());
+            t.add_column("amount", double()); // DECIMAL
+            t.add_column("best_before_date", date().nullable(true));
+            t.add_column("purchased_date", date().nullable(true));
+            t.add_column("used_date", date().nullable(true));
+            t.add_column("spoiled", boolean().default(false));
+            t.add_column("stock_id", text());
+            t.add_column("transaction_type", text());
+            t.add_column("price", double().nullable(true)); // DECIMAL
+            t.add_column("undone", boolean().default(false));
+            t.add_column("undone_timestamp", datetime().nullable(true));
+            t.add_column("opened_date", datetime().nullable(true));
+            created(t);
+            t.add_column("location_id", integer().nullable(true));
+            t.add_column("recipe_id", integer().nullable(true));
+            t.add_column("correlation_id", text().nullable(true));
+            t.add_column("transaction_id", text().nullable(true));
+            t.add_column("stock_row_id", integer().nullable(true));
+            t.add_column("shopping_location_id", integer().nullable(true));
+            t.add_column("user_id", integer().default(1));
+        });
+
+        migr.create_table("task_categories", |t| {
+            id(t);
+            name(t);
+            description(t);
+            created(t);
+        });
+
+        migr.create_table("tasks", |t| {
+            id(t);
+            name(t);
+            description(t);
+            t.add_column("due_date", datetime().nullable(true));
+            t.add_column("done", boolean().default(false));
+            t.add_column("done_timestamp", datetime().nullable(true));
+            t.add_column("category_id", integer().nullable(true));
+            t.add_column("assigned_to_user_id", integer().nullable(true));
+            created(t);
+        });
+
+        migr.create_table("user_permissions", |t| {
+            id(t);
+            t.add_column("permission_id", integer());
+            t.add_column("user_id", integer());
+        });
+
+        migr.create_table("user_settings", |t| {
+            id(t);
+            t.add_column("user_id", integer());
+            t.add_column("key", text());
+            t.add_column("value", text());
+            created(t);
+            t.add_column(
+                "row_updated_timestamp",
+                datetime().default(AutogenFunction::CurrentTimestamp),
+            );
+        });
+
+        migr.create_table("userentities", |t| {
+            id(t);
+            name(t);
+            t.add_column("caption", text());
+            description(t);
+            t.add_column("show_in_sidebar_menu", boolean().default(true));
+            t.add_column("icon_css_class", text().nullable(true));
+            created(t);
+        });
+
+        migr.create_table("userfield_values", |t| {
+            id(t);
+            t.add_column("field_id", integer());
+            t.add_column("object_id", integer());
+            t.add_column("value", text());
+            created(t);
+        });
+
+        migr.create_table("userfields", |t| {
+            id(t);
+            t.add_column("entity", text());
+            name(t);
+            t.add_column("caption", text());
+            t.add_column("type", text());
+            t.add_column("show_as_column_in_tables", boolean().default(false));
+            created(t);
+            t.add_column("config", text().nullable(true));
+            t.add_column("sort_number", integer().nullable(true));
+        });
+
+        migr.create_table("userobjects", |t| {
+            id(t);
+            t.add_column("userentity_id", integer());
+            created(t);
+        });
+
+        migr.create_table("users", |t| {
+            id(t);
+            t.add_column("username", text().unique(true));
+            t.add_column("first_name", text().nullable(true));
+            t.add_column("last_name", text().nullable(true));
+            t.add_column("password", text());
+            created(t);
+            t.add_column("picture_file_name", text().nullable(true));
+        });
+
         conn.batch_execute(&migr.make::<T>())?;
         Ok(())
     }
@@ -309,6 +459,20 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
         migr.drop_table_if_exists("recipes_nestings");
         migr.drop_table_if_exists("recipes_pos");
         migr.drop_table_if_exists("sessions");
+        migr.drop_table_if_exists("shopping_list");
+        migr.drop_table_if_exists("shopping_lists");
+        migr.drop_table_if_exists("shopping_locations");
+        migr.drop_table_if_exists("stock");
+        migr.drop_table_if_exists("stock_log");
+        migr.drop_table_if_exists("task_categories");
+        migr.drop_table_if_exists("tasks");
+        migr.drop_table_if_exists("user_permissions");
+        migr.drop_table_if_exists("user_settings");
+        migr.drop_table_if_exists("userentities");
+        migr.drop_table_if_exists("userfield_values");
+        migr.drop_table_if_exists("userfields");
+        migr.drop_table_if_exists("userobjects");
+        migr.drop_table_if_exists("users");
 
         conn.batch_execute(&migr.make::<T>())?;
         Ok(())
