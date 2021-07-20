@@ -2,6 +2,12 @@
 
 # Development
 
+If you are using Nix:
+```
+nix develop --command fish
+```
+otherwise install dependencies manually.
+
 I personally recommend to use [rustup](https://www.rust-lang.org/tools/install) and [VSCodium](https://vscodium.com/#install) with the [rust-analyzer extension](https://marketplace.visualstudio.com/items?itemName=matklad.rust-analyzer)
 
 Also the Diesel CLI may be useful:
@@ -44,3 +50,12 @@ If you get
 thread 'main' panicked at 'index out of bounds: the len is 1 but the index is 1', barrel-0.6.5/src/integrations/diesel.rs:182:29
 ```
 you probably have a syntax error in your migration file.
+
+```
+cargo +nightly build -Ztimings
+```
+
+```bash
+cargo run --bin cli rollback 1 && RUST_BACKTRACE=1 cargo run --bin cli migrate
+~/.cargo/bin/diesel print-schema > src/schema.rs
+```

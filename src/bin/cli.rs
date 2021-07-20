@@ -1,11 +1,12 @@
+#[path = "../migrations/mod.rs"]
+pub mod migrations;
+
 use std::env;
 use std::marker::PhantomData;
-use std::path::Path;
 
 use barrel::backend::SqlGenerator;
-use barrel::backend::Sqlite;
-use diesel::connection::SimpleConnection;
 use diesel::migration::RunMigrationsError;
+use diesel::sql_query;
 use diesel::Connection;
 use diesel::ExpressionMethods;
 use diesel::QueryDsl;
@@ -26,32 +27,37 @@ enum Cli {
     Rollback { version: String },
 }
 
-pub struct BarrelMigration {
-    version: String,
-    up: String,
-    down: String,
-}
-
 // we roll our own cli because the official one creates terrible errors if the migrations have compilation errors
 // and developing migrations has no good ide support.
 // also switching databases is not supported.
 
 fn migrate<T: SqlGenerator>(database_url: &str) -> Result<(), RunMigrationsError> {
     let args = Cli::from_args();
-    let connection = SqliteConnection::establish(&database_url)
-        .expect(&format!("Error connecting to {}", database_url));
-    let migrations = [
-        not_grocy_server::migrations::m20210716230021_init::BarrelMigration::<T> {
-            phantom_data: PhantomData,
-        },
-    ];
+    let connection = SqliteConnection::establish(database_url)
+        .unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
+    let migrations = [migrations::m1_init::BarrelMigration::<T> {
+        phantom_data: PhantomData,
+    }];
+
+    // https://github.com/diesel-rs/diesel/blob/master/diesel/src/migration/setup_migration_table.sql
+    sql_query(
+        "CREATE TABLE IF NOT EXISTS __diesel_schema_migrations (
+        version VARCHAR(50) PRIMARY KEY NOT NULL,
+        run_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );",
+    )
+    .execute(&connection)?;
+
     println!("{:?}", connection.latest_run_migration_version()?);
 
     match args {
         Cli::Migrate => run_migrations(&connection, migrations, &mut std::io::stdout()),
         Cli::ListMigrations => Ok(()), // https://lib.rs/crates/dialoguer
         Cli::Rollback { version: v } => {
-            let migration_to_revert = &migrations[0];
+            let migration_to_revert = migrations
+                .iter()
+                .find(|f| f.version() == v)
+                .expect("Could not find migration with that version");
             connection.transaction::<_, RunMigrationsError, _>(|| {
                 println!("Rolling back migration {}", migration_to_revert.version());
                 migration_to_revert.revert(&connection)?;

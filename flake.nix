@@ -21,6 +21,7 @@
               pkgs.sqlite
               pkgs.postgresql
               pkgs.mariadb
+              pkgs.openssl
             ];
           };
 

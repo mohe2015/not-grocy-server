@@ -1,5 +1,3 @@
-use diesel::table;
-
 table! {
     api_keys (id) {
         id -> Integer,
@@ -102,13 +100,6 @@ table! {
         product_amount -> Nullable<Float>,
         product_qu_id -> Nullable<Integer>,
         row_created_timestamp -> Nullable<Timestamp>,
-    }
-}
-
-table! {
-    migrations (migration) {
-        migration -> Integer,
-        execution_time_timestamp -> Nullable<Timestamp>,
     }
 }
 
@@ -293,10 +284,10 @@ table! {
         stock_id -> Text,
         price -> Nullable<Double>,
         open -> Bool,
+        opened_date -> Nullable<Timestamp>,
         row_created_timestamp -> Nullable<Timestamp>,
         location_id -> Nullable<Integer>,
         shopping_location_id -> Nullable<Integer>,
-        opened_date -> Nullable<Date>,
     }
 }
 
@@ -434,7 +425,6 @@ allow_tables_to_appear_in_same_query!(
     equipment,
     locations,
     meal_plan,
-    migrations,
     permission_hierarchy,
     product_barcodes,
     product_groups,
