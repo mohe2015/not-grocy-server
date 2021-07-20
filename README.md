@@ -54,3 +54,8 @@ you probably have a syntax error in your migration file.
 ```
 cargo +nightly build -Ztimings
 ```
+
+```bash
+cargo run --bin cli rollback 1 && RUST_BACKTRACE=1 cargo run --bin cli migrate
+~/.cargo/bin/diesel print-schema > src/schema.rs
+```

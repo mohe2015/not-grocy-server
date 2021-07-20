@@ -102,8 +102,8 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("period_days", integer().nullable(true));
             created(t);
             t.add_column("period_config", text().nullable(true));
-            t.add_column("track_date_only", boolean().default(false));
-            t.add_column("rollover", boolean().default(false));
+            t.add_column("track_date_only", boolean().nullable(true).default(false));
+            t.add_column("rollover", boolean().nullable(true).default(false));
             t.add_column("assignment_type", text().nullable(true));
             t.add_column("assignment_config", text().nullable(true));
             t.add_column(
@@ -112,7 +112,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             );
             t.add_column("consume_product_on_execution", boolean().default(false));
             t.add_column("product_id", integer().nullable(true));
-            t.add_column("product_amount", double().nullable(true));
+            t.add_column("product_amount", float().nullable(true));
             t.add_column("period_interval", integer().default(1));
             t.add_column("active", boolean().default(true));
         });
@@ -145,12 +145,12 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
         migr.create_table("meal_plan", |t| {
             id(t);
             t.add_column("day", date());
-            t.add_column("type", text().default("recipe"));
+            t.add_column("type", text().nullable(true).default("recipe"));
             t.add_column("recipe_id", integer().nullable(true));
-            t.add_column("recipe_servings", integer().default(1));
+            t.add_column("recipe_servings", integer().nullable(true).default(1));
             t.add_column("note", text().nullable(true));
             t.add_column("product_id", integer().nullable(true));
-            t.add_column("product_amount", double().default(0));
+            t.add_column("product_amount", float().nullable(true).default(0));
             t.add_column("product_qu_id", integer().nullable(true));
             created(t);
         });
@@ -166,9 +166,9 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("product_id", integer());
             t.add_column("barcode", text());
             t.add_column("qu_id", integer().nullable(true));
-            t.add_column("amount", double().nullable(true));
+            t.add_column("amount", float().nullable(true));
             t.add_column("shopping_location_id", integer().nullable(true));
-            t.add_column("last_price", double().nullable(true)); // DECIMAL
+            t.add_column("last_price", float().nullable(true)); // DECIMAL
             created(t);
             t.add_column("note", text().nullable(true));
         });
@@ -190,7 +190,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("shopping_location_id", integer().nullable(true));
             t.add_column("qu_id_purchase", integer());
             t.add_column("qu_id_stock", integer());
-            t.add_column("qu_factor_purchase_to_stock", double());
+            t.add_column("qu_factor_purchase_to_stock", float());
             t.add_column("min_stock_amount", integer().default(0));
             t.add_column("default_best_before_days", integer().default(0));
             t.add_column("default_best_before_days_after_open", integer().default(0));
@@ -204,7 +204,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             );
             t.add_column("picture_file_name", text().nullable(true));
             t.add_column("enable_tare_weight_handling", boolean().default(false));
-            t.add_column("tare_weight", double().default(0));
+            t.add_column("tare_weight", float().default(0));
             t.add_column(
                 "not_check_stock_fulfillment_for_recipes",
                 boolean().default(false).nullable(true),
@@ -216,7 +216,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
                 boolean().default(false).nullable(true),
             );
             t.add_column("due_type", integer().default(1));
-            t.add_column("quick_consume_amount", double().default(1));
+            t.add_column("quick_consume_amount", float().default(1));
             t.add_column("hide_on_stock_overview", boolean().default(false));
             created(t);
             t.add_column("default_print_stock_label", integer().default(0));
@@ -227,7 +227,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             id(t);
             t.add_column("from_qu_id", integer());
             t.add_column("to_qu_id", integer());
-            t.add_column("factor", double());
+            t.add_column("factor", float());
             t.add_column("product_id", integer().nullable(true));
             created(t);
         });
@@ -266,7 +266,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             id(t);
             t.add_column("recipe_id", integer());
             t.add_column("product_id", integer());
-            t.add_column("amount", double().default(0));
+            t.add_column("amount", float().default(0));
             t.add_column("node", text().nullable(true));
             t.add_column("qu_id", integer().nullable(true));
             t.add_column("only_check_single_unit_in_stock", boolean().default(false));
@@ -274,7 +274,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("not_check_stock_fulfillment", boolean().default(false));
             created(t);
             t.add_column("variable_amount", text().nullable(true));
-            t.add_column("price_factor", double().default(1));
+            t.add_column("price_factor", float().default(1));
         });
 
         migr.create_table("sessions", |t| {
@@ -290,7 +290,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             id(t);
             t.add_column("product_id", integer().nullable(true));
             t.add_column("note", text().nullable(true));
-            t.add_column("amount", double().default(0)); // DECIMAL
+            t.add_column("amount", float().default(0)); // DECIMAL
             created(t);
             t.add_column("shopping_list_id", integer().nullable(true).default(1));
             t.add_column("done", boolean().nullable(true).default(false));
@@ -314,7 +314,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
         migr.create_table("stock", |t| {
             id(t);
             t.add_column("product_id", integer());
-            t.add_column("amount", double()); // DECIMAL
+            t.add_column("amount", float()); // DECIMAL
             t.add_column("best_before_date", date().nullable(true));
             t.add_column(
                 "purchased_date",
@@ -323,7 +323,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
                     .default(AutogenFunction::CurrentTimestamp),
             );
             t.add_column("stock_id", text());
-            t.add_column("price", double().nullable(true)); // DECIMAL
+            t.add_column("price", float().nullable(true)); // DECIMAL
             t.add_column("open", boolean().default(false));
             created(t);
             t.add_column("location_id", integer().nullable(true));
@@ -334,14 +334,14 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
         migr.create_table("stock_log", |t| {
             id(t);
             t.add_column("product_id", integer());
-            t.add_column("amount", double()); // DECIMAL
+            t.add_column("amount", float()); // DECIMAL
             t.add_column("best_before_date", date().nullable(true));
             t.add_column("purchased_date", date().nullable(true));
             t.add_column("used_date", date().nullable(true));
             t.add_column("spoiled", boolean().default(false));
             t.add_column("stock_id", text());
             t.add_column("transaction_type", text());
-            t.add_column("price", double().nullable(true)); // DECIMAL
+            t.add_column("price", float().nullable(true)); // DECIMAL
             t.add_column("undone", boolean().default(false));
             t.add_column("undone_timestamp", datetime().nullable(true));
             t.add_column("opened_date", datetime().nullable(true));
@@ -384,7 +384,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             id(t);
             t.add_column("user_id", integer());
             t.add_column("key", text());
-            t.add_column("value", text());
+            t.add_column("value", text().nullable(true));
             created(t);
             t.add_column(
                 "row_updated_timestamp",

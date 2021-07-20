@@ -32,8 +32,8 @@ enum Cli {
 
 fn migrate<T: SqlGenerator>(database_url: &str) -> Result<(), RunMigrationsError> {
     let args = Cli::from_args();
-    let connection = SqliteConnection::establish(&database_url)
-        .expect(&format!("Error connecting to {}", database_url));
+    let connection = SqliteConnection::establish(database_url)
+        .unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
     let migrations = [migrations::m1_init::BarrelMigration::<T> {
         phantom_data: PhantomData,
     }];
