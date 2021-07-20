@@ -13,8 +13,8 @@ pub struct Stock {
     pub stock_id: String,
     pub price: Option<f64>,
     pub open: bool,
+    pub opened_date: Option<NaiveDateTime>,
     pub row_created_timestamp: Option<NaiveDateTime>,
     pub location_id: Option<i32>,
     pub shopping_location_id: Option<i32>,
-    pub opened_date: Option<NaiveDate>,
 }
