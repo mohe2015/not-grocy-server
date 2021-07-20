@@ -48,7 +48,7 @@ table! {
         assignment_config -> Nullable<Text>,
         next_execution_assigned_to_user_id -> Nullable<Integer>,
         consume_product_on_execution -> Bool,
-        product_id -> Nullable<Integer>,
+        product_id -> Nullable<Bool>,
         product_amount -> Nullable<Float>,
         period_interval -> Integer,
         active -> Bool,
@@ -104,6 +104,13 @@ table! {
 }
 
 table! {
+    migrations (migration) {
+        migration -> Integer,
+        execution_time_timestamp -> Nullable<Timestamp>,
+    }
+}
+
+table! {
     permission_hierarchy (id) {
         id -> Integer,
         name -> Text,
@@ -119,7 +126,7 @@ table! {
         qu_id -> Nullable<Integer>,
         amount -> Nullable<Float>,
         shopping_location_id -> Nullable<Integer>,
-        last_price -> Nullable<Float>,
+        last_price -> Nullable<Double>,
         row_created_timestamp -> Nullable<Timestamp>,
         note -> Nullable<Text>,
     }
@@ -158,7 +165,7 @@ table! {
         parent_product_id -> Nullable<Integer>,
         calories -> Nullable<Integer>,
         cumulate_min_stock_amount_of_sub_products -> Nullable<Bool>,
-        due_type -> Integer,
+        due_type -> Bool,
         quick_consume_amount -> Float,
         hide_on_stock_overview -> Bool,
         row_created_timestamp -> Nullable<Timestamp>,
@@ -221,7 +228,7 @@ table! {
         recipe_id -> Integer,
         product_id -> Integer,
         amount -> Float,
-        node -> Nullable<Text>,
+        note -> Nullable<Text>,
         qu_id -> Nullable<Integer>,
         only_check_single_unit_in_stock -> Bool,
         ingredient_group -> Nullable<Text>,
@@ -248,10 +255,10 @@ table! {
         id -> Integer,
         product_id -> Nullable<Integer>,
         note -> Nullable<Text>,
-        amount -> Float,
+        amount -> Double,
         row_created_timestamp -> Nullable<Timestamp>,
         shopping_list_id -> Nullable<Integer>,
-        done -> Nullable<Bool>,
+        done -> Nullable<Integer>,
         qu_id -> Nullable<Integer>,
     }
 }
@@ -278,16 +285,16 @@ table! {
     stock (id) {
         id -> Integer,
         product_id -> Integer,
-        amount -> Float,
+        amount -> Double,
         best_before_date -> Nullable<Date>,
         purchased_date -> Nullable<Date>,
         stock_id -> Text,
-        price -> Nullable<Float>,
+        price -> Nullable<Double>,
         open -> Bool,
+        opened_date -> Nullable<Timestamp>,
         row_created_timestamp -> Nullable<Timestamp>,
         location_id -> Nullable<Integer>,
         shopping_location_id -> Nullable<Integer>,
-        opened_date -> Nullable<Date>,
     }
 }
 
@@ -295,14 +302,14 @@ table! {
     stock_log (id) {
         id -> Integer,
         product_id -> Integer,
-        amount -> Float,
+        amount -> Double,
         best_before_date -> Nullable<Date>,
         purchased_date -> Nullable<Date>,
         used_date -> Nullable<Date>,
-        spoiled -> Bool,
+        spoiled -> Integer,
         stock_id -> Text,
         transaction_type -> Text,
-        price -> Nullable<Float>,
+        price -> Nullable<Double>,
         undone -> Bool,
         undone_timestamp -> Nullable<Timestamp>,
         opened_date -> Nullable<Timestamp>,
@@ -355,7 +362,7 @@ table! {
         key -> Text,
         value -> Nullable<Text>,
         row_created_timestamp -> Nullable<Timestamp>,
-        row_updated_timestamp -> Timestamp,
+        row_updated_timestamp -> Nullable<Timestamp>,
     }
 }
 
@@ -425,6 +432,7 @@ allow_tables_to_appear_in_same_query!(
     equipment,
     locations,
     meal_plan,
+    migrations,
     permission_hierarchy,
     product_barcodes,
     product_groups,
