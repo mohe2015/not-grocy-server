@@ -48,7 +48,7 @@ table! {
         assignment_config -> Nullable<Text>,
         next_execution_assigned_to_user_id -> Nullable<Integer>,
         consume_product_on_execution -> Bool,
-        product_id -> Nullable<Integer>,
+        product_id -> Nullable<Bool>,
         product_amount -> Nullable<Float>,
         period_interval -> Integer,
         active -> Bool,
@@ -100,6 +100,13 @@ table! {
         product_amount -> Nullable<Float>,
         product_qu_id -> Nullable<Integer>,
         row_created_timestamp -> Nullable<Timestamp>,
+    }
+}
+
+table! {
+    migrations (migration) {
+        migration -> Integer,
+        execution_time_timestamp -> Nullable<Timestamp>,
     }
 }
 
@@ -158,7 +165,7 @@ table! {
         parent_product_id -> Nullable<Integer>,
         calories -> Nullable<Integer>,
         cumulate_min_stock_amount_of_sub_products -> Nullable<Bool>,
-        due_type -> Integer,
+        due_type -> Bool,
         quick_consume_amount -> Float,
         hide_on_stock_overview -> Bool,
         row_created_timestamp -> Nullable<Timestamp>,
@@ -251,7 +258,7 @@ table! {
         amount -> Double,
         row_created_timestamp -> Nullable<Timestamp>,
         shopping_list_id -> Nullable<Integer>,
-        done -> Nullable<Bool>,
+        done -> Nullable<Integer>,
         qu_id -> Nullable<Integer>,
     }
 }
@@ -284,10 +291,10 @@ table! {
         stock_id -> Text,
         price -> Nullable<Double>,
         open -> Bool,
+        opened_date -> Nullable<Timestamp>,
         row_created_timestamp -> Nullable<Timestamp>,
         location_id -> Nullable<Integer>,
         shopping_location_id -> Nullable<Integer>,
-        opened_date -> Nullable<Date>,
     }
 }
 
@@ -299,14 +306,14 @@ table! {
         best_before_date -> Nullable<Date>,
         purchased_date -> Nullable<Date>,
         used_date -> Nullable<Date>,
-        spoiled -> Bool,
+        spoiled -> Integer,
         stock_id -> Text,
         transaction_type -> Text,
         price -> Nullable<Double>,
         undone -> Bool,
         undone_timestamp -> Nullable<Timestamp>,
-        opened_date -> Nullable<Date>,
-        row_created_timestamp -> Timestamp,
+        opened_date -> Nullable<Timestamp>,
+        row_created_timestamp -> Nullable<Timestamp>,
         location_id -> Nullable<Integer>,
         recipe_id -> Nullable<Integer>,
         correlation_id -> Nullable<Text>,
@@ -355,7 +362,7 @@ table! {
         key -> Text,
         value -> Nullable<Text>,
         row_created_timestamp -> Nullable<Timestamp>,
-        row_updated_timestamp -> Timestamp,
+        row_updated_timestamp -> Nullable<Timestamp>,
     }
 }
 
@@ -425,6 +432,7 @@ allow_tables_to_appear_in_same_query!(
     equipment,
     locations,
     meal_plan,
+    migrations,
     permission_hierarchy,
     product_barcodes,
     product_groups,
