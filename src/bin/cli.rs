@@ -6,6 +6,7 @@ use std::marker::PhantomData;
 
 use barrel::backend::SqlGenerator;
 use diesel::migration::RunMigrationsError;
+use diesel::sql_query;
 use diesel::Connection;
 use diesel::ExpressionMethods;
 use diesel::QueryDsl;
@@ -37,6 +38,16 @@ fn migrate<T: SqlGenerator>(database_url: &str) -> Result<(), RunMigrationsError
     let migrations = [migrations::m1_init::BarrelMigration::<T> {
         phantom_data: PhantomData,
     }];
+
+    // https://github.com/diesel-rs/diesel/blob/master/diesel/src/migration/setup_migration_table.sql
+    sql_query(
+        "CREATE TABLE IF NOT EXISTS __diesel_schema_migrations (
+        version VARCHAR(50) PRIMARY KEY NOT NULL,
+        run_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );",
+    )
+    .execute(&connection)?;
+
     println!("{:?}", connection.latest_run_migration_version()?);
 
     match args {
