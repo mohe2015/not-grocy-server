@@ -284,10 +284,10 @@ table! {
         stock_id -> Text,
         price -> Nullable<Double>,
         open -> Bool,
+        opened_date -> Nullable<Timestamp>,
         row_created_timestamp -> Nullable<Timestamp>,
         location_id -> Nullable<Integer>,
         shopping_location_id -> Nullable<Integer>,
-        opened_date -> Nullable<Timestamp>,
     }
 }
 
@@ -355,6 +355,7 @@ table! {
         key -> Text,
         value -> Nullable<Text>,
         row_created_timestamp -> Nullable<Timestamp>,
+        row_updated_timestamp -> Nullable<Timestamp>,
     }
 }
 
