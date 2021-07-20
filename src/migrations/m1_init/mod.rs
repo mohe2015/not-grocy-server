@@ -111,7 +111,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
                 integer().nullable(true),
             );
             t.add_column("consume_product_on_execution", boolean().default(false));
-            t.add_column("product_id", integer().nullable(true));
+            t.add_column("product_id", boolean().nullable(true)); // integer()
             t.add_column("product_amount", float().nullable(true));
             t.add_column("period_interval", integer().default(1));
             t.add_column("active", boolean().default(true));
@@ -215,7 +215,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
                 "cumulate_min_stock_amount_of_sub_products",
                 boolean().default(false).nullable(true),
             );
-            t.add_column("due_type", integer().default(1));
+            t.add_column("due_type", boolean().default(1)); // integer()
             t.add_column("quick_consume_amount", float().default(1));
             t.add_column("hide_on_stock_overview", boolean().default(false));
             created(t);
@@ -293,7 +293,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("amount", double().default(0)); // DECIMAL
             created(t);
             t.add_column("shopping_list_id", integer().nullable(true).default(1));
-            t.add_column("done", boolean().nullable(true).default(false));
+            t.add_column("done", integer().nullable(true).default(false)); // boolean()
             t.add_column("qu_id", integer().nullable(true));
         });
 
@@ -338,7 +338,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("best_before_date", date().nullable(true));
             t.add_column("purchased_date", date().nullable(true));
             t.add_column("used_date", date().nullable(true));
-            t.add_column("spoiled", boolean().default(false));
+            t.add_column("spoiled", integer().default(false)); // boolean()
             t.add_column("stock_id", text());
             t.add_column("transaction_type", text());
             t.add_column("price", double().nullable(true)); // DECIMAL
