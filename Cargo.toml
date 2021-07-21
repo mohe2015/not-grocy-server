@@ -11,9 +11,11 @@ incremental = true
 
 [dependencies]
 actix-web = "3"
-diesel = { version = "1.4", features = ["sqlite", "postgres", "chrono", "r2d2"] }
-diesel_migrations = { version = "1.4" }
-migrations_internals = "1.4.1"
+actix-files = "0.5"
+futures-util = "0.3.15"
+diesel = { version = "1", features = ["sqlite", "postgres", "chrono", "r2d2"] }
+diesel_migrations = { version = "1" }
+migrations_internals = "1"
 dotenv = "0.15"
 chrono = { version = "0.4", features = ["serde"] }
 r2d2 = "0.8"

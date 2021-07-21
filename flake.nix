@@ -15,6 +15,7 @@
               #pkgs.diesel-cli
               pkgs.nixpkgs-fmt
               pkgs.sqlitebrowser
+              pkgs.rustup
             ];
 
             buildInputs = [

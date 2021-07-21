@@ -10,7 +10,11 @@ pub mod models;
 #[path = "../schema.rs"]
 pub mod schema;
 
-use actix_web::web;
+use std::env;
+
+use actix_web::client::Client;
+use actix_web::{web, HttpResponse};
+use actix_web::{App, HttpServer};
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::backend::UsesAnsiSavepointSyntax;
 use diesel::connection::AnsiTransactionManager;
@@ -21,9 +25,14 @@ use diesel::Connection;
 use diesel::PgConnection;
 use dotenv::dotenv;
 use r2d2::Pool;
-use std::env;
 
-use actix_web::{App, HttpServer};
+async fn handler(client: web::Data<Client>) -> actix_web::Result<HttpResponse> {
+    println!("jo");
+    let response = client.get("http://127.0.0.1:8000/").send().await?;
+    println!("jo");
+    println!("{:?}", response);
+    Ok(HttpResponse::build(response.status()).streaming(response))
+}
 
 // https://stackoverflow.com/questions/65645622/how-do-i-pass-a-trait-as-application-data-to-actix-web
 async fn run<T>(manager: ConnectionManager<T>) -> std::io::Result<()>
@@ -43,10 +52,14 @@ where
         .expect("Failed to create database connection pool.");
 
     HttpServer::new(move || {
-        App::new().data(pool.clone()).route(
-            "/api/stock/overview",
-            web::get().to(api::stock::overview::index::<T>),
-        )
+        App::new()
+            .data(pool.clone())
+            .data(Client::default())
+            .route(
+                "/api/stock/overview",
+                web::get().to(api::stock::overview::index::<T>),
+            )
+            .route("/", web::get().to(handler))
     })
     .bind("127.0.0.1:8080")?
     .run()
