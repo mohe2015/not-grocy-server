@@ -12,9 +12,9 @@ pub mod schema;
 
 use std::env;
 
-use actix_web::client::Client;
 use actix_web::{web, HttpResponse};
 use actix_web::{App, HttpServer};
+use awc::Client;
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::backend::UsesAnsiSavepointSyntax;
 use diesel::connection::AnsiTransactionManager;
@@ -27,10 +27,11 @@ use dotenv::dotenv;
 use r2d2::Pool;
 
 async fn handler(client: web::Data<Client>) -> actix_web::Result<HttpResponse> {
-    println!("jo");
-    let response = client.get("http://127.0.0.1:8000/").send().await?;
-    println!("jo");
-    println!("{:?}", response);
+    let response = client
+        .get("http://localhost:8000")
+        .send()
+        .await
+        .map_err(|e| actix_web::error::ErrorBadRequest(e.to_string()))?;
     Ok(HttpResponse::build(response.status()).streaming(response))
 }
 

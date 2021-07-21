@@ -1,5 +1,6 @@
 // https://github.com/mistressofjellyfish/not-grocy/blob/ddc2dad07ec26f854cca78bbdbec92b2213ad235/php/Controllers/StockApiController.php#L332
 
+use std::error::Error;
 use std::fmt;
 use std::fmt::Debug;
 use std::str;
@@ -84,6 +85,7 @@ where
     *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
     let connection = pool.get().map_err(R2D2Error)?;
-    Ok(HttpResponse::Ok()
-        .json(web::block(move || action_stock_overview(connection).map_err(DieselError)).await?))
+    Ok(HttpResponse::Ok().json(
+        web::block(move || action_stock_overview(connection).map_err(|e| e.to_string())).await?,
+    ))
 }
