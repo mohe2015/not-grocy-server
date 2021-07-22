@@ -11,6 +11,7 @@ pub mod models;
 pub mod schema;
 
 use std::env;
+use std::io::Bytes;
 
 use actix_web::{web, HttpResponse};
 use actix_web::{App, HttpServer};
@@ -24,15 +25,27 @@ use diesel::types::{FromSql, HasSqlType};
 use diesel::Connection;
 use diesel::PgConnection;
 use dotenv::dotenv;
+use futures_util::FutureExt;
 use r2d2::Pool;
 
-async fn handler(client: web::Data<Client>) -> actix_web::Result<HttpResponse> {
-    let response = client
-        .get("http://localhost:8000")
+async fn handler() -> actix_web::Result<HttpResponse> {
+    // https://github.com/actix/actix-web/pull/2113
+    // https://github.com/actix/actix-web/issues?q=is%3Aissue+is%3Aopen+client
+    // https://github.com/actix/actix-web/issues/2287
+    // https://github.com/actix/actix-web/issues/2109
+    let client = Client::new();
+    let mut response = client
+        .get("http://localhost:8000/")
         .send()
         .await
         .map_err(|e| actix_web::error::ErrorBadRequest(e.to_string()))?;
-    Ok(HttpResponse::build(response.status()).streaming(response))
+    println!("{:?}", response.headers());
+    let b = response.body();
+    let a = b.await?;
+    println!("{:?}", a);
+    // https://www.reddit.com/r/learnrust/comments/9hhr0u/actixwebclient_how_to_get_body_of_response/
+
+    Ok(HttpResponse::build(response.status()).body(a))
 }
 
 // https://stackoverflow.com/questions/65645622/how-do-i-pass-a-trait-as-application-data-to-actix-web
@@ -55,7 +68,6 @@ where
     HttpServer::new(move || {
         App::new()
             .data(pool.clone())
-            .data(Client::default())
             .route(
                 "/api/stock/overview",
                 web::get().to(api::stock::overview::index::<T>),
