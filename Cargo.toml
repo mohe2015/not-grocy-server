@@ -12,7 +12,6 @@ incremental = true
 [dependencies]
 # https://github.com/actix/actix-web/issues/2249
 actix-web = "4.0.0-beta.8"
-awc = "3.0.0-beta.7"
 actix-files = "0.5"
 futures-util = "0.3.15"
 diesel = { version = "1", features = ["sqlite", "postgres", "chrono", "r2d2"] }
@@ -25,3 +24,4 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 barrel = { git = "https://git.irde.st/spacekookie/barrel.git", features = ["sqlite3", "pg", "mysql", "unstable"] }
 structopt = { version = "0.3" }
+reqwest = "0.11"

@@ -13,9 +13,9 @@ pub mod schema;
 use std::env;
 use std::io::Bytes;
 
+use actix_web::Responder;
 use actix_web::{web, HttpResponse};
 use actix_web::{App, HttpServer};
-use awc::Client;
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::backend::UsesAnsiSavepointSyntax;
 use diesel::connection::AnsiTransactionManager;
@@ -28,24 +28,28 @@ use dotenv::dotenv;
 use futures_util::FutureExt;
 use r2d2::Pool;
 
-async fn handler() -> actix_web::Result<HttpResponse> {
+async fn handler<'a>() -> actix_web::Result<HttpResponse> {
     // https://github.com/actix/actix-web/pull/2113
     // https://github.com/actix/actix-web/issues?q=is%3Aissue+is%3Aopen+client
     // https://github.com/actix/actix-web/issues/2287
     // https://github.com/actix/actix-web/issues/2109
-    let client = Client::new();
-    let mut response = client
-        .get("http://localhost:8000/")
-        .send()
+    // https://www.reddit.com/r/learnrust/comments/9hhr0u/actixwebclient_how_to_get_body_of_response/
+    let request_url = format!("http://localhost:8000/");
+    println!("{}", request_url);
+    let response = reqwest::get(&request_url)
         .await
         .map_err(|e| actix_web::error::ErrorBadRequest(e.to_string()))?;
-    println!("{:?}", response.headers());
-    let b = response.body();
-    let a = b.await?;
-    println!("{:?}", a);
-    // https://www.reddit.com/r/learnrust/comments/9hhr0u/actixwebclient_how_to_get_body_of_response/
-
-    Ok(HttpResponse::build(response.status()).body(a))
+    let status = response.status();
+    let mut r = &mut HttpResponse::build(status);
+    let headers = response.headers();
+    for (k, v) in headers {
+        r = r.append_header((k.as_str(), v.as_bytes()));
+    }
+    let bytes = response
+        .bytes()
+        .await
+        .map_err(|e| actix_web::error::ErrorBadRequest(e.to_string()))?;
+    Ok(r.body(bytes))
 }
 
 // https://stackoverflow.com/questions/65645622/how-do-i-pass-a-trait-as-application-data-to-actix-web
