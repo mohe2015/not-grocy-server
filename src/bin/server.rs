@@ -13,6 +13,7 @@ pub mod schema;
 use std::env;
 use std::io::Bytes;
 
+use actix_web::HttpRequest;
 use actix_web::Responder;
 use actix_web::{web, HttpResponse};
 use actix_web::{App, HttpServer};
@@ -28,13 +29,14 @@ use dotenv::dotenv;
 use futures_util::FutureExt;
 use r2d2::Pool;
 
-async fn handler<'a>() -> actix_web::Result<HttpResponse> {
+async fn handler<'a>(realRequest: HttpRequest) -> actix_web::Result<HttpResponse> {
     // https://github.com/actix/actix-web/pull/2113
     // https://github.com/actix/actix-web/issues?q=is%3Aissue+is%3Aopen+client
     // https://github.com/actix/actix-web/issues/2287
     // https://github.com/actix/actix-web/issues/2109
     // https://www.reddit.com/r/learnrust/comments/9hhr0u/actixwebclient_how_to_get_body_of_response/
-    let request_url = format!("http://localhost:8000/");
+    println!("{}", realRequest.path());
+    let request_url = format!("http://localhost:8000/{}", realRequest.path());
     println!("{}", request_url);
     let response = reqwest::get(&request_url)
         .await
@@ -76,7 +78,7 @@ where
                 "/api/stock/overview",
                 web::get().to(api::stock::overview::index::<T>),
             )
-            .route("/", web::get().to(handler))
+            .default_service(web::get().to(handler))
     })
     .bind("127.0.0.1:8080")?
     .run()
