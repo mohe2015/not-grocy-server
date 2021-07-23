@@ -11,10 +11,9 @@ pub mod models;
 pub mod schema;
 
 use std::env;
-use std::io::Bytes;
 
+use actix_web::web::Data;
 use actix_web::HttpRequest;
-use actix_web::Responder;
 use actix_web::{web, HttpResponse};
 use actix_web::{App, HttpServer};
 use chrono::{NaiveDate, NaiveDateTime};
@@ -26,19 +25,26 @@ use diesel::types::{FromSql, HasSqlType};
 use diesel::Connection;
 use diesel::PgConnection;
 use dotenv::dotenv;
-use futures_util::FutureExt;
 use r2d2::Pool;
 
-async fn handler<'a>(realRequest: HttpRequest) -> actix_web::Result<HttpResponse> {
+// added endpoints in fork:
+/*
+$group->get('/system/config/grocy', '\Grocy\Controllers\SystemApiController:GetGrocyConfig');
+$group->get('/system/config/units', '\Grocy\Controllers\SystemApiController:GetQuantitiyUnitConfig');
+$group->get('/stock/products', '\Grocy\Controllers\StockApiController:GetProducts');
+$group->get('/stock/overview', '\Grocy\Controllers\StockApiController:StockOverview');
+$group->get('/recipes', '\Grocy\Controllers\RecipesApiController:GetAll');
+$group->get('/recipes/{recipeId}/get', '\Grocy\Controllers\RecipesApiController:GetRecipe');
+$group->put('/recipes/{recipeId}/edit', '\Grocy\Controllers\RecipesApiController:EditRecipe');
+*/
+async fn handler<'a>(real_request: HttpRequest) -> actix_web::Result<HttpResponse> {
     // https://github.com/actix/actix-web/pull/2113
     // https://github.com/actix/actix-web/issues?q=is%3Aissue+is%3Aopen+client
     // https://github.com/actix/actix-web/issues/2287
     // https://github.com/actix/actix-web/issues/2109
     // https://www.reddit.com/r/learnrust/comments/9hhr0u/actixwebclient_how_to_get_body_of_response/
     // the following code is ugly but awc is buggy.
-    println!("{}", realRequest.path());
-    let request_url = format!("http://localhost:8000{}", realRequest.path());
-    println!("{}", request_url);
+    let request_url = format!("http://localhost:8000{}", real_request.path());
     let response = reqwest::get(&request_url)
         .await
         .map_err(|e| actix_web::error::ErrorBadRequest(e.to_string()))?;
@@ -74,7 +80,7 @@ where
 
     HttpServer::new(move || {
         App::new()
-            .data(pool.clone())
+            .app_data(Data::new(pool.clone()))
             .route(
                 "/api/stock/overview",
                 web::get().to(api::stock::overview::index::<T>),
