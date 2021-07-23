@@ -138,7 +138,7 @@ struct GlobalUserConfig {
     id: i32,
     permission: Permissions,
     username: String,
-    picture_file_name: String,
+    picture_file_name: Option<String>,
 }
 
 // https://stackoverflow.com/questions/62746540/diesel-with-custom-wrapper-types
@@ -155,7 +155,109 @@ where
     *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
     // usersettings.ts actually accesses this so we need to return something useful
-    Ok(GlobalConfig {})
+    Ok(GlobalConfig {
+        culture: "en".to_string(),
+        currency: "USD".to_string(),
+        calendar_first_day_of_week: "".to_string(),
+        calendar_show_week_numbers: true,
+        meal_plan_first_day_of_week: "".to_string(),
+        locale: "en".to_string(),
+        feature_flags: GlobalConfigFeatureFlags {
+            grocy_feature_flag_stock: true,
+            grocy_feature_flag_shoppinglist: true,
+            grocy_feature_flag_recipes: true,
+            grocy_feature_flag_chores: true,
+            grocy_feature_flag_tasks: true,
+            grocy_feature_flag_batteries: true,
+            grocy_feature_flag_equipment: true,
+            grocy_feature_flag_calendar: true,
+            grocy_feature_flag_labelprinter: true,
+            grocy_feature_flag_stock_price_tracking: true,
+            grocy_feature_flag_stock_location_tracking: true,
+            grocy_feature_flag_stock_best_before_date_tracking: true,
+            grocy_feature_flag_stock_product_opened_tracking: true,
+            grocy_feature_flag_stock_product_freezing: true,
+            grocy_feature_flag_stock_best_before_date_field_number_pad: true,
+            grocy_feature_flag_shoppinglist_multiple_lists: true,
+            grocy_feature_flag_chores_assignments: true,
+            grocy_feature_flag_thermal_printer: true,
+            grocy_feature_flag_auto_torch_on_with_camera: true,
+        },
+        user: GlobalUserConfig {
+            settings: UserSettings {
+                night_mode_enabled: false,
+                auto_night_mode_enabled: false,
+                auto_night_mode_time_range_from: "20:00".to_string(),
+                auto_night_mode_time_range_to: "07:00".to_string(),
+                auto_night_mode_time_range_goes_over_midnight: true,
+                currently_inside_night_mode_range: false,
+                keep_screen_on: false,
+                keep_screen_on_when_fullscreen_card: false,
+                product_presets_location_id: -1,
+                product_presets_product_group_id: -1,
+                product_presets_qu_id: -1,
+                stock_decimal_places_amounts: 4,
+                stock_decimal_places_prices: 2,
+                stock_due_soon_days: 5,
+                stock_default_purchase_amount: 0,
+                stock_default_consume_amount: 1,
+                stock_default_consume_amount_use_quick_consume_amount: false,
+                scan_mode_consume_enabled: false,
+                scan_mode_purchase_enabled: false,
+                show_icon_on_stock_overview_page_when_product_is_on_shopping_list: true,
+                show_purchased_date_on_purchase: false,
+                show_warning_on_purchase_when_due_date_is_earlier_than_next: true,
+                shopping_list_to_stock_workflow_auto_submit_when_prefilled: false,
+                shopping_list_show_calendar: false,
+                recipe_ingredients_group_by_product_group: false,
+                chores_due_soon_days: 5,
+                batteries_due_soon_days: 5,
+                tasks_due_soon_days: 5,
+                auto_reload_on_db_change: true,
+                show_clock_in_header: false,
+                quagga2_numofworkers: 4,
+                quagga2_halfsample: false,
+                quagga2_patchsize: "medium".to_string(),
+                quagga2_frequency: 10,
+                quagga2_debug: true,
+            },
+            id: 1,
+            permission: Permissions {
+                admin: true,
+                users: true,
+                users_create: true,
+                users_edit: true,
+                users_read: true,
+                users_edit_self: true,
+                stock: true,
+                shoppinglist: true,
+                recipes: true,
+                chores: true,
+                batteries: true,
+                tasks: true,
+                equipment: true,
+                calendar: true,
+                stock_purchase: true,
+                stock_consume: true,
+                stock_inventory: true,
+                stock_transfer: true,
+                stock_open: true,
+                stock_edit: true,
+                shoppinglist_items_add: true,
+                shoppinglist_items_delete: true,
+                recipes_mealplan: true,
+                chore_track_execution: true,
+                chore_undo_execution: true,
+                batteries_track_charge_cycle: true,
+                batteries_undo_charge_cycle: true,
+                tasks_undo_execution: true,
+                tasks_mark_completed: true,
+                master_data_edit: true,
+            },
+            username: "Admin".to_string(),
+            picture_file_name: None,
+        },
+    })
 }
 
 // https://github.com/mistressofjellyfish/not-grocy/blob/ddc2dad07ec26f854cca78bbdbec92b2213ad235/php/Controllers/StockApiController.php#L332
@@ -174,6 +276,6 @@ where
     *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
     let connection = pool.get().map_err(R2D2Error)?;
-    Ok(HttpResponse::Ok()
-        .json(web::block(move || action(connection).map_err(|e| e.to_string())).await?))
+    let json = web::block(move || action(connection).map_err(|e| e.to_string())).await?;
+    Ok(HttpResponse::Ok().json(json))
 }
