@@ -85,6 +85,10 @@ where
                 "/api/stock/overview",
                 web::get().to(api::stock::overview::index::<T>),
             )
+            .route(
+                "/api/system/config/grocy",
+                web::get().to(api::system::config::grocy::index::<T>),
+            )
             .default_service(web::get().to(handler))
     })
     .bind("127.0.0.1:8080")?

@@ -20,15 +20,10 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct StockOverviewResponse {
-    current_stock: Vec<Stock>,
-    current_stock_locations: Vec<Stock>,
-}
+struct Result {}
 
 // https://stackoverflow.com/questions/62746540/diesel-with-custom-wrapper-types
-fn action_stock_overview<T>(
-    connection: PooledConnection<ConnectionManager<T>>,
-) -> QueryResult<StockOverviewResponse>
+fn action<T>(connection: PooledConnection<ConnectionManager<T>>) -> QueryResult<Result>
 where
     T: Connection<TransactionManager = AnsiTransactionManager> + 'static,
     <T>::Backend: UsesAnsiSavepointSyntax,
@@ -40,11 +35,8 @@ where
     f64: FromSql<diesel::sql_types::Double, <T as diesel::Connection>::Backend>,
     *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
-    use crate::schema::stock::dsl::*;
-    Ok(StockOverviewResponse {
-        current_stock: stock.load::<Stock>(&connection)?,
-        current_stock_locations: stock.load::<Stock>(&connection)?,
-    })
+    // usersettings.ts actually accesses this so we need to return something useful
+    Ok(Result {})
 }
 
 // https://github.com/mistressofjellyfish/not-grocy/blob/ddc2dad07ec26f854cca78bbdbec92b2213ad235/php/Controllers/StockApiController.php#L332
@@ -63,7 +55,6 @@ where
     *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
     let connection = pool.get().map_err(R2D2Error)?;
-    Ok(HttpResponse::Ok().json(
-        web::block(move || action_stock_overview(connection).map_err(|e| e.to_string())).await?,
-    ))
+    Ok(HttpResponse::Ok()
+        .json(web::block(move || action(connection).map_err(|e| e.to_string())).await?))
 }
