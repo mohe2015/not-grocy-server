@@ -35,8 +35,9 @@ async fn handler<'a>(realRequest: HttpRequest) -> actix_web::Result<HttpResponse
     // https://github.com/actix/actix-web/issues/2287
     // https://github.com/actix/actix-web/issues/2109
     // https://www.reddit.com/r/learnrust/comments/9hhr0u/actixwebclient_how_to_get_body_of_response/
+    // the following code is ugly but awc is buggy.
     println!("{}", realRequest.path());
-    let request_url = format!("http://localhost:8000/{}", realRequest.path());
+    let request_url = format!("http://localhost:8000{}", realRequest.path());
     println!("{}", request_url);
     let response = reqwest::get(&request_url)
         .await
