@@ -1,7 +1,8 @@
 use std::fmt;
+use thiserror::Error;
 
-#[derive(Debug)]
-struct DieselError(diesel::result::Error);
+#[derive(Error, Debug)]
+pub struct DieselError(pub diesel::result::Error);
 
 impl fmt::Display for DieselError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

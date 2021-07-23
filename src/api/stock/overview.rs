@@ -4,6 +4,7 @@ use std::fmt;
 use std::fmt::Debug;
 use std::str;
 
+use crate::api::utils::DieselError;
 use crate::api::utils::R2D2Error;
 use crate::models::*;
 use actix_web::{web, HttpResponse};
@@ -63,7 +64,7 @@ where
     *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
     let connection = pool.get().map_err(R2D2Error)?;
-    Ok(HttpResponse::Ok().json(
-        web::block(move || action_stock_overview(connection).map_err(|e| e.to_string())).await?,
-    ))
+    let json =
+        web::block(move || action_stock_overview(connection).map_err(|e| DieselError(e))).await??;
+    Ok(HttpResponse::Ok().json(json))
 }
