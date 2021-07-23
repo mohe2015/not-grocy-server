@@ -12,24 +12,27 @@ externalDocs:
   description: Documentation
   url: https://github.com/mohe2015/not-grocy-server/tree/schema-doc/docs
 servers:
-- url: https://editor.swagger.io/
+- url: http://localhost:8080/api
 tags:
-- name: users
-  description: Everything about your users
+- name: system
+  description: Everything about the system
   externalDocs:
     description: Find out more
     url: https://editor.swagger.io/
 paths:
-  /user/logout:
+  /system/config/grocy:
     get:
       tags:
-      - user
-      summary: Logs out current logged in user session
-      operationId: logoutUser
+      - system
+      summary: Get the current configuration
+      operationId: grocy_config
       responses:
-        default:
-          description: successful operation
-          content: {}
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalConfig'
 components:
   schemas:
     User:
@@ -1135,6 +1138,24 @@ they reference multiple user fields"
         MealPlanFirstDayOfWeek:
           type: string
         Locale:
+          type: string
+        FeatureFlags:
+          $ref: '#/components/schemas/GlobalConfigFeatureFlags'
+        Webhooks:
+          type: array
+        User:
+          $ref: '#/components/schemas/GlobalUserConfig'
+    GlobalUserConfig:
+      properties:
+        Settings:
+          $ref: '#/components/schemas/UserSettings'
+        Id:
+          type: integer
+        Permission:
+          $ref: '#/components/schemas/Permissions'
+        Username:
+          type: string
+        PictureFileName:
           type: string
     GlobalConfigFeatureFlags:
       properties:

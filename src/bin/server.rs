@@ -12,6 +12,8 @@ pub mod schema;
 
 use std::env;
 
+use actix_cors::Cors;
+use actix_web::http;
 use actix_web::web::Data;
 use actix_web::HttpRequest;
 use actix_web::{web, HttpResponse};
@@ -52,13 +54,13 @@ async fn handler<'a>(real_request: HttpRequest) -> actix_web::Result<HttpRespons
     let mut r = &mut HttpResponse::build(status);
     let headers = response.headers();
     for (k, v) in headers {
-        r = r.append_header((k.as_str(), v.as_bytes()));
+        r = r.insert_header((k.as_str(), v.as_bytes()));
     }
     let bytes = response
         .bytes()
         .await
         .map_err(|e| actix_web::error::ErrorBadRequest(e.to_string()))?;
-    Ok(r.body(bytes))
+    Ok(r.body(bytes.to_vec()))
 }
 
 // https://stackoverflow.com/questions/65645622/how-do-i-pass-a-trait-as-application-data-to-actix-web
@@ -79,7 +81,15 @@ where
         .expect("Failed to create database connection pool.");
 
     HttpServer::new(move || {
+        // TODO FIXME REMOVE
+        let cors = Cors::default()
+            .allow_any_header()
+            .allow_any_method()
+            .allow_any_origin()
+            .send_wildcard();
+
         App::new()
+            .wrap(cors)
             .app_data(Data::new(pool.clone()))
             .route(
                 "/api/stock/overview",
