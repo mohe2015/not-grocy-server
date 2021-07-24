@@ -60,7 +60,7 @@ cargo run --bin cli rollback 1 && RUST_BACKTRACE=1 cargo run --bin cli migrate
 ~/.cargo/bin/diesel print-schema > src/schema.rs
 
 cargo install cargo-watch
-cargo watch -x 'run --bin server'
+RUST_BACKTRACE=1 RUST_LOG=actix_web=debug cargo watch -x 'run --bin server'
 ```
 
 https://rust-lang.github.io/wg-async-foundations/vision/status_quo/alan_picks_web_server.html

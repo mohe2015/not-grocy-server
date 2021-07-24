@@ -13,6 +13,7 @@ pub mod schema;
 use std::env;
 
 use actix_cors::Cors;
+use actix_web::middleware::Logger;
 use actix_web::web::Data;
 use actix_web::HttpRequest;
 use actix_web::{web, HttpResponse};
@@ -90,6 +91,7 @@ where
 
         App::new()
             .wrap(cors)
+            .wrap(Logger::default())
             .app_data(Data::new(pool.clone()))
             .route(
                 "/api/stock/overview",
@@ -116,6 +118,7 @@ where
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    env_logger::init();
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
