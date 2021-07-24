@@ -1,3 +1,4 @@
+// This file contains parts of https://github.com/grocy/grocy Copyright (c) 2017 Bernd Bestel which is licensed under the MIT License.
 use diesel::table;
 
 table! {

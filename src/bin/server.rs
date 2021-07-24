@@ -74,6 +74,7 @@ where
     NaiveDateTime: FromSql<diesel::sql_types::Timestamp, <T>::Backend>,
     i32: FromSql<diesel::sql_types::Integer, <T as diesel::Connection>::Backend>,
     f64: FromSql<diesel::sql_types::Double, <T as diesel::Connection>::Backend>,
+    f32: FromSql<diesel::sql_types::Float, <T as diesel::Connection>::Backend>,
     *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
     let pool: Pool<ConnectionManager<T>> = r2d2::Pool::builder()
@@ -94,6 +95,10 @@ where
             .route(
                 "/api/stock/overview",
                 web::get().to(api::stock::overview::index::<T>),
+            )
+            .route(
+                "/api/stock/products",
+                web::get().to(api::stock::products::index::<T>),
             )
             .route(
                 "/api/system/config/grocy",
