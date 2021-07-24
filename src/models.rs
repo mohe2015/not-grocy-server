@@ -3,6 +3,8 @@ use chrono::NaiveDate;
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 
+// TODO FIXME this file could more or less be generated from schema.rs?
+
 // TODO FIXME check diesel doc - maybe it's possible so the order here doesn't matter
 
 #[derive(Queryable, Debug, Serialize, Deserialize)]
@@ -61,4 +63,13 @@ pub struct QuantityUnit {
     row_created_timestamp: Option<NaiveDateTime>,
     name_plural: Option<String>,
     plural_forms: Option<String>,
+}
+
+#[derive(Queryable, Debug, Serialize, Deserialize)]
+pub struct Location {
+    id: i32,
+    name: String,
+    description: Option<String>,
+    row_created_timestamp: Option<NaiveDateTime>,
+    is_freezer: bool,
 }

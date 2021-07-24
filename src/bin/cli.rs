@@ -55,7 +55,9 @@ fn migrate<T: 'static + SqlGenerator>(database_url: &str) -> Result<(), RunMigra
 
     println!("{:?}", connection.latest_run_migration_version()?);
 
-    match args {
+    sql_query("PRAGMA foreign_keys = OFF;").execute(&connection)?;
+
+    let return_value = match args {
         Cli::Migrate => run_migrations(&connection, migrations, &mut std::io::stdout()),
         Cli::ListMigrations => Ok(()), // https://lib.rs/crates/dialoguer
         Cli::Rollback { version: v } => {
@@ -72,7 +74,11 @@ fn migrate<T: 'static + SqlGenerator>(database_url: &str) -> Result<(), RunMigra
                 Ok(())
             })
         }
-    }
+    };
+
+    sql_query("PRAGMA foreign_keys = ON;").execute(&connection)?;
+
+    return_value
 
     // TODO FIXME
     // run ~/.cargo/bin/diesel print-schema > src/schema.rs

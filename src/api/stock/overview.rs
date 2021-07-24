@@ -22,7 +22,7 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "camelCase")]
 struct StockOverviewResponse {
     current_stock: Vec<Stock>,
-    current_stock_locations: Vec<Stock>,
+    current_stock_locations: Vec<Location>,
 }
 
 // https://stackoverflow.com/questions/62746540/diesel-with-custom-wrapper-types
@@ -40,10 +40,11 @@ where
     f64: FromSql<diesel::sql_types::Double, <T as diesel::Connection>::Backend>,
     *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
+    use crate::schema::locations::dsl::*;
     use crate::schema::stock::dsl::*;
     Ok(StockOverviewResponse {
         current_stock: stock.load::<Stock>(&connection)?,
-        current_stock_locations: stock.load::<Stock>(&connection)?,
+        current_stock_locations: locations.load::<Location>(&connection)?,
     })
 }
 

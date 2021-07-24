@@ -1,37 +1,13 @@
 use std::{marker::PhantomData, path::Path};
 
-use barrel::{backend::SqlGenerator, functions::AutogenFunction, types::*, Table};
+use barrel::{backend::SqlGenerator, functions::AutogenFunction, types::*};
 use diesel::connection::SimpleConnection;
 use diesel_migrations::{Migration, RunMigrationsError};
 
+use super::utils::*;
+
 pub struct BarrelMigration<T: SqlGenerator> {
     pub phantom_data: PhantomData<T>,
-}
-
-fn id(t: &mut Table) {
-    t.add_column("id", integer().increments(true).primary(true));
-}
-
-fn created(t: &mut Table) {
-    t.add_column(
-        "row_created_timestamp",
-        datetime()
-            .nullable(true)
-            .default(AutogenFunction::CurrentTimestamp),
-    );
-}
-
-fn undone(t: &mut Table) {
-    t.add_column("undone", boolean().default(false));
-    t.add_column("undone_timestamp", datetime().nullable(true));
-}
-
-fn name(t: &mut Table) {
-    t.add_column("name", text().unique(true));
-}
-
-fn description(t: &mut Table) {
-    t.add_column("description", text().nullable(true));
 }
 
 impl<T: SqlGenerator> Migration for BarrelMigration<T> {
@@ -48,6 +24,79 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
 
         // warning - not backwards compatible
         migr.drop_table("migrations");
+
+        migr.inject_custom("DROP VIEW IF EXISTS batteries_current");
+        migr.inject_custom("DROP VIEW IF EXISTS chores_assigned_users_resolved");
+        migr.inject_custom("DROP VIEW IF EXISTS chores_current");
+        migr.inject_custom("DROP VIEW IF EXISTS chores_execution_users_statistics");
+        migr.inject_custom("DROP VIEW IF EXISTS permission_tree");
+        migr.inject_custom("DROP VIEW IF EXISTS product_barcodes_comma_separated");
+        migr.inject_custom("DROP VIEW IF EXISTS product_price_history");
+        migr.inject_custom("DROP VIEW IF EXISTS product_qu_relations");
+        migr.inject_custom("DROP VIEW IF EXISTS products_average_price");
+        migr.inject_custom("DROP VIEW IF EXISTS products_last_purchased");
+        migr.inject_custom("DROP VIEW IF EXISTS products_oldest_stock_unit_price");
+        migr.inject_custom("DROP VIEW IF EXISTS products_resolved");
+        migr.inject_custom("DROP VIEW IF EXISTS products_view");
+        migr.inject_custom("DROP VIEW IF EXISTS quantity_unit_conversions_resolved");
+        migr.inject_custom("DROP VIEW IF EXISTS quantity_units_resolved");
+        migr.inject_custom("DROP VIEW IF EXISTS recipes_nestings_resolved");
+        migr.inject_custom("DROP VIEW IF EXISTS recipes_pos_resolved");
+        migr.inject_custom("DROP VIEW IF EXISTS recipes_resolved");
+        migr.inject_custom("DROP VIEW IF EXISTS stock_average_product_shelf_life");
+        migr.inject_custom("DROP VIEW IF EXISTS stock_current");
+        migr.inject_custom("DROP VIEW IF EXISTS stock_current_location_content");
+        migr.inject_custom("DROP VIEW IF EXISTS stock_current_locations");
+        migr.inject_custom("DROP VIEW IF EXISTS stock_missing_products");
+        migr.inject_custom("DROP VIEW IF EXISTS stock_missing_products_including_opened");
+        migr.inject_custom("DROP VIEW IF EXISTS tasks_current");
+        migr.inject_custom("DROP VIEW IF EXISTS uihelper_shopping_list");
+        migr.inject_custom("DROP VIEW IF EXISTS uihelper_stock_current_overview");
+        migr.inject_custom("DROP VIEW IF EXISTS uihelper_stock_current_overview_including_opened");
+        migr.inject_custom("DROP VIEW IF EXISTS uihelper_stock_journal");
+        migr.inject_custom("DROP VIEW IF EXISTS uihelper_stock_journal_summary");
+        migr.inject_custom("DROP VIEW IF EXISTS uihelper_user_permissions");
+        migr.inject_custom("DROP VIEW IF EXISTS user_permissions_resolved");
+        migr.inject_custom("DROP VIEW IF EXISTS userfield_values_resolved");
+        migr.inject_custom("DROP VIEW IF EXISTS users_dto");
+
+        migr.inject_custom("DROP TRIGGER IF EXISTS cascade_battery_removal");
+        migr.inject_custom("DROP TRIGGER IF EXISTS cascade_chore_removal");
+        migr.inject_custom("DROP TRIGGER IF EXISTS cascade_product_removal");
+        migr.inject_custom("DROP TRIGGER IF EXISTS create_internal_recipe");
+        migr.inject_custom("DROP TRIGGER IF EXISTS enforce_parent_product_id_null_when_empty_INS");
+        migr.inject_custom("DROP TRIGGER IF EXISTS enforce_parent_product_id_null_when_empty_UPD");
+        migr.inject_custom("DROP TRIGGER IF EXISTS enfore_product_nesting_level");
+        migr.inject_custom("DROP TRIGGER IF EXISTS prevent_empty_userfields_INS");
+        migr.inject_custom("DROP TRIGGER IF EXISTS prevent_empty_userfields_UPD");
+        migr.inject_custom("DROP TRIGGER IF EXISTS prevent_infinite_nested_recipes_INS");
+        migr.inject_custom("DROP TRIGGER IF EXISTS prevent_infinite_nested_recipes_UPD");
+        migr.inject_custom("DROP TRIGGER IF EXISTS prevent_qu_stock_change_after_first_purchase");
+        migr.inject_custom("DROP TRIGGER IF EXISTS prevent_self_nested_recipes_INS");
+        migr.inject_custom("DROP TRIGGER IF EXISTS prevent_self_nested_recipes_UPD");
+        migr.inject_custom(
+            "DROP TRIGGER IF EXISTS quantity_unit_conversions_custom_unique_constraint_INS",
+        );
+        migr.inject_custom(
+            "DROP TRIGGER IF EXISTS quantity_unit_conversions_custom_unique_constraint_UPD",
+        );
+        migr.inject_custom("DROP TRIGGER IF EXISTS recipes_pos_qu_id_default");
+        migr.inject_custom("DROP TRIGGER IF EXISTS remove_internal_recipe");
+        migr.inject_custom("DROP TRIGGER IF EXISTS remove_items_from_deleted_shopping_list");
+        migr.inject_custom("DROP TRIGGER IF EXISTS remove_recipe_from_meal_plans");
+        migr.inject_custom("DROP TRIGGER IF EXISTS set_products_default_location_if_empty_stock");
+        migr.inject_custom(
+            "DROP TRIGGER IF EXISTS set_products_default_location_if_empty_stock_log",
+        );
+        migr.inject_custom("DROP TRIGGER IF EXISTS shopping_list_qu_id_default");
+
+        migr.inject_custom("DROP INDEX IF EXISTS ix_batteries_performance1");
+        migr.inject_custom("DROP INDEX IF EXISTS ix_chores_performance1");
+        migr.inject_custom("DROP INDEX IF EXISTS ix_product_barcodes");
+        migr.inject_custom("DROP INDEX IF EXISTS ix_products_performance1");
+        migr.inject_custom("DROP INDEX IF EXISTS ix_products_performance2");
+        migr.inject_custom("DROP INDEX IF EXISTS ix_recipes");
+        migr.inject_custom("DROP INDEX IF EXISTS ix_stock_performance1");
 
         migr.create_table_if_not_exists("api_keys", |t| {
             id(t);

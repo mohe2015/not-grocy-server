@@ -18,14 +18,15 @@ use actix_web::web::Data;
 use actix_web::HttpRequest;
 use actix_web::{web, HttpResponse};
 use actix_web::{App, HttpServer};
+use api::utils::{DieselError, R2D2Error};
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::backend::UsesAnsiSavepointSyntax;
 use diesel::connection::AnsiTransactionManager;
 use diesel::r2d2::ConnectionManager;
 use diesel::sqlite::SqliteConnection;
 use diesel::types::{FromSql, HasSqlType};
-use diesel::Connection;
 use diesel::PgConnection;
+use diesel::{sql_query, Connection, RunQueryDsl};
 use dotenv::dotenv;
 use r2d2::Pool;
 
@@ -64,7 +65,7 @@ async fn handler<'a>(real_request: HttpRequest) -> actix_web::Result<HttpRespons
 }
 
 // https://stackoverflow.com/questions/65645622/how-do-i-pass-a-trait-as-application-data-to-actix-web
-async fn run<T>(manager: ConnectionManager<T>) -> std::io::Result<()>
+async fn run<T>(manager: ConnectionManager<T>) -> Result<(), std::io::Error>
 where
     T: Connection<TransactionManager = AnsiTransactionManager> + 'static,
     <T>::Backend: UsesAnsiSavepointSyntax,
@@ -80,6 +81,11 @@ where
     let pool: Pool<ConnectionManager<T>> = r2d2::Pool::builder()
         .build(manager)
         .expect("Failed to create database connection pool.");
+
+    let connection = pool.get().map_err(R2D2Error)?;
+    sql_query("PRAGMA foreign_keys = ON;")
+        .execute(&connection)
+        .map_err(DieselError)?;
 
     HttpServer::new(move || {
         // TODO FIXME REMOVE
