@@ -21,12 +21,12 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct StockOverviewResponse {
-    current_stock: Vec<Stock>,
-    current_stock_locations: Vec<Location>,
+    current_stock: Vec<(Stock, Product)>,
+    //current_stock_locations: Vec<(Stock, Location)>,
 }
 
 // https://stackoverflow.com/questions/62746540/diesel-with-custom-wrapper-types
-fn action_stock_overview<T>(
+fn action<T>(
     connection: PooledConnection<ConnectionManager<T>>,
 ) -> QueryResult<StockOverviewResponse>
 where
@@ -38,13 +38,17 @@ where
     NaiveDateTime: FromSql<diesel::sql_types::Timestamp, <T>::Backend>,
     i32: FromSql<diesel::sql_types::Integer, <T as diesel::Connection>::Backend>,
     f64: FromSql<diesel::sql_types::Double, <T as diesel::Connection>::Backend>,
+    f32: FromSql<diesel::sql_types::Float, <T as diesel::Connection>::Backend>,
     *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
     use crate::schema::locations::dsl::*;
+    use crate::schema::products::dsl::*;
     use crate::schema::stock::dsl::*;
     Ok(StockOverviewResponse {
-        current_stock: stock.load::<Stock>(&connection)?,
-        current_stock_locations: locations.load::<Location>(&connection)?,
+        current_stock: stock
+            .inner_join(products)
+            .load::<(Stock, Product)>(&connection)?,
+        //current_stock_locations: stock.inner_join(locations).load::<(Stock, Location)>(&connection)?,
     })
 }
 
@@ -61,9 +65,10 @@ where
     NaiveDateTime: FromSql<diesel::sql_types::Timestamp, <T>::Backend>,
     i32: FromSql<diesel::sql_types::Integer, <T as diesel::Connection>::Backend>,
     f64: FromSql<diesel::sql_types::Double, <T as diesel::Connection>::Backend>,
+    f32: FromSql<diesel::sql_types::Float, <T as diesel::Connection>::Backend>,
     *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
     let connection = pool.get().map_err(R2D2Error)?;
-    let json = web::block(move || action_stock_overview(connection).map_err(DieselError)).await??;
+    let json = web::block(move || action(connection).map_err(DieselError)).await??;
     Ok(HttpResponse::Ok().json(json))
 }
