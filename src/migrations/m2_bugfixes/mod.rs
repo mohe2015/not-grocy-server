@@ -22,7 +22,10 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
     fn run(&self, conn: &dyn SimpleConnection) -> Result<(), RunMigrationsError> {
         let mut migr = barrel::Migration::new();
 
+        // just copy from m1_init and change accordingly - this could almost be used as initial migration then
+
         // TODO put this in a common method for changing column type
+        /*
         migr.change_table("stock", |t| {
             t.add_column("new_opened_date", date().nullable(true));
         });
@@ -40,6 +43,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.inject_custom("RENAME COLUMN new_opened_date TO opened_date");
             // t.rename_column("new_opened_date", "opened_date");
         });
+        */
 
         // https://www.sqlite.org/lang_altertable.html#otheralter
 
@@ -60,7 +64,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("stock_id", text());
             t.add_column("price", double().nullable(true)); // DECIMAL
             t.add_column("open", boolean().default(false));
-            t.add_column("opened_date", datetime().nullable(true));
+            t.add_column("opened_date", date().nullable(true));
             created(t);
             t.add_column("location_id", integer().nullable(true));
             t.add_column("shopping_location_id", integer().nullable(true));

@@ -78,6 +78,8 @@ fn migrate<T: 'static + SqlGenerator>(database_url: &str) -> Result<(), RunMigra
 
     sql_query("PRAGMA foreign_keys = ON;").execute(&connection)?;
 
+    println!("RUN\n~/.cargo/bin/diesel print-schema > src/schema.rs");
+
     return_value
 
     // TODO FIXME

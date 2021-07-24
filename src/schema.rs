@@ -1,6 +1,3 @@
-// This file contains parts of https://github.com/grocy/grocy Copyright (c) 2017 Bernd Bestel which is licensed under the MIT License.
-use diesel::table;
-
 table! {
     api_keys (id) {
         id -> Integer,
@@ -287,10 +284,10 @@ table! {
         stock_id -> Text,
         price -> Nullable<Double>,
         open -> Bool,
+        opened_date -> Nullable<Date>,
         row_created_timestamp -> Nullable<Timestamp>,
         location_id -> Nullable<Integer>,
         shopping_location_id -> Nullable<Integer>,
-        opened_date -> Nullable<Date>,
     }
 }
 
@@ -418,6 +415,8 @@ table! {
         picture_file_name -> Nullable<Text>,
     }
 }
+
+joinable!(stock -> products (product_id));
 
 allow_tables_to_appear_in_same_query!(
     api_keys,
