@@ -1,12 +1,10 @@
 // https://github.com/mistressofjellyfish/not-grocy/blob/ddc2dad07ec26f854cca78bbdbec92b2213ad235/php/Controllers/StockApiController.php#L332
 
-use std::fmt;
 use std::fmt::Debug;
 use std::str;
 
 use crate::api::utils::DieselError;
 use crate::api::utils::R2D2Error;
-use crate::models::*;
 use actix_web::{web, HttpResponse};
 use chrono::NaiveDate;
 use chrono::NaiveDateTime;
@@ -143,7 +141,7 @@ struct GlobalUserConfig {
 }
 
 // https://stackoverflow.com/questions/62746540/diesel-with-custom-wrapper-types
-fn action<T>(connection: PooledConnection<ConnectionManager<T>>) -> QueryResult<GlobalConfig>
+fn action<T>(_connection: PooledConnection<ConnectionManager<T>>) -> QueryResult<GlobalConfig>
 where
     T: Connection<TransactionManager = AnsiTransactionManager> + 'static,
     <T>::Backend: UsesAnsiSavepointSyntax,

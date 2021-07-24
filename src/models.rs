@@ -50,3 +50,13 @@ pub struct Product {
     default_print_stock_label: i32,
     allow_label_per_unit: i32,
 }
+
+#[derive(Queryable, Debug, Serialize, Deserialize)]
+pub struct QuantityUnit {
+    id: i32,
+    name: String,
+    description: Option<String>,
+    row_created_timestamp: Option<NaiveDateTime>,
+    name_plural: Option<String>,
+    plural_forms: Option<String>,
+}

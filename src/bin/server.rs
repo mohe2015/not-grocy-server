@@ -13,7 +13,6 @@ pub mod schema;
 use std::env;
 
 use actix_cors::Cors;
-use actix_web::http;
 use actix_web::web::Data;
 use actix_web::HttpRequest;
 use actix_web::{web, HttpResponse};
@@ -99,6 +98,10 @@ where
             .route(
                 "/api/stock/products",
                 web::get().to(api::stock::products::index::<T>),
+            )
+            .route(
+                "/api/objects/quantity_units",
+                web::get().to(api::objects::quantity_units::index::<T>),
             )
             .route(
                 "/api/system/config/grocy",

@@ -17,7 +17,7 @@ use diesel::types::HasSqlType;
 use r2d2::PooledConnection;
 
 // https://stackoverflow.com/questions/62746540/diesel-with-custom-wrapper-types
-fn action<T>(connection: PooledConnection<ConnectionManager<T>>) -> QueryResult<Vec<Product>>
+fn action<T>(connection: PooledConnection<ConnectionManager<T>>) -> QueryResult<Vec<QuantityUnit>>
 where
     T: Connection<TransactionManager = AnsiTransactionManager> + 'static,
     <T>::Backend: UsesAnsiSavepointSyntax,
@@ -30,8 +30,8 @@ where
     f32: FromSql<diesel::sql_types::Float, <T as diesel::Connection>::Backend>,
     *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
-    use crate::schema::products::dsl::*;
-    Ok(products.load::<Product>(&connection)?)
+    use crate::schema::quantity_units::dsl::*;
+    Ok(quantity_units.load::<QuantityUnit>(&connection)?)
 }
 
 // https://github.com/mistressofjellyfish/not-grocy/blob/ddc2dad07ec26f854cca78bbdbec92b2213ad235/php/Controllers/StockApiController.php#L332
