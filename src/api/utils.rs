@@ -1,6 +1,8 @@
 use std::fmt;
 use thiserror::Error;
 
+// TODO FIXME improve
+
 #[derive(Error, Debug)]
 pub struct DieselError(pub diesel::result::Error);
 

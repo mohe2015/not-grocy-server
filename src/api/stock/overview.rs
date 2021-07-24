@@ -63,7 +63,6 @@ where
     *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
     let connection = pool.get().map_err(R2D2Error)?;
-    let json =
-        web::block(move || action_stock_overview(connection).map_err(|e| DieselError(e))).await??;
+    let json = web::block(move || action_stock_overview(connection).map_err(DieselError)).await??;
     Ok(HttpResponse::Ok().json(json))
 }

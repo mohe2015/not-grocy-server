@@ -31,13 +31,18 @@ enum Cli {
 // and developing migrations has no good ide support.
 // also switching databases is not supported.
 
-fn migrate<T: SqlGenerator>(database_url: &str) -> Result<(), RunMigrationsError> {
+fn migrate<T: 'static + SqlGenerator>(database_url: &str) -> Result<(), RunMigrationsError> {
     let args = Cli::from_args();
     let connection = SqliteConnection::establish(database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
-    let migrations = [migrations::m1_init::BarrelMigration::<T> {
-        phantom_data: PhantomData,
-    }];
+    let migrations: [Box<dyn Migration>; 2] = [
+        Box::new(migrations::m1_init::BarrelMigration::<T> {
+            phantom_data: PhantomData,
+        }),
+        Box::new(migrations::m2_bugfixes::BarrelMigration::<T> {
+            phantom_data: PhantomData,
+        }),
+    ];
 
     // https://github.com/diesel-rs/diesel/blob/master/diesel/src/migration/setup_migration_table.sql
     sql_query(
@@ -68,6 +73,9 @@ fn migrate<T: SqlGenerator>(database_url: &str) -> Result<(), RunMigrationsError
             })
         }
     }
+
+    // TODO FIXME
+    // run ~/.cargo/bin/diesel print-schema > src/schema.rs
 }
 
 fn main() -> Result<(), RunMigrationsError> {

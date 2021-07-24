@@ -3,6 +3,8 @@ use chrono::NaiveDate;
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 
+// TODO FIXME check diesel doc - maybe it's possible so the order here doesn't matter
+
 #[derive(Queryable, Debug, Serialize, Deserialize)]
 pub struct Stock {
     pub id: i32,
@@ -13,10 +15,10 @@ pub struct Stock {
     pub stock_id: String,
     pub price: Option<f64>,
     pub open: bool,
-    pub opened_date: Option<NaiveDateTime>,
     pub row_created_timestamp: Option<NaiveDateTime>,
     pub location_id: Option<i32>,
     pub shopping_location_id: Option<i32>,
+    pub opened_date: Option<NaiveDate>,
 }
 
 #[derive(Queryable, Debug, Serialize, Deserialize)]

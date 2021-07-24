@@ -31,7 +31,7 @@ where
     *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
     use crate::schema::quantity_units::dsl::*;
-    Ok(quantity_units.load::<QuantityUnit>(&connection)?)
+    quantity_units.load::<QuantityUnit>(&connection)
 }
 
 // https://github.com/mistressofjellyfish/not-grocy/blob/ddc2dad07ec26f854cca78bbdbec92b2213ad235/php/Controllers/StockApiController.php#L332
@@ -51,6 +51,6 @@ where
     *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
     let connection = pool.get().map_err(R2D2Error)?;
-    let json = web::block(move || action(connection).map_err(|e| DieselError(e))).await??;
+    let json = web::block(move || action(connection).map_err(DieselError)).await??;
     Ok(HttpResponse::Ok().json(json))
 }
