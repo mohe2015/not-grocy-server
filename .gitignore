@@ -2,3 +2,4 @@
 .env
 *.db
 !grocy.db
+not-grocy

@@ -54,6 +54,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "actix-cors"
+version = "0.6.0-beta.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "01552b8facccd5d7a4cc5d8e2b07d306160c97a4968181c2db965533389c8725"
+dependencies = [
+ "actix-service 2.0.0",
+ "actix-web 4.0.0-beta.8",
+ "derive_more",
+ "futures-util",
+ "log",
+ "once_cell",
+ "smallvec",
+]
+
+[[package]]
 name = "actix-files"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -872,6 +887,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "env_logger"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b2cf0344971ee6c64c31be0d530793fba457d322dfec2810c453d0ef228f9c3"
+dependencies = [
+ "atty",
+ "humantime",
+ "log",
+ "regex",
+ "termcolor",
+]
+
+[[package]]
 name = "flate2"
 version = "1.0.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1160,6 +1188,12 @@ name = "httpdate"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6456b8a6c8f33fee7d958fcd1b60d55b11940a79e63ae87013e6d22e26034440"
+
+[[package]]
+name = "humantime"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4"
 
 [[package]]
 name = "hyper"
@@ -1546,6 +1580,7 @@ dependencies = [
 name = "not_grocy_server"
 version = "0.1.0"
 dependencies = [
+ "actix-cors",
  "actix-files",
  "actix-web 4.0.0-beta.8",
  "barrel",
@@ -1553,6 +1588,7 @@ dependencies = [
  "diesel",
  "diesel_migrations",
  "dotenv",
+ "env_logger",
  "futures-util",
  "migrations_internals",
  "r2d2",
@@ -1560,6 +1596,7 @@ dependencies = [
  "serde",
  "serde_json",
  "structopt",
+ "thiserror",
 ]
 
 [[package]]
@@ -2324,6 +2361,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "termcolor"
+version = "1.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2dfed899f0eb03f32ee8c6a0aabdb8a7949659e3466561fc0adf54e26d88c5f4"
+dependencies = [
+ "winapi-util",
+]
+
+[[package]]
 name = "textwrap"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2841,6 +2887,15 @@ name = "winapi-i686-pc-windows-gnu"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ac3b87c63620426dd9b991e5ce0329eff545bccbbb34f3be09ff6fb6ab51b7b6"
+
+[[package]]
+name = "winapi-util"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "70ec6ce85bb158151cae5e5c87f95a8e97d2c0c4b001223f33a334e3ce5de178"
+dependencies = [
+ "winapi 0.3.9",
+]
 
 [[package]]
 name = "winapi-x86_64-pc-windows-gnu"

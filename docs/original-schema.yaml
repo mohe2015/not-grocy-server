@@ -12,24 +12,27 @@ externalDocs:
   description: Documentation
   url: https://github.com/mohe2015/not-grocy-server/tree/schema-doc/docs
 servers:
-- url: https://editor.swagger.io/
+- url: http://localhost:8080/api
 tags:
-- name: users
-  description: Everything about your users
+- name: system
+  description: Everything about the system
   externalDocs:
     description: Find out more
     url: https://editor.swagger.io/
 paths:
-  /user/logout:
+  /system/config/grocy:
     get:
       tags:
-      - user
-      summary: Logs out current logged in user session
-      operationId: logoutUser
+      - system
+      summary: Get the current configuration
+      operationId: grocy_config
       responses:
-        default:
-          description: successful operation
-          content: {}
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalConfig'
 components:
   schemas:
     User:
@@ -1122,6 +1125,212 @@ they reference multiple user fields"
           format: date-time
           nullable: true
           default: now
+    GlobalConfig:
+      properties:
+        Culture:
+          type: string
+        Currency:
+          type: string
+        CalendarFirstDayOfWeek:
+          type: string
+        CalendarShowWeekNumbers:
+          type: boolean
+        MealPlanFirstDayOfWeek:
+          type: string
+        Locale:
+          type: string
+        FeatureFlags:
+          $ref: '#/components/schemas/GlobalConfigFeatureFlags'
+        Webhooks:
+          type: array
+        User:
+          $ref: '#/components/schemas/GlobalUserConfig'
+    GlobalUserConfig:
+      properties:
+        Settings:
+          $ref: '#/components/schemas/UserSettings'
+        Id:
+          type: integer
+        Permission:
+          $ref: '#/components/schemas/Permissions'
+        Username:
+          type: string
+        PictureFileName:
+          type: string
+    GlobalConfigFeatureFlags:
+      properties:
+        GROCY_FEATURE_FLAG_STOCK:
+          type: boolean
+        GROCY_FEATURE_FLAG_SHOPPINGLIST:
+          type: boolean
+        GROCY_FEATURE_FLAG_RECIPES:
+          type: boolean
+        GROCY_FEATURE_FLAG_CHORES:
+          type: boolean
+        GROCY_FEATURE_FLAG_TASKS:
+          type: boolean
+        GROCY_FEATURE_FLAG_BATTERIES:
+          type: boolean
+        GROCY_FEATURE_FLAG_EQUIPMENT:
+          type: boolean
+        GROCY_FEATURE_FLAG_CALENDAR:
+          type: boolean
+        GROCY_FEATURE_FLAG_LABELPRINTER:
+          type: boolean
+        GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING:
+          type: boolean
+        GROCY_FEATURE_FLAG_STOCK_LOCATION_TRACKING:
+          type: boolean
+        GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING:
+          type: boolean
+        GROCY_FEATURE_FLAG_STOCK_PRODUCT_OPENED_TRACKING:
+          type: boolean
+        GROCY_FEATURE_FLAG_STOCK_PRODUCT_FREEZING:
+          type: boolean
+        GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_FIELD_NUMBER_PAD:
+          type: boolean
+        GROCY_FEATURE_FLAG_SHOPPINGLIST_MULTIPLE_LISTS:
+          type: boolean
+        GROCY_FEATURE_FLAG_CHORES_ASSIGNMENTS:
+          type: boolean
+        GROCY_FEATURE_FLAG_THERMAL_PRINTER:
+          type: boolean
+        GROCY_FEATURE_FLAG_AUTO_TORCH_ON_WITH_CAMERA:
+          type: boolean
+    UserSettings:
+      properties:
+        night_mode_enabled:
+          type: boolean
+        auto_night_mode_enabled:
+          type: boolean
+        auto_night_mode_time_range_from:
+          type: string
+        auto_night_mode_time_range_to:
+          type: string
+        auto_night_mode_time_range_goes_over_midnight:
+          type: boolean
+        currently_inside_night_mode_range:
+          type: boolean
+        keep_screen_on:
+          type: boolean
+        keep_screen_on_when_fullscreen_card:
+          type: boolean
+        product_presets_location_id:
+          type: integer
+        product_presets_product_group_id:
+          type: integer
+        product_presets_qu_id:
+          type: integer
+        stock_decimal_places_amounts:
+          type: integer
+        stock_decimal_places_prices:
+          type: integer
+        stock_due_soon_days:
+          type: integer
+        stock_default_purchase_amount:
+          type: integer
+        stock_default_consume_amount:
+          type: integer
+        stock_default_consume_amount_use_quick_consume_amount:
+          type: boolean
+        scan_mode_consume_enabled:
+          type: boolean
+        scan_mode_purchase_enabled:
+          type: boolean
+        show_icon_on_stock_overview_page_when_product_is_on_shopping_list:
+          type: boolean
+        show_purchased_date_on_purchase:
+          type: boolean
+        show_warning_on_purchase_when_due_date_is_earlier_than_next:
+          type: boolean
+        shopping_list_to_stock_workflow_auto_submit_when_prefilled:
+          type: boolean
+        shopping_list_show_calendar:
+          type: boolean
+        recipe_ingredients_group_by_product_group:
+          type: boolean
+        chores_due_soon_days:
+          type: integer
+        batteries_due_soon_days:
+          type: integer
+        tasks_due_soon_days:
+          type: integer
+        auto_reload_on_db_change:
+          type: boolean
+        show_clock_in_header:
+          type: boolean
+        quagga2_numofworkers:
+          type: integer
+        quagga2_halfsample:
+          type: boolean
+        quagga2_patchsize:
+          type: string
+        quagga2_frequency:
+          type: integer
+        quagga2_debug:
+          type: boolean
+    Permissions:
+      properties:
+        ADMIN:
+          type: boolean
+        USERS:
+          type: boolean
+        USERS_CREATE:
+          type: boolean
+        USERS_EDIT:
+          type: boolean
+        USERS_READ:
+          type: boolean
+        USERS_EDIT_SELF:
+          type: boolean
+        STOCK:
+          type: boolean
+        SHOPPINGLIST:
+          type: boolean
+        RECIPES:
+          type: boolean
+        CHORES:
+          type: boolean
+        BATTERIES:
+          type: boolean
+        TASKS:
+          type: boolean
+        EQUIPMENT:
+          type: boolean
+        CALENDAR:
+          type: boolean
+        STOCK_PURCHASE:
+          type: boolean
+        STOCK_CONSUME:
+          type: boolean
+        STOCK_INVENTORY:
+          type: boolean
+        STOCK_TRANSFER:
+          type: boolean
+        STOCK_OPEN:
+          type: boolean
+        STOCK_EDIT:
+          type: boolean
+        SHOPPINGLIST_ITEMS_ADD:
+          type: boolean
+        SHOPPINGLIST_ITEMS_DELETE:
+          type: boolean
+        RECIPES_MEALPLAN:
+          type: boolean
+        CHORE_TRACK_EXECUTION:
+          type: boolean
+        CHORE_UNDO_EXECUTION:
+          type: boolean
+        BATTERIES_TRACK_CHARGE_CYCLE:
+          type: boolean
+        BATTERIES_UNDO_CHARGE_CYCLE:
+          type: boolean
+        TASKS_UNDO_EXECUTION:
+          type: boolean
+        TASKS_MARK_COMPLETED:
+          type: boolean
+        MASTER_DATA_EDIT:
+          type: boolean
   securitySchemes:
     api_key:
       type: apiKey

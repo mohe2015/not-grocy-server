@@ -8,22 +8,6 @@ pub struct BarrelMigration<T: SqlGenerator> {
     pub phantom_data: PhantomData<T>,
 }
 
-/*
-pub struct DateTimeNow<T: SqlGenerator>;
-
-impl From<DateTimeNow<Pg>> for WrappedDefault<'static> {
-    fn from(value: DateTimeNow) -> Self {
-        WrappedDefault::Function(value)
-    }
-}
-
-impl From<DateTimeNow<Sqlite>> for WrappedDefault<'static> {
-    fn from(value: DateTimeNow) -> Self {
-        WrappedDefault::Function(value)
-    }
-}
-*/
-
 fn id(t: &mut Table) {
     t.add_column("id", integer().increments(true).primary(true));
 }
@@ -61,7 +45,11 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
 
     fn run(&self, conn: &dyn SimpleConnection) -> Result<(), RunMigrationsError> {
         let mut migr = barrel::Migration::new();
-        migr.create_table("api_keys", |t| {
+
+        // warning - not backwards compatible
+        migr.drop_table("migrations");
+
+        migr.create_table_if_not_exists("api_keys", |t| {
             id(t);
             t.add_column("api_key", text().unique(true));
             t.add_column("user_id", integer());
@@ -76,7 +64,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("key_type", text().default("default"));
         });
 
-        migr.create_table("batteries", |t| {
+        migr.create_table_if_not_exists("batteries", |t| {
             id(t);
             name(t);
             description(t);
@@ -86,7 +74,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("active", boolean().default(true));
         });
 
-        migr.create_table("battery_charge_cycles", |t| {
+        migr.create_table_if_not_exists("battery_charge_cycles", |t| {
             id(t);
             t.add_column("battery_id", text());
             t.add_column("tracked_time", datetime().nullable(true));
@@ -94,7 +82,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             undone(t);
         });
 
-        migr.create_table("chores", |t| {
+        migr.create_table_if_not_exists("chores", |t| {
             id(t);
             name(t);
             description(t);
@@ -117,7 +105,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("active", boolean().default(true));
         });
 
-        migr.create_table("chores_log", |t| {
+        migr.create_table_if_not_exists("chores_log", |t| {
             id(t);
             t.add_column("chore_id", integer());
             t.add_column("tracked_time", datetime().nullable(true));
@@ -126,7 +114,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             undone(t);
         });
 
-        migr.create_table("equipment", |t| {
+        migr.create_table_if_not_exists("equipment", |t| {
             id(t);
             name(t);
             description(t);
@@ -134,7 +122,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             created(t);
         });
 
-        migr.create_table("locations", |t| {
+        migr.create_table_if_not_exists("locations", |t| {
             id(t);
             name(t);
             description(t);
@@ -142,7 +130,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("is_freezer", boolean().default(false));
         });
 
-        migr.create_table("meal_plan", |t| {
+        migr.create_table_if_not_exists("meal_plan", |t| {
             id(t);
             t.add_column("day", date());
             t.add_column("type", text().nullable(true).default("recipe"));
@@ -155,13 +143,13 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             created(t);
         });
 
-        migr.create_table("permission_hierarchy", |t| {
+        migr.create_table_if_not_exists("permission_hierarchy", |t| {
             id(t);
             name(t);
             t.add_column("parent", integer().nullable(true));
         });
 
-        migr.create_table("product_barcodes", |t| {
+        migr.create_table_if_not_exists("product_barcodes", |t| {
             id(t);
             t.add_column("product_id", integer());
             t.add_column("barcode", text());
@@ -173,14 +161,14 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("note", text().nullable(true));
         });
 
-        migr.create_table("product_groups", |t| {
+        migr.create_table_if_not_exists("product_groups", |t| {
             id(t);
             name(t);
             description(t);
             created(t);
         });
 
-        migr.create_table("products", |t| {
+        migr.create_table_if_not_exists("products", |t| {
             id(t);
             name(t);
             description(t);
@@ -223,7 +211,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("allow_label_per_unit", integer().default(0));
         });
 
-        migr.create_table("quantity_unit_conversions", |t| {
+        migr.create_table_if_not_exists("quantity_unit_conversions", |t| {
             id(t);
             t.add_column("from_qu_id", integer());
             t.add_column("to_qu_id", integer());
@@ -232,7 +220,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             created(t);
         });
 
-        migr.create_table("quantity_units", |t| {
+        migr.create_table_if_not_exists("quantity_units", |t| {
             id(t);
             name(t);
             description(t);
@@ -241,7 +229,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("plural_forms", text().nullable(true));
         });
 
-        migr.create_table("recipes", |t| {
+        migr.create_table_if_not_exists("recipes", |t| {
             id(t);
             name(t);
             description(t);
@@ -254,7 +242,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("product_id", integer().nullable(true));
         });
 
-        migr.create_table("recipes_nestings", |t| {
+        migr.create_table_if_not_exists("recipes_nestings", |t| {
             id(t);
             t.add_column("recipe_id", integer());
             t.add_column("includes_recipe_id", integer());
@@ -262,7 +250,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("servings", integer().default(1).nullable(true));
         });
 
-        migr.create_table("recipes_pos", |t| {
+        migr.create_table_if_not_exists("recipes_pos", |t| {
             id(t);
             t.add_column("recipe_id", integer());
             t.add_column("product_id", integer());
@@ -277,7 +265,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("price_factor", float().default(1));
         });
 
-        migr.create_table("sessions", |t| {
+        migr.create_table_if_not_exists("sessions", |t| {
             id(t);
             t.add_column("session_key", text().unique(true));
             t.add_column("user_id", integer());
@@ -286,7 +274,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             created(t);
         });
 
-        migr.create_table("shopping_list", |t| {
+        migr.create_table_if_not_exists("shopping_list", |t| {
             id(t);
             t.add_column("product_id", integer().nullable(true));
             t.add_column("note", text().nullable(true));
@@ -297,21 +285,21 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("qu_id", integer().nullable(true));
         });
 
-        migr.create_table("shopping_lists", |t| {
+        migr.create_table_if_not_exists("shopping_lists", |t| {
             id(t);
             name(t);
             description(t);
             created(t);
         });
 
-        migr.create_table("shopping_locations", |t| {
+        migr.create_table_if_not_exists("shopping_locations", |t| {
             id(t);
             name(t);
             description(t);
             created(t);
         });
 
-        migr.create_table("stock", |t| {
+        migr.create_table_if_not_exists("stock", |t| {
             id(t);
             t.add_column("product_id", integer());
             t.add_column("amount", double()); // DECIMAL
@@ -331,7 +319,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("shopping_location_id", integer().nullable(true));
         });
 
-        migr.create_table("stock_log", |t| {
+        migr.create_table_if_not_exists("stock_log", |t| {
             id(t);
             t.add_column("product_id", integer());
             t.add_column("amount", double()); // DECIMAL
@@ -355,14 +343,14 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("user_id", integer().default(1));
         });
 
-        migr.create_table("task_categories", |t| {
+        migr.create_table_if_not_exists("task_categories", |t| {
             id(t);
             name(t);
             description(t);
             created(t);
         });
 
-        migr.create_table("tasks", |t| {
+        migr.create_table_if_not_exists("tasks", |t| {
             id(t);
             name(t);
             description(t);
@@ -374,13 +362,13 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             created(t);
         });
 
-        migr.create_table("user_permissions", |t| {
+        migr.create_table_if_not_exists("user_permissions", |t| {
             id(t);
             t.add_column("permission_id", integer());
             t.add_column("user_id", integer());
         });
 
-        migr.create_table("user_settings", |t| {
+        migr.create_table_if_not_exists("user_settings", |t| {
             id(t);
             t.add_column("user_id", integer());
             t.add_column("key", text());
@@ -394,7 +382,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             );
         });
 
-        migr.create_table("userentities", |t| {
+        migr.create_table_if_not_exists("userentities", |t| {
             id(t);
             name(t);
             t.add_column("caption", text());
@@ -404,7 +392,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             created(t);
         });
 
-        migr.create_table("userfield_values", |t| {
+        migr.create_table_if_not_exists("userfield_values", |t| {
             id(t);
             t.add_column("field_id", integer());
             t.add_column("object_id", integer());
@@ -412,7 +400,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             created(t);
         });
 
-        migr.create_table("userfields", |t| {
+        migr.create_table_if_not_exists("userfields", |t| {
             id(t);
             t.add_column("entity", text());
             name(t);
@@ -424,13 +412,13 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("sort_number", integer().nullable(true));
         });
 
-        migr.create_table("userobjects", |t| {
+        migr.create_table_if_not_exists("userobjects", |t| {
             id(t);
             t.add_column("userentity_id", integer());
             created(t);
         });
 
-        migr.create_table("users", |t| {
+        migr.create_table_if_not_exists("users", |t| {
             id(t);
             t.add_column("username", text().unique(true));
             t.add_column("first_name", text().nullable(true));
@@ -445,8 +433,9 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
     }
 
     fn revert(&self, conn: &dyn SimpleConnection) -> Result<(), RunMigrationsError> {
-        let mut migr = barrel::Migration::new();
-        // TODO FIXME remove later to prevent data loss
+        let migr = barrel::Migration::new();
+
+        /*
         migr.drop_table_if_exists("api_keys");
         migr.drop_table_if_exists("batteries");
         migr.drop_table_if_exists("battery_charge_cycles");
@@ -479,6 +468,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
         migr.drop_table_if_exists("userfields");
         migr.drop_table_if_exists("userobjects");
         migr.drop_table_if_exists("users");
+        */
 
         conn.batch_execute(&migr.make::<T>())?;
         Ok(())

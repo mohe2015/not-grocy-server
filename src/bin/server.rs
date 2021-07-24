@@ -12,6 +12,8 @@ pub mod schema;
 
 use std::env;
 
+use actix_cors::Cors;
+use actix_web::middleware::Logger;
 use actix_web::web::Data;
 use actix_web::HttpRequest;
 use actix_web::{web, HttpResponse};
@@ -52,13 +54,13 @@ async fn handler<'a>(real_request: HttpRequest) -> actix_web::Result<HttpRespons
     let mut r = &mut HttpResponse::build(status);
     let headers = response.headers();
     for (k, v) in headers {
-        r = r.append_header((k.as_str(), v.as_bytes()));
+        r = r.insert_header((k.as_str(), v.as_bytes()));
     }
     let bytes = response
         .bytes()
         .await
         .map_err(|e| actix_web::error::ErrorBadRequest(e.to_string()))?;
-    Ok(r.body(bytes))
+    Ok(r.body(bytes.to_vec()))
 }
 
 // https://stackoverflow.com/questions/65645622/how-do-i-pass-a-trait-as-application-data-to-actix-web
@@ -72,6 +74,7 @@ where
     NaiveDateTime: FromSql<diesel::sql_types::Timestamp, <T>::Backend>,
     i32: FromSql<diesel::sql_types::Integer, <T as diesel::Connection>::Backend>,
     f64: FromSql<diesel::sql_types::Double, <T as diesel::Connection>::Backend>,
+    f32: FromSql<diesel::sql_types::Float, <T as diesel::Connection>::Backend>,
     *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
     let pool: Pool<ConnectionManager<T>> = r2d2::Pool::builder()
@@ -79,11 +82,32 @@ where
         .expect("Failed to create database connection pool.");
 
     HttpServer::new(move || {
+        // TODO FIXME REMOVE
+        let cors = Cors::default()
+            .allow_any_header()
+            .allow_any_method()
+            .allow_any_origin()
+            .send_wildcard();
+
         App::new()
+            .wrap(cors)
+            .wrap(Logger::default())
             .app_data(Data::new(pool.clone()))
             .route(
                 "/api/stock/overview",
                 web::get().to(api::stock::overview::index::<T>),
+            )
+            .route(
+                "/api/stock/products",
+                web::get().to(api::stock::products::index::<T>),
+            )
+            .route(
+                "/api/objects/quantity_units",
+                web::get().to(api::objects::quantity_units::index::<T>),
+            )
+            .route(
+                "/api/system/config/grocy",
+                web::get().to(api::system::config::grocy::index::<T>),
             )
             .default_service(web::get().to(handler))
     })
@@ -94,6 +118,7 @@ where
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    env_logger::init();
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");

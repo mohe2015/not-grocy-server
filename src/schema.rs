@@ -1,3 +1,4 @@
+// This file contains parts of https://github.com/grocy/grocy Copyright (c) 2017 Bernd Bestel which is licensed under the MIT License.
 use diesel::table;
 
 table! {
@@ -286,10 +287,10 @@ table! {
         stock_id -> Text,
         price -> Nullable<Double>,
         open -> Bool,
-        opened_date -> Nullable<Timestamp>,
         row_created_timestamp -> Nullable<Timestamp>,
         location_id -> Nullable<Integer>,
         shopping_location_id -> Nullable<Integer>,
+        opened_date -> Nullable<Date>,
     }
 }
 
