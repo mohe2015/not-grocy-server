@@ -28,12 +28,12 @@ pub fn description(t: &mut Table) {
 
 pub fn create_or_update<F>(migr: &mut Migration, table_name: &str, cb: &'static F)
 where
-    F: 'static + Fn(&mut Table) -> (),
+    F: 'static + Fn(&mut Table),
 {
     migr.create_table_if_not_exists(format!("new_{}", table_name), cb);
 
     // TO prevent errors if it didn't exist
-    migr.create_table_if_not_exists(format!("{}", table_name), cb);
+    migr.create_table_if_not_exists(table_name.to_string(), cb);
 
     migr.inject_custom(format!(
         "INSERT INTO new_{} SELECT * FROM {}",

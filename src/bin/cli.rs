@@ -7,10 +7,12 @@ use std::env;
 use std::marker::PhantomData;
 
 use barrel::backend::SqlGenerator;
+use diesel::connection::SimpleConnection;
 use diesel::migration::RunMigrationsError;
 use diesel::sql_query;
 use diesel::Connection;
 use diesel::ExpressionMethods;
+use diesel::PgConnection;
 use diesel::QueryDsl;
 use diesel::RunQueryDsl;
 use diesel::SqliteConnection;
@@ -33,10 +35,10 @@ enum Cli {
 // and developing migrations has no good ide support.
 // also switching databases is not supported.
 
-fn migrate<T: 'static + SqlGenerator>(database_url: &str) -> Result<(), RunMigrationsError> {
+fn migrate<T: 'static + SqlGenerator, Q: SimpleConnection + Connection + MigrationConnection>(
+    connection: Q,
+) -> Result<(), RunMigrationsError> {
     let args = Cli::from_args();
-    let connection = SqliteConnection::establish(database_url)
-        .unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
     let migrations: [Box<dyn Migration>; 1] =
         [Box::new(migrations::m1_init::BarrelMigration::<T> {
             phantom_data: PhantomData,
@@ -89,8 +91,12 @@ fn main() -> Result<(), RunMigrationsError> {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
     if database_url.starts_with("postgres://") {
-        migrate::<barrel::backend::Pg>(&database_url)
+        let connection = PgConnection::establish(&database_url)
+            .unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
+        migrate::<barrel::backend::Pg, PgConnection>(connection)
     } else {
-        migrate::<barrel::backend::Sqlite>(&database_url)
+        let connection = SqliteConnection::establish(&database_url)
+            .unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
+        migrate::<barrel::backend::Sqlite, SqliteConnection>(connection)
     }
 }

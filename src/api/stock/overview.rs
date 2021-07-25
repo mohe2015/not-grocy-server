@@ -41,7 +41,6 @@ where
     f32: FromSql<diesel::sql_types::Float, <T as diesel::Connection>::Backend>,
     *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
-    use crate::schema::locations::dsl::*;
     use crate::schema::products::dsl::*;
     use crate::schema::stock::dsl::*;
     Ok(StockOverviewResponse {
