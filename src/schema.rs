@@ -1,8 +1,8 @@
 table! {
     api_keys (id) {
-        id -> Integer,
+        id -> Int4,
         api_key -> Text,
-        user_id -> Integer,
+        user_id -> Int4,
         expires -> Nullable<Timestamp>,
         last_used -> Nullable<Timestamp>,
         row_created_timestamp -> Nullable<Timestamp>,
@@ -12,11 +12,11 @@ table! {
 
 table! {
     batteries (id) {
-        id -> Integer,
+        id -> Int4,
         name -> Text,
         description -> Nullable<Text>,
         used_in -> Nullable<Text>,
-        charge_interval_days -> Integer,
+        charge_interval_days -> Int4,
         row_created_timestamp -> Nullable<Timestamp>,
         active -> Bool,
     }
@@ -24,7 +24,7 @@ table! {
 
 table! {
     battery_charge_cycles (id) {
-        id -> Integer,
+        id -> Int4,
         battery_id -> Text,
         tracked_time -> Nullable<Timestamp>,
         row_created_timestamp -> Nullable<Timestamp>,
@@ -35,32 +35,32 @@ table! {
 
 table! {
     chores (id) {
-        id -> Integer,
+        id -> Int4,
         name -> Text,
         description -> Nullable<Text>,
         period_type -> Text,
-        period_days -> Nullable<Integer>,
+        period_days -> Nullable<Int4>,
         row_created_timestamp -> Nullable<Timestamp>,
         period_config -> Nullable<Text>,
         track_date_only -> Nullable<Bool>,
         rollover -> Nullable<Bool>,
         assignment_type -> Nullable<Text>,
         assignment_config -> Nullable<Text>,
-        next_execution_assigned_to_user_id -> Nullable<Integer>,
+        next_execution_assigned_to_user_id -> Nullable<Int4>,
         consume_product_on_execution -> Bool,
         product_id -> Nullable<Bool>,
-        product_amount -> Nullable<Float>,
-        period_interval -> Integer,
+        product_amount -> Nullable<Float8>,
+        period_interval -> Int4,
         active -> Bool,
     }
 }
 
 table! {
     chores_log (id) {
-        id -> Integer,
-        chore_id -> Integer,
+        id -> Int4,
+        chore_id -> Int4,
         tracked_time -> Nullable<Timestamp>,
-        done_by_user_id -> Nullable<Integer>,
+        done_by_user_id -> Nullable<Int4>,
         row_created_timestamp -> Nullable<Timestamp>,
         undone -> Bool,
         undone_timestamp -> Nullable<Timestamp>,
@@ -69,7 +69,7 @@ table! {
 
 table! {
     equipment (id) {
-        id -> Integer,
+        id -> Int4,
         name -> Text,
         description -> Nullable<Text>,
         instruction_manual_file_name -> Nullable<Text>,
@@ -79,7 +79,7 @@ table! {
 
 table! {
     locations (id) {
-        id -> Integer,
+        id -> Int4,
         name -> Text,
         description -> Nullable<Text>,
         row_created_timestamp -> Nullable<Timestamp>,
@@ -89,37 +89,37 @@ table! {
 
 table! {
     meal_plan (id) {
-        id -> Integer,
+        id -> Int4,
         day -> Date,
         #[sql_name = "type"]
         type_ -> Nullable<Text>,
-        recipe_id -> Nullable<Integer>,
-        recipe_servings -> Nullable<Integer>,
+        recipe_id -> Nullable<Int4>,
+        recipe_servings -> Nullable<Int4>,
         note -> Nullable<Text>,
-        product_id -> Nullable<Integer>,
-        product_amount -> Nullable<Float>,
-        product_qu_id -> Nullable<Integer>,
+        product_id -> Nullable<Int4>,
+        product_amount -> Nullable<Float8>,
+        product_qu_id -> Nullable<Int4>,
         row_created_timestamp -> Nullable<Timestamp>,
     }
 }
 
 table! {
     permission_hierarchy (id) {
-        id -> Integer,
+        id -> Int4,
         name -> Text,
-        parent -> Nullable<Integer>,
+        parent -> Nullable<Int4>,
     }
 }
 
 table! {
     product_barcodes (id) {
-        id -> Integer,
-        product_id -> Integer,
+        id -> Int4,
+        product_id -> Int4,
         barcode -> Text,
-        qu_id -> Nullable<Integer>,
-        amount -> Nullable<Float>,
-        shopping_location_id -> Nullable<Integer>,
-        last_price -> Nullable<Double>,
+        qu_id -> Nullable<Int4>,
+        amount -> Nullable<Float8>,
+        shopping_location_id -> Nullable<Int4>,
+        last_price -> Nullable<Float8>,
         row_created_timestamp -> Nullable<Timestamp>,
         note -> Nullable<Text>,
     }
@@ -127,7 +127,7 @@ table! {
 
 table! {
     product_groups (id) {
-        id -> Integer,
+        id -> Int4,
         name -> Text,
         description -> Nullable<Text>,
         row_created_timestamp -> Nullable<Timestamp>,
@@ -136,51 +136,51 @@ table! {
 
 table! {
     products (id) {
-        id -> Integer,
+        id -> Int4,
         name -> Text,
         description -> Nullable<Text>,
-        product_group_id -> Nullable<Integer>,
+        product_group_id -> Nullable<Int4>,
         active -> Bool,
-        location_id -> Integer,
-        shopping_location_id -> Nullable<Integer>,
-        qu_id_purchase -> Integer,
-        qu_id_stock -> Integer,
-        qu_factor_purchase_to_stock -> Float,
-        min_stock_amount -> Integer,
-        default_best_before_days -> Integer,
-        default_best_before_days_after_open -> Integer,
-        default_best_before_days_after_freezing -> Integer,
-        default_best_before_days_after_thawing -> Integer,
+        location_id -> Int4,
+        shopping_location_id -> Nullable<Int4>,
+        qu_id_purchase -> Int4,
+        qu_id_stock -> Int4,
+        qu_factor_purchase_to_stock -> Float8,
+        min_stock_amount -> Int4,
+        default_best_before_days -> Int4,
+        default_best_before_days_after_open -> Int4,
+        default_best_before_days_after_freezing -> Int4,
+        default_best_before_days_after_thawing -> Int4,
         picture_file_name -> Nullable<Text>,
         enable_tare_weight_handling -> Bool,
-        tare_weight -> Float,
+        tare_weight -> Float8,
         not_check_stock_fulfillment_for_recipes -> Nullable<Bool>,
-        parent_product_id -> Nullable<Integer>,
-        calories -> Nullable<Integer>,
+        parent_product_id -> Nullable<Int4>,
+        calories -> Nullable<Int4>,
         cumulate_min_stock_amount_of_sub_products -> Nullable<Bool>,
         due_type -> Bool,
-        quick_consume_amount -> Float,
+        quick_consume_amount -> Float8,
         hide_on_stock_overview -> Bool,
         row_created_timestamp -> Nullable<Timestamp>,
-        default_print_stock_label -> Integer,
-        allow_label_per_unit -> Integer,
+        default_print_stock_label -> Int4,
+        allow_label_per_unit -> Int4,
     }
 }
 
 table! {
     quantity_unit_conversions (id) {
-        id -> Integer,
-        from_qu_id -> Integer,
-        to_qu_id -> Integer,
-        factor -> Float,
-        product_id -> Nullable<Integer>,
+        id -> Int4,
+        from_qu_id -> Int4,
+        to_qu_id -> Int4,
+        factor -> Float8,
+        product_id -> Nullable<Int4>,
         row_created_timestamp -> Nullable<Timestamp>,
     }
 }
 
 table! {
     quantity_units (id) {
-        id -> Integer,
+        id -> Int4,
         name -> Text,
         description -> Nullable<Text>,
         row_created_timestamp -> Nullable<Timestamp>,
@@ -191,52 +191,52 @@ table! {
 
 table! {
     recipes (id) {
-        id -> Integer,
+        id -> Int4,
         name -> Text,
         description -> Nullable<Text>,
         row_created_timestamp -> Nullable<Timestamp>,
         picture_file_name -> Nullable<Text>,
-        base_servings -> Nullable<Integer>,
-        desired_servings -> Nullable<Integer>,
+        base_servings -> Nullable<Int4>,
+        desired_servings -> Nullable<Int4>,
         not_check_shoppinglist -> Bool,
         #[sql_name = "type"]
         type_ -> Nullable<Text>,
-        product_id -> Nullable<Integer>,
+        product_id -> Nullable<Int4>,
     }
 }
 
 table! {
     recipes_nestings (id) {
-        id -> Integer,
-        recipe_id -> Integer,
-        includes_recipe_id -> Integer,
+        id -> Int4,
+        recipe_id -> Int4,
+        includes_recipe_id -> Int4,
         row_created_timestamp -> Nullable<Timestamp>,
-        servings -> Nullable<Integer>,
+        servings -> Nullable<Int4>,
     }
 }
 
 table! {
     recipes_pos (id) {
-        id -> Integer,
-        recipe_id -> Integer,
-        product_id -> Integer,
-        amount -> Float,
+        id -> Int4,
+        recipe_id -> Int4,
+        product_id -> Int4,
+        amount -> Float8,
         note -> Nullable<Text>,
-        qu_id -> Nullable<Integer>,
+        qu_id -> Nullable<Int4>,
         only_check_single_unit_in_stock -> Bool,
         ingredient_group -> Nullable<Text>,
         not_check_stock_fulfillment -> Bool,
         row_created_timestamp -> Nullable<Timestamp>,
         variable_amount -> Nullable<Text>,
-        price_factor -> Float,
+        price_factor -> Float8,
     }
 }
 
 table! {
     sessions (id) {
-        id -> Integer,
+        id -> Int4,
         session_key -> Text,
-        user_id -> Integer,
+        user_id -> Int4,
         expires -> Nullable<Timestamp>,
         last_used -> Nullable<Timestamp>,
         row_created_timestamp -> Nullable<Timestamp>,
@@ -245,20 +245,20 @@ table! {
 
 table! {
     shopping_list (id) {
-        id -> Integer,
-        product_id -> Nullable<Integer>,
+        id -> Int4,
+        product_id -> Nullable<Int4>,
         note -> Nullable<Text>,
-        amount -> Double,
+        amount -> Float8,
         row_created_timestamp -> Nullable<Timestamp>,
-        shopping_list_id -> Nullable<Integer>,
-        done -> Nullable<Integer>,
-        qu_id -> Nullable<Integer>,
+        shopping_list_id -> Nullable<Int4>,
+        done -> Nullable<Bool>,
+        qu_id -> Nullable<Int4>,
     }
 }
 
 table! {
     shopping_lists (id) {
-        id -> Integer,
+        id -> Int4,
         name -> Text,
         description -> Nullable<Text>,
         row_created_timestamp -> Nullable<Timestamp>,
@@ -267,7 +267,7 @@ table! {
 
 table! {
     shopping_locations (id) {
-        id -> Integer,
+        id -> Int4,
         name -> Text,
         description -> Nullable<Text>,
         row_created_timestamp -> Nullable<Timestamp>,
@@ -276,50 +276,50 @@ table! {
 
 table! {
     stock (id) {
-        id -> Integer,
-        product_id -> Integer,
-        amount -> Double,
+        id -> Int4,
+        product_id -> Int4,
+        amount -> Float8,
         best_before_date -> Nullable<Date>,
         purchased_date -> Nullable<Date>,
         stock_id -> Text,
-        price -> Nullable<Double>,
+        price -> Nullable<Float8>,
         open -> Bool,
         opened_date -> Nullable<Date>,
         row_created_timestamp -> Nullable<Timestamp>,
-        location_id -> Nullable<Integer>,
-        shopping_location_id -> Nullable<Integer>,
+        location_id -> Nullable<Int4>,
+        shopping_location_id -> Nullable<Int4>,
     }
 }
 
 table! {
     stock_log (id) {
-        id -> Integer,
-        product_id -> Integer,
-        amount -> Double,
+        id -> Int4,
+        product_id -> Int4,
+        amount -> Float8,
         best_before_date -> Nullable<Date>,
         purchased_date -> Nullable<Date>,
         used_date -> Nullable<Date>,
-        spoiled -> Integer,
+        spoiled -> Bool,
         stock_id -> Text,
         transaction_type -> Text,
-        price -> Nullable<Double>,
+        price -> Nullable<Float8>,
         undone -> Bool,
         undone_timestamp -> Nullable<Timestamp>,
         opened_date -> Nullable<Timestamp>,
         row_created_timestamp -> Nullable<Timestamp>,
-        location_id -> Nullable<Integer>,
-        recipe_id -> Nullable<Integer>,
+        location_id -> Nullable<Int4>,
+        recipe_id -> Nullable<Int4>,
         correlation_id -> Nullable<Text>,
         transaction_id -> Nullable<Text>,
-        stock_row_id -> Nullable<Integer>,
-        shopping_location_id -> Nullable<Integer>,
-        user_id -> Integer,
+        stock_row_id -> Nullable<Int4>,
+        shopping_location_id -> Nullable<Int4>,
+        user_id -> Int4,
     }
 }
 
 table! {
     task_categories (id) {
-        id -> Integer,
+        id -> Int4,
         name -> Text,
         description -> Nullable<Text>,
         row_created_timestamp -> Nullable<Timestamp>,
@@ -328,30 +328,30 @@ table! {
 
 table! {
     tasks (id) {
-        id -> Integer,
+        id -> Int4,
         name -> Text,
         description -> Nullable<Text>,
         due_date -> Nullable<Timestamp>,
         done -> Bool,
         done_timestamp -> Nullable<Timestamp>,
-        category_id -> Nullable<Integer>,
-        assigned_to_user_id -> Nullable<Integer>,
+        category_id -> Nullable<Int4>,
+        assigned_to_user_id -> Nullable<Int4>,
         row_created_timestamp -> Nullable<Timestamp>,
     }
 }
 
 table! {
     user_permissions (id) {
-        id -> Integer,
-        permission_id -> Integer,
-        user_id -> Integer,
+        id -> Int4,
+        permission_id -> Int4,
+        user_id -> Int4,
     }
 }
 
 table! {
     user_settings (id) {
-        id -> Integer,
-        user_id -> Integer,
+        id -> Int4,
+        user_id -> Int4,
         key -> Text,
         value -> Nullable<Text>,
         row_created_timestamp -> Nullable<Timestamp>,
@@ -361,7 +361,7 @@ table! {
 
 table! {
     userentities (id) {
-        id -> Integer,
+        id -> Int4,
         name -> Text,
         caption -> Text,
         description -> Nullable<Text>,
@@ -373,9 +373,9 @@ table! {
 
 table! {
     userfield_values (id) {
-        id -> Integer,
-        field_id -> Integer,
-        object_id -> Integer,
+        id -> Int4,
+        field_id -> Int4,
+        object_id -> Int4,
         value -> Text,
         row_created_timestamp -> Nullable<Timestamp>,
     }
@@ -383,7 +383,7 @@ table! {
 
 table! {
     userfields (id) {
-        id -> Integer,
+        id -> Int4,
         entity -> Text,
         name -> Text,
         caption -> Text,
@@ -392,21 +392,21 @@ table! {
         show_as_column_in_tables -> Bool,
         row_created_timestamp -> Nullable<Timestamp>,
         config -> Nullable<Text>,
-        sort_number -> Nullable<Integer>,
+        sort_number -> Nullable<Int4>,
     }
 }
 
 table! {
     userobjects (id) {
-        id -> Integer,
-        userentity_id -> Integer,
+        id -> Int4,
+        userentity_id -> Int4,
         row_created_timestamp -> Nullable<Timestamp>,
     }
 }
 
 table! {
     users (id) {
-        id -> Integer,
+        id -> Int4,
         username -> Text,
         first_name -> Nullable<Text>,
         last_name -> Nullable<Text>,
