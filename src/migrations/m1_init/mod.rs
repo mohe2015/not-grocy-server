@@ -60,6 +60,8 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
         migr.inject_custom("DROP VIEW IF EXISTS userfield_values_resolved");
         migr.inject_custom("DROP VIEW IF EXISTS users_dto");
 
+        /*
+        // should be dropped when the tables are dropped anyways and syntax doesn't match :(
         migr.inject_custom("DROP TRIGGER IF EXISTS cascade_battery_removal");
         migr.inject_custom("DROP TRIGGER IF EXISTS cascade_chore_removal");
         migr.inject_custom("DROP TRIGGER IF EXISTS cascade_product_removal");
@@ -89,6 +91,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             "DROP TRIGGER IF EXISTS set_products_default_location_if_empty_stock_log",
         );
         migr.inject_custom("DROP TRIGGER IF EXISTS shopping_list_qu_id_default");
+        */
 
         migr.inject_custom("DROP INDEX IF EXISTS ix_batteries_performance1");
         migr.inject_custom("DROP INDEX IF EXISTS ix_chores_performance1");
@@ -252,7 +255,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
                 "cumulate_min_stock_amount_of_sub_products",
                 boolean().default(false).nullable(true),
             );
-            t.add_column("due_type", boolean().default(1)); // integer()
+            t.add_column("due_type", boolean().default(true)); // integer()
             t.add_column("quick_consume_amount", float().default(1));
             t.add_column("hide_on_stock_overview", boolean().default(false));
             created(t);
@@ -477,6 +480,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("picture_file_name", text().nullable(true));
         });
 
+        println!("{}", &migr.make::<T>());
         conn.batch_execute(&migr.make::<T>())?;
         Ok(())
     }

@@ -55,8 +55,6 @@ fn migrate<T: 'static + SqlGenerator, Q: SimpleConnection + Connection + Migrati
 
     println!("{:?}", connection.latest_run_migration_version()?);
 
-    sql_query("PRAGMA foreign_keys = OFF;").execute(&connection)?;
-
     let return_value = match args {
         Cli::Migrate => run_migrations(&connection, migrations, &mut std::io::stdout()),
         Cli::ListMigrations => Ok(()), // https://lib.rs/crates/dialoguer
@@ -76,8 +74,6 @@ fn migrate<T: 'static + SqlGenerator, Q: SimpleConnection + Connection + Migrati
         }
     };
 
-    sql_query("PRAGMA foreign_keys = ON;").execute(&connection)?;
-
     println!("RUN\n~/.cargo/bin/diesel print-schema > src/schema.rs");
 
     return_value
@@ -93,10 +89,13 @@ fn main() -> Result<(), RunMigrationsError> {
     if database_url.starts_with("postgres://") {
         let connection = PgConnection::establish(&database_url)
             .unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
+        // enable if needed - but try to order changes appropiately so we don't need this
+        //sql_query("SET CONSTRAINTS ALL DEFERRED;").execute(&connection)?;
         migrate::<barrel::backend::Pg, PgConnection>(connection)
     } else {
         let connection = SqliteConnection::establish(&database_url)
             .unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
+        //sql_query("PRAGMA foreign_keys = OFF;").execute(&connection)?;
         migrate::<barrel::backend::Sqlite, SqliteConnection>(connection)
     }
 }
