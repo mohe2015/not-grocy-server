@@ -96,7 +96,18 @@ impl CreateOrUpdate for Pg {
         table_name: &str,
         test: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
     ) {
-        print!("psql");
+        migr.create_table_if_not_exists(table_name.to_string(), move |t| {
+            for (column_name, column_type) in test.call(()) {
+                t.add_column(column_name, column_type.clone());
+            }
+        });
+
+        // TODO FIXME implement change_column (for postgres)
+        /*migr.change_table(table_name.to_string(), move |t| {
+            for (column_name, column_type) in test.call(()) {
+                t.change_column(column_name, column_type.clone());
+            }
+        });*/
     }
 }
 
