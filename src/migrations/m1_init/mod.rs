@@ -101,8 +101,8 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
         migr.inject_custom("DROP INDEX IF EXISTS ix_recipes");
         migr.inject_custom("DROP INDEX IF EXISTS ix_stock_performance1");
 
-        static api_keys: fn() -> &'static [(&'static str, barrel::types::Type)] = || {
-            &[
+        static api_keys: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
                 id2(),
                 ("api_key", text().unique(true)),
                 ("user_id", integer()),
@@ -115,9 +115,9 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
                 ("last_used", datetime().nullable(true)),
                 created2(),
                 ("key_type", text().default("default")),
-            ][..]
+            ]
         };
-        create_or_update2(&mut migr, "api_keys", api_keys);
+        create_or_update2(&mut migr, "api_keys", &api_keys);
 
         create_or_update(&mut migr, "batteries", &|t| {
             id(t);

@@ -79,19 +79,18 @@ where
 pub fn create_or_update2(
     migr: &mut Migration,
     table_name: &str,
-    test: fn() -> &'static [(&'static str, barrel::types::Type)],
+    test: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
 ) {
-    let value = test.call(());
-    migr.create_table_if_not_exists(format!("new_{}", table_name), |t| {
-        for (column_name, column_type) in value {
-            t.add_column(*column_name, column_type);
+    migr.create_table_if_not_exists(format!("new_{}", table_name), move |t| {
+        for (column_name, column_type) in test.call(()) {
+            t.add_column(column_name, column_type.clone());
         }
     });
 
     // TO prevent errors if it didn't exist
-    migr.create_table_if_not_exists(table_name.to_string(), |t| {
+    migr.create_table_if_not_exists(table_name.to_string(), move |t| {
         for (column_name, column_type) in test.call(()) {
-            t.add_column(*column_name, *column_type);
+            t.add_column(column_name, column_type.clone());
         }
     });
 
