@@ -82,10 +82,10 @@ where
         .build(manager)
         .expect("Failed to create database connection pool.");
 
-    let connection = pool.get().map_err(R2D2Error)?;
-    sql_query("PRAGMA foreign_keys = ON;")
-        .execute(&connection)
-        .map_err(DieselError)?;
+    //let connection = pool.get().map_err(R2D2Error)?;
+    //sql_query("PRAGMA foreign_keys = ON;")
+    //    .execute(&connection)
+    //    .map_err(DieselError)?;
 
     HttpServer::new(move || {
         // TODO FIXME REMOVE
