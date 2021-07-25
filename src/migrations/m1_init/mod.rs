@@ -101,20 +101,23 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
         migr.inject_custom("DROP INDEX IF EXISTS ix_recipes");
         migr.inject_custom("DROP INDEX IF EXISTS ix_stock_performance1");
 
-        create_or_update(&mut migr, "api_keys", &|t| {
-            id(t);
-            t.add_column("api_key", text().unique(true));
-            t.add_column("user_id", integer());
-            t.add_column(
-                "expires",
-                datetime()
-                    .nullable(true)
-                    .default(AutogenFunction::CurrentTimestamp),
-            );
-            t.add_column("last_used", datetime().nullable(true));
-            created(t);
-            t.add_column("key_type", text().default("default"));
-        });
+        static api_keys: fn() -> &'static [(&'static str, barrel::types::Type)] = || {
+            &[
+                id2(),
+                ("api_key", text().unique(true)),
+                ("user_id", integer()),
+                (
+                    "expires",
+                    datetime()
+                        .nullable(true)
+                        .default(AutogenFunction::CurrentTimestamp),
+                ),
+                ("last_used", datetime().nullable(true)),
+                created2(),
+                ("key_type", text().default("default")),
+            ][..]
+        };
+        create_or_update2(&mut migr, "api_keys", api_keys);
 
         create_or_update(&mut migr, "batteries", &|t| {
             id(t);
