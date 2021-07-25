@@ -1,4 +1,11 @@
-use barrel::{functions::AutogenFunction, types::*, Migration, Table};
+use std::marker::PhantomData;
+
+use barrel::{
+    backend::{Pg, SqlGenerator, Sqlite},
+    functions::AutogenFunction,
+    types::*,
+    Migration, Table,
+};
 
 pub fn id(t: &mut Table) {
     t.add_column("id", integer().increments(true).primary(true));
@@ -75,33 +82,52 @@ where
 
     migr.rename_table(format!("new_{}", table_name), table_name.to_string());
 }
+pub trait CreateOrUpdate {
+    fn create_or_update2(
+        migr: &mut Migration,
+        table_name: &str,
+        test: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
+    );
+}
 
-pub fn create_or_update2(
-    migr: &mut Migration,
-    table_name: &str,
-    test: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
-) {
-    migr.create_table_if_not_exists(format!("new_{}", table_name), move |t| {
-        for (column_name, column_type) in test.call(()) {
-            t.add_column(column_name, column_type.clone());
-        }
-    });
+impl CreateOrUpdate for Pg {
+    fn create_or_update2(
+        migr: &mut Migration,
+        table_name: &str,
+        test: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
+    ) {
+        print!("psql");
+    }
+}
 
-    // TO prevent errors if it didn't exist
-    migr.create_table_if_not_exists(table_name.to_string(), move |t| {
-        for (column_name, column_type) in test.call(()) {
-            t.add_column(column_name, column_type.clone());
-        }
-    });
+impl CreateOrUpdate for Sqlite {
+    fn create_or_update2(
+        migr: &mut Migration,
+        table_name: &str,
+        test: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
+    ) {
+        migr.create_table_if_not_exists(format!("new_{}", table_name), move |t| {
+            for (column_name, column_type) in test.call(()) {
+                t.add_column(column_name, column_type.clone());
+            }
+        });
 
-    migr.inject_custom(format!(
-        "INSERT INTO new_{} SELECT * FROM {}",
-        table_name, table_name
-    ));
+        // TO prevent errors if it didn't exist
+        migr.create_table_if_not_exists(table_name.to_string(), move |t| {
+            for (column_name, column_type) in test.call(()) {
+                t.add_column(column_name, column_type.clone());
+            }
+        });
 
-    //migr.inject_custom(format!("ALTER TABLE {} DISABLE TRIGGER ALL", table_name));
+        migr.inject_custom(format!(
+            "INSERT INTO new_{} SELECT * FROM {}",
+            table_name, table_name
+        ));
 
-    migr.drop_table_if_exists(table_name);
+        //migr.inject_custom(format!("ALTER TABLE {} DISABLE TRIGGER ALL", table_name));
 
-    migr.rename_table(format!("new_{}", table_name), table_name.to_string());
+        migr.drop_table_if_exists(table_name);
+
+        migr.rename_table(format!("new_{}", table_name), table_name.to_string());
+    }
 }

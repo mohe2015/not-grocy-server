@@ -20,6 +20,7 @@ use diesel_migrations::run_migrations;
 use diesel_migrations::Migration;
 use diesel_migrations::MigrationConnection;
 use dotenv::dotenv;
+use migrations::utils::CreateOrUpdate;
 use migrations_internals::schema::__diesel_schema_migrations::dsl::*;
 use structopt::StructOpt;
 
@@ -35,9 +36,13 @@ enum Cli {
 // and developing migrations has no good ide support.
 // also switching databases is not supported.
 
-fn migrate<T: 'static + SqlGenerator, Q: SimpleConnection + Connection + MigrationConnection>(
+fn migrate<
+    T: 'static + SqlGenerator + CreateOrUpdate,
+    Q: SimpleConnection + Connection + MigrationConnection,
+>(
     connection: Q,
-) -> Result<(), RunMigrationsError> {
+) -> Result<(), RunMigrationsError> where
+{
     let args = Cli::from_args();
     let migrations: [Box<dyn Migration>; 1] =
         [Box::new(migrations::m1_init::BarrelMigration::<T> {
