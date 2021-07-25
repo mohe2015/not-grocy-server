@@ -120,25 +120,33 @@ impl<T: SqlGenerator + CreateOrUpdate> Migration for BarrelMigration<T> {
 
         T::create_or_update2(&mut migr, "api_keys", &API_KEYS_FN);
 
-        create_or_update(&mut migr, "batteries", &|t| {
-            id(t);
-            name(t);
-            description(t);
-            t.add_column("used_in", text().nullable(true));
-            t.add_column("charge_interval_days", integer().default(0));
-            created(t);
-            t.add_column("active", boolean().default(true));
-        });
+        static BATTERIES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
+                id2(),
+                name2(),
+                description2(),
+                ("used_in", text().nullable(true)),
+                ("charge_interval_days", integer().default(0)),
+                created2(),
+                ("active", boolean().default(true)),
+            ]
+        };
 
-        create_or_update(&mut migr, "battery_charge_cycles", &|t| {
-            id(t);
-            t.add_column("battery_id", text());
-            t.add_column("tracked_time", datetime().nullable(true));
-            created(t);
-            undone(t);
-        });
+        T::create_or_update2(&mut migr, "batteries", &BATTERIES_FN);
 
-        create_or_update(&mut migr, "chores", &|t| {
+        static BATTERY_CHARGE_CYCLES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
+            id2(),
+            ("battery_id", text()),
+            ("tracked_time", datetime().nullable(true)),
+            created2(),
+            undone2(),
+        ]};
+
+        T::create_or_update2(&mut migr, "battery_charge_cycles", BATTERY_CHARGE_CYCLES_FN);
+
+        static CHORES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             name(t);
             description(t);
@@ -159,34 +167,46 @@ impl<T: SqlGenerator + CreateOrUpdate> Migration for BarrelMigration<T> {
             t.add_column("product_amount", float().nullable(true));
             t.add_column("period_interval", integer().default(1));
             t.add_column("active", boolean().default(true));
-        });
+            ]};
 
-        create_or_update(&mut migr, "chores_log", &|t| {
+        T::create_or_update2(&mut migr, "chores", CHORES_FN);
+
+        static CHORES_LOG_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             t.add_column("chore_id", integer());
             t.add_column("tracked_time", datetime().nullable(true));
             t.add_column("done_by_user_id", integer().nullable(true));
             created(t);
             undone(t);
-        });
+            ]};
 
-        create_or_update(&mut migr, "equipment", &|t| {
+        T::create_or_update2(&mut migr, "chores_log", CHORES_LOG_FN);
+
+        static EQUIPMENT_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             name(t);
             description(t);
             t.add_column("instruction_manual_file_name", text().nullable(true));
             created(t);
-        });
+            ]};
 
-        create_or_update(&mut migr, "locations", &|t| {
+        T::create_or_update2(&mut migr, "equipment", EQUIPMENT_FN);
+
+        static LOCATIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             name(t);
             description(t);
             created(t);
             t.add_column("is_freezer", boolean().default(false));
-        });
+            ]};
 
-        create_or_update(&mut migr, "meal_plan", &|t| {
+        T::create_or_update2(&mut migr, "locations", LOCATIONS_FN);
+
+        static MEAL_PLAN_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             t.add_column("day", date());
             t.add_column("type", text().nullable(true).default("recipe"));
@@ -197,15 +217,22 @@ impl<T: SqlGenerator + CreateOrUpdate> Migration for BarrelMigration<T> {
             t.add_column("product_amount", float().nullable(true).default(0));
             t.add_column("product_qu_id", integer().nullable(true));
             created(t);
-        });
+            ]};
 
-        create_or_update(&mut migr, "permission_hierarchy", &|t| {
+        T::create_or_update2(&mut migr, "meal_plan", MEAL_PLAN_FN);
+
+        static PERMISSION_HIERARCHY_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             name(t);
             t.add_column("parent", integer().nullable(true));
-        });
+            ]};
 
-        create_or_update(&mut migr, "product_barcodes", &|t| {
+
+        T::create_or_update2(&mut migr, "permission_hierarchy", PERMISSION_HIERARCHY_FN);
+
+        static PRODUCT_BARCODES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             t.add_column("product_id", integer());
             t.add_column("barcode", text());
@@ -215,16 +242,22 @@ impl<T: SqlGenerator + CreateOrUpdate> Migration for BarrelMigration<T> {
             t.add_column("last_price", double().nullable(true)); // DECIMAL
             created(t);
             t.add_column("note", text().nullable(true));
-        });
+            ]};
 
-        create_or_update(&mut migr, "product_groups", &|t| {
+        T::create_or_update2(&mut migr, "product_barcodes", PRODUCT_BARCODES_FN);
+
+        static PRODUCT_GROUPS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             name(t);
             description(t);
             created(t);
-        });
+            ]};
 
-        create_or_update(&mut migr, "products", &|t| {
+        T::create_or_update2(&mut migr, "product_groups", PRODUCT_GROUPS_FN);
+
+        static PRODUCTS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             name(t);
             description(t);
@@ -265,27 +298,36 @@ impl<T: SqlGenerator + CreateOrUpdate> Migration for BarrelMigration<T> {
             created(t);
             t.add_column("default_print_stock_label", integer().default(0));
             t.add_column("allow_label_per_unit", integer().default(0));
-        });
+            ]};
 
-        create_or_update(&mut migr, "quantity_unit_conversions", &|t| {
+        T::create_or_update2(&mut migr, "products", PRODUCTS_FN);
+
+        static QUANTITY_UNIT_CONVERSIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             t.add_column("from_qu_id", integer());
             t.add_column("to_qu_id", integer());
             t.add_column("factor", float());
             t.add_column("product_id", integer().nullable(true));
             created(t);
-        });
+            ]};
 
-        create_or_update(&mut migr, "quantity_units", &|t| {
+        T::create_or_update2(&mut migr, "quantity_unit_conversions", QUANTITY_UNIT_CONVERSIONS_FN);
+
+        static QUANTITY_UNITS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             name(t);
             description(t);
             created(t);
             t.add_column("name_plural", text().nullable(true));
             t.add_column("plural_forms", text().nullable(true));
-        });
+            ]};
 
-        create_or_update(&mut migr, "recipes", &|t| {
+        T::create_or_update2(&mut migr, "quantity_units", QUANTITY_UNITS_FN);
+
+        static RECIPES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             name(t);
             description(t);
@@ -296,17 +338,23 @@ impl<T: SqlGenerator + CreateOrUpdate> Migration for BarrelMigration<T> {
             t.add_column("not_check_shoppinglist", boolean().default(false));
             t.add_column("type", text().nullable(true).default("normal"));
             t.add_column("product_id", integer().nullable(true));
-        });
+            ]};
 
-        create_or_update(&mut migr, "recipes_nestings", &|t| {
+        T::create_or_update2(&mut migr, "recipes", RECIPES_FN);
+
+        static RECIPES_NESTINGS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             t.add_column("recipe_id", integer());
             t.add_column("includes_recipe_id", integer());
             created(t);
             t.add_column("servings", integer().default(1).nullable(true));
-        });
+            ]};
 
-        create_or_update(&mut migr, "recipes_pos", &|t| {
+        T::create_or_update2(&mut migr, "recipes_nestings", RECIPES_NESTINGS_FN);
+
+        static RECIPES_POS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             t.add_column("recipe_id", integer());
             t.add_column("product_id", integer());
@@ -319,18 +367,24 @@ impl<T: SqlGenerator + CreateOrUpdate> Migration for BarrelMigration<T> {
             created(t);
             t.add_column("variable_amount", text().nullable(true));
             t.add_column("price_factor", float().default(1));
-        });
+            ]};
 
-        create_or_update(&mut migr, "sessions", &|t| {
+        T::create_or_update2(&mut migr, "recipes_pos", RECIPES_POS_FN);
+
+        static SESSIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             t.add_column("session_key", text().unique(true));
             t.add_column("user_id", integer());
             t.add_column("expires", datetime().nullable(true));
             t.add_column("last_used", datetime().nullable(true));
             created(t);
-        });
+            ]};
 
-        create_or_update(&mut migr, "shopping_list", &|t| {
+        T::create_or_update2(&mut migr, "sessions", SESSIONS_FN);
+
+        static SHOPPING_LIST_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             t.add_column("product_id", integer().nullable(true));
             t.add_column("note", text().nullable(true));
@@ -339,23 +393,32 @@ impl<T: SqlGenerator + CreateOrUpdate> Migration for BarrelMigration<T> {
             t.add_column("shopping_list_id", integer().nullable(true).default(1));
             t.add_column("done", integer().nullable(true).default(false)); // boolean()
             t.add_column("qu_id", integer().nullable(true));
-        });
+            ]};
 
-        create_or_update(&mut migr, "shopping_lists", &|t| {
+        T::create_or_update2(&mut migr, "shopping_list", SHOPPING_LIST_FN);
+
+        static SHOPPING_LISTS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             name(t);
             description(t);
             created(t);
-        });
+            ]};
 
-        create_or_update(&mut migr, "shopping_locations", &|t| {
+        T::create_or_update2(&mut migr, "shopping_lists", SHOPPING_LISTS_FN);
+
+        static SHOPPING_LOCATIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             name(t);
             description(t);
             created(t);
-        });
+            ]};
 
-        create_or_update(&mut migr, "stock", &|t| {
+        T::create_or_update2(&mut migr, "shopping_locations", SHOPPING_LOCATIONS_FN);
+
+        static STOCK_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             t.add_column("product_id", foreign("products", "id")); // CHANGED
             t.add_column("amount", double()); // DECIMAL
@@ -373,9 +436,12 @@ impl<T: SqlGenerator + CreateOrUpdate> Migration for BarrelMigration<T> {
             created(t);
             t.add_column("location_id", integer().nullable(true));
             t.add_column("shopping_location_id", integer().nullable(true));
-        });
+            ]};
 
-        create_or_update(&mut migr, "stock_log", &|t| {
+        T::create_or_update2(&mut migr, "stock", STOCK_FN);
+
+        static STOCK_LOG_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             t.add_column("product_id", integer());
             t.add_column("amount", double()); // DECIMAL
@@ -397,16 +463,22 @@ impl<T: SqlGenerator + CreateOrUpdate> Migration for BarrelMigration<T> {
             t.add_column("stock_row_id", integer().nullable(true));
             t.add_column("shopping_location_id", integer().nullable(true));
             t.add_column("user_id", integer().default(1));
-        });
+            ]};
 
-        create_or_update(&mut migr, "task_categories", &|t| {
+        T::create_or_update2(&mut migr, "stock_log", STOCK_LOG_FN);
+
+        static TASK_CATEGORIES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             name(t);
             description(t);
             created(t);
-        });
+            ]};
 
-        create_or_update(&mut migr, "tasks", &|t| {
+        T::create_or_update2(&mut migr, "task_categories", TASK_CATEGORIES_FN);
+
+        static TASKS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             name(t);
             description(t);
@@ -416,15 +488,21 @@ impl<T: SqlGenerator + CreateOrUpdate> Migration for BarrelMigration<T> {
             t.add_column("category_id", integer().nullable(true));
             t.add_column("assigned_to_user_id", integer().nullable(true));
             created(t);
-        });
+            ]};
 
-        create_or_update(&mut migr, "user_permissions", &|t| {
+        T::create_or_update2(&mut migr, "tasks", TASKS_FN);
+
+        static USER_PERMISSIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             t.add_column("permission_id", integer());
             t.add_column("user_id", integer());
-        });
+            ]};
 
-        create_or_update(&mut migr, "user_settings", &|t| {
+        T::create_or_update2(&mut migr, "user_permissions", USER_PERMISSIONS_FN);
+
+        static USER_SETTINGS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             t.add_column("user_id", integer());
             t.add_column("key", text());
@@ -436,9 +514,12 @@ impl<T: SqlGenerator + CreateOrUpdate> Migration for BarrelMigration<T> {
                     .nullable(true)
                     .default(AutogenFunction::CurrentTimestamp),
             );
-        });
+            ]};
 
-        create_or_update(&mut migr, "userentities", &|t| {
+        T::create_or_update2(&mut migr, "user_settings", USER_SETTINGS_FN);
+
+        static USERENTITIES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             name(t);
             t.add_column("caption", text());
@@ -446,17 +527,23 @@ impl<T: SqlGenerator + CreateOrUpdate> Migration for BarrelMigration<T> {
             t.add_column("show_in_sidebar_menu", boolean().default(true));
             t.add_column("icon_css_class", text().nullable(true));
             created(t);
-        });
+            ]};
 
-        create_or_update(&mut migr, "userfield_values", &|t| {
+        T::create_or_update2(&mut migr, "userentities", USERENTITIES_FN);
+
+        static USERFIELD_VALUES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             t.add_column("field_id", integer());
             t.add_column("object_id", integer());
             t.add_column("value", text());
             created(t);
-        });
+            ]};
 
-        create_or_update(&mut migr, "userfields", &|t| {
+        T::create_or_update2(&mut migr, "userfield_values", USERFIELD_VALUES_FN);
+
+        static USERFIELDS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             t.add_column("entity", text());
             name(t);
@@ -466,15 +553,21 @@ impl<T: SqlGenerator + CreateOrUpdate> Migration for BarrelMigration<T> {
             created(t);
             t.add_column("config", text().nullable(true));
             t.add_column("sort_number", integer().nullable(true));
-        });
+            ]};
 
-        create_or_update(&mut migr, "userobjects", &|t| {
+        T::create_or_update2(&mut migr, "userfields", USERFIELDS_FN);
+
+        static USEROBJECTS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             t.add_column("userentity_id", integer());
             created(t);
-        });
+            ]};
 
-        create_or_update(&mut migr, "users", &|t| {
+        T::create_or_update2(&mut migr, "userobjects", USEROBJECTS_FN);
+
+        static USERS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
             id(t);
             t.add_column("username", text().unique(true));
             t.add_column("first_name", text().nullable(true));
@@ -482,7 +575,9 @@ impl<T: SqlGenerator + CreateOrUpdate> Migration for BarrelMigration<T> {
             t.add_column("password", text());
             created(t);
             t.add_column("picture_file_name", text().nullable(true));
-        });
+            ]};
+
+        T::create_or_update2(&mut migr, "users", USERS_FN);
 
         println!("{}", &migr.make::<T>());
         conn.batch_execute(&migr.make::<T>())?;
