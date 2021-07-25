@@ -1,3 +1,5 @@
+#![feature(fn_traits)]
+
 #[path = "../migrations/mod.rs"]
 pub mod migrations;
 

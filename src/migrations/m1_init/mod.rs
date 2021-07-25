@@ -23,7 +23,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
         let mut migr = barrel::Migration::new();
 
         // warning - not backwards compatible
-        migr.drop_table("migrations");
+        migr.drop_table_if_exists("migrations");
 
         migr.inject_custom("DROP VIEW IF EXISTS batteries_current");
         migr.inject_custom("DROP VIEW IF EXISTS chores_assigned_users_resolved");
@@ -98,7 +98,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
         migr.inject_custom("DROP INDEX IF EXISTS ix_recipes");
         migr.inject_custom("DROP INDEX IF EXISTS ix_stock_performance1");
 
-        create_or_update(&mut migr, "api_keys", |t| {
+        create_or_update(&mut migr, "api_keys", &|t| {
             id(t);
             t.add_column("api_key", text().unique(true));
             t.add_column("user_id", integer());
@@ -113,7 +113,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("key_type", text().default("default"));
         });
 
-        create_or_update(&mut migr, "batteries", |t| {
+        create_or_update(&mut migr, "batteries", &|t| {
             id(t);
             name(t);
             description(t);
@@ -123,7 +123,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("active", boolean().default(true));
         });
 
-        create_or_update(&mut migr, "battery_charge_cycles", |t| {
+        create_or_update(&mut migr, "battery_charge_cycles", &|t| {
             id(t);
             t.add_column("battery_id", text());
             t.add_column("tracked_time", datetime().nullable(true));
@@ -131,7 +131,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             undone(t);
         });
 
-        create_or_update(&mut migr, "chores", |t| {
+        create_or_update(&mut migr, "chores", &|t| {
             id(t);
             name(t);
             description(t);
@@ -154,7 +154,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("active", boolean().default(true));
         });
 
-        create_or_update(&mut migr, "chores_log", |t| {
+        create_or_update(&mut migr, "chores_log", &|t| {
             id(t);
             t.add_column("chore_id", integer());
             t.add_column("tracked_time", datetime().nullable(true));
@@ -163,7 +163,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             undone(t);
         });
 
-        create_or_update(&mut migr, "equipment", |t| {
+        create_or_update(&mut migr, "equipment", &|t| {
             id(t);
             name(t);
             description(t);
@@ -171,7 +171,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             created(t);
         });
 
-        create_or_update(&mut migr, "locations", |t| {
+        create_or_update(&mut migr, "locations", &|t| {
             id(t);
             name(t);
             description(t);
@@ -179,7 +179,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("is_freezer", boolean().default(false));
         });
 
-        create_or_update(&mut migr, "meal_plan", |t| {
+        create_or_update(&mut migr, "meal_plan", &|t| {
             id(t);
             t.add_column("day", date());
             t.add_column("type", text().nullable(true).default("recipe"));
@@ -192,13 +192,13 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             created(t);
         });
 
-        create_or_update(&mut migr, "permission_hierarchy", |t| {
+        create_or_update(&mut migr, "permission_hierarchy", &|t| {
             id(t);
             name(t);
             t.add_column("parent", integer().nullable(true));
         });
 
-        create_or_update(&mut migr, "product_barcodes", |t| {
+        create_or_update(&mut migr, "product_barcodes", &|t| {
             id(t);
             t.add_column("product_id", integer());
             t.add_column("barcode", text());
@@ -210,14 +210,14 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("note", text().nullable(true));
         });
 
-        create_or_update(&mut migr, "product_groups", |t| {
+        create_or_update(&mut migr, "product_groups", &|t| {
             id(t);
             name(t);
             description(t);
             created(t);
         });
 
-        create_or_update(&mut migr, "products", |t| {
+        create_or_update(&mut migr, "products", &|t| {
             id(t);
             name(t);
             description(t);
@@ -225,8 +225,8 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("active", boolean().default(true));
             t.add_column("location_id", integer());
             t.add_column("shopping_location_id", integer().nullable(true));
-            t.add_column("qu_id_purchase", integer());
-            t.add_column("qu_id_stock", integer());
+            t.add_column("qu_id_purchase", foreign("quantity_units", "id"));
+            t.add_column("qu_id_stock", foreign("quantity_units", "id"));
             t.add_column("qu_factor_purchase_to_stock", float());
             t.add_column("min_stock_amount", integer().default(0));
             t.add_column("default_best_before_days", integer().default(0));
@@ -260,7 +260,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("allow_label_per_unit", integer().default(0));
         });
 
-        create_or_update(&mut migr, "quantity_unit_conversions", |t| {
+        create_or_update(&mut migr, "quantity_unit_conversions", &|t| {
             id(t);
             t.add_column("from_qu_id", integer());
             t.add_column("to_qu_id", integer());
@@ -269,7 +269,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             created(t);
         });
 
-        create_or_update(&mut migr, "quantity_units", |t| {
+        create_or_update(&mut migr, "quantity_units", &|t| {
             id(t);
             name(t);
             description(t);
@@ -278,7 +278,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("plural_forms", text().nullable(true));
         });
 
-        create_or_update(&mut migr, "recipes", |t| {
+        create_or_update(&mut migr, "recipes", &|t| {
             id(t);
             name(t);
             description(t);
@@ -291,7 +291,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("product_id", integer().nullable(true));
         });
 
-        create_or_update(&mut migr, "recipes_nestings", |t| {
+        create_or_update(&mut migr, "recipes_nestings", &|t| {
             id(t);
             t.add_column("recipe_id", integer());
             t.add_column("includes_recipe_id", integer());
@@ -299,7 +299,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("servings", integer().default(1).nullable(true));
         });
 
-        create_or_update(&mut migr, "recipes_pos", |t| {
+        create_or_update(&mut migr, "recipes_pos", &|t| {
             id(t);
             t.add_column("recipe_id", integer());
             t.add_column("product_id", integer());
@@ -314,7 +314,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("price_factor", float().default(1));
         });
 
-        create_or_update(&mut migr, "sessions", |t| {
+        create_or_update(&mut migr, "sessions", &|t| {
             id(t);
             t.add_column("session_key", text().unique(true));
             t.add_column("user_id", integer());
@@ -323,7 +323,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             created(t);
         });
 
-        create_or_update(&mut migr, "shopping_list", |t| {
+        create_or_update(&mut migr, "shopping_list", &|t| {
             id(t);
             t.add_column("product_id", integer().nullable(true));
             t.add_column("note", text().nullable(true));
@@ -334,21 +334,21 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("qu_id", integer().nullable(true));
         });
 
-        create_or_update(&mut migr, "shopping_lists", |t| {
+        create_or_update(&mut migr, "shopping_lists", &|t| {
             id(t);
             name(t);
             description(t);
             created(t);
         });
 
-        create_or_update(&mut migr, "shopping_locations", |t| {
+        create_or_update(&mut migr, "shopping_locations", &|t| {
             id(t);
             name(t);
             description(t);
             created(t);
         });
 
-        create_or_update(&mut migr, "stock", |t| {
+        create_or_update(&mut migr, "stock", &|t| {
             id(t);
             t.add_column("product_id", foreign("products", "id")); // CHANGED
             t.add_column("amount", double()); // DECIMAL
@@ -368,7 +368,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("shopping_location_id", integer().nullable(true));
         });
 
-        create_or_update(&mut migr, "stock_log", |t| {
+        create_or_update(&mut migr, "stock_log", &|t| {
             id(t);
             t.add_column("product_id", integer());
             t.add_column("amount", double()); // DECIMAL
@@ -392,14 +392,14 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("user_id", integer().default(1));
         });
 
-        create_or_update(&mut migr, "task_categories", |t| {
+        create_or_update(&mut migr, "task_categories", &|t| {
             id(t);
             name(t);
             description(t);
             created(t);
         });
 
-        create_or_update(&mut migr, "tasks", |t| {
+        create_or_update(&mut migr, "tasks", &|t| {
             id(t);
             name(t);
             description(t);
@@ -411,13 +411,13 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             created(t);
         });
 
-        create_or_update(&mut migr, "user_permissions", |t| {
+        create_or_update(&mut migr, "user_permissions", &|t| {
             id(t);
             t.add_column("permission_id", integer());
             t.add_column("user_id", integer());
         });
 
-        create_or_update(&mut migr, "user_settings", |t| {
+        create_or_update(&mut migr, "user_settings", &|t| {
             id(t);
             t.add_column("user_id", integer());
             t.add_column("key", text());
@@ -431,7 +431,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             );
         });
 
-        create_or_update(&mut migr, "userentities", |t| {
+        create_or_update(&mut migr, "userentities", &|t| {
             id(t);
             name(t);
             t.add_column("caption", text());
@@ -441,7 +441,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             created(t);
         });
 
-        create_or_update(&mut migr, "userfield_values", |t| {
+        create_or_update(&mut migr, "userfield_values", &|t| {
             id(t);
             t.add_column("field_id", integer());
             t.add_column("object_id", integer());
@@ -449,7 +449,7 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             created(t);
         });
 
-        create_or_update(&mut migr, "userfields", |t| {
+        create_or_update(&mut migr, "userfields", &|t| {
             id(t);
             t.add_column("entity", text());
             name(t);
@@ -461,13 +461,13 @@ impl<T: SqlGenerator> Migration for BarrelMigration<T> {
             t.add_column("sort_number", integer().nullable(true));
         });
 
-        create_or_update(&mut migr, "userobjects", |t| {
+        create_or_update(&mut migr, "userobjects", &|t| {
             id(t);
             t.add_column("userentity_id", integer());
             created(t);
         });
 
-        create_or_update(&mut migr, "users", |t| {
+        create_or_update(&mut migr, "users", &|t| {
             id(t);
             t.add_column("username", text().unique(true));
             t.add_column("first_name", text().nullable(true));
