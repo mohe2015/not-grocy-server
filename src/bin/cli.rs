@@ -35,14 +35,10 @@ fn migrate<T: 'static + SqlGenerator>(database_url: &str) -> Result<(), RunMigra
     let args = Cli::from_args();
     let connection = SqliteConnection::establish(database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
-    let migrations: [Box<dyn Migration>; 2] = [
-        Box::new(migrations::m1_init::BarrelMigration::<T> {
+    let migrations: [Box<dyn Migration>; 1] =
+        [Box::new(migrations::m1_init::BarrelMigration::<T> {
             phantom_data: PhantomData,
-        }),
-        Box::new(migrations::m2_bugfixes::BarrelMigration::<T> {
-            phantom_data: PhantomData,
-        }),
-    ];
+        })];
 
     // https://github.com/diesel-rs/diesel/blob/master/diesel/src/migration/setup_migration_table.sql
     sql_query(

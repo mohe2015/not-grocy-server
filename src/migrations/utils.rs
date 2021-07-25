@@ -1,4 +1,4 @@
-use barrel::{functions::AutogenFunction, types::*, Table};
+use barrel::{functions::AutogenFunction, types::*, Migration, Table};
 
 pub fn id(t: &mut Table) {
     t.add_column("id", integer().increments(true).primary(true));
@@ -24,4 +24,20 @@ pub fn name(t: &mut Table) {
 
 pub fn description(t: &mut Table) {
     t.add_column("description", text().nullable(true));
+}
+
+pub fn create_or_update<F>(migr: &mut Migration, table_name: &str, cb: F)
+where
+    F: 'static + Fn(&mut Table) -> (),
+{
+    migr.create_table_if_not_exists(format!("new_{}", table_name), cb);
+
+    migr.inject_custom(format!(
+        "INSERT INTO new_{} SELECT * FROM {}",
+        table_name, table_name
+    ));
+
+    migr.drop_table(table_name);
+
+    migr.rename_table(format!("new_{}", table_name), table_name.to_string());
 }
