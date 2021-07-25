@@ -404,7 +404,7 @@ impl<T: SqlGenerator + CreateOrUpdate> Migration for BarrelMigration<T> {
                 ("amount", double().default(0)), // DECIMAL
                 created2(),
                 ("shopping_list_id", integer().nullable(true).default(1)),
-                ("done", integer().nullable(true).default(false)), // boolean()
+                ("done", boolean().nullable(true).default(false)), // boolean()
                 ("qu_id", integer().nullable(true)),
             ]
         };
@@ -453,7 +453,7 @@ impl<T: SqlGenerator + CreateOrUpdate> Migration for BarrelMigration<T> {
                 ("best_before_date", date().nullable(true)),
                 ("purchased_date", date().nullable(true)),
                 ("used_date", date().nullable(true)),
-                ("spoiled", integer().default(false)), // boolean()
+                ("spoiled", boolean().default(false)), // boolean()
                 ("stock_id", text()),
                 ("transaction_type", text()),
                 ("price", double().nullable(true)), // DECIMAL

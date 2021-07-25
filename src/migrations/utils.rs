@@ -1,5 +1,3 @@
-use std::marker::PhantomData;
-
 use barrel::{
     backend::{Pg, SqlGenerator, Sqlite},
     functions::AutogenFunction,
