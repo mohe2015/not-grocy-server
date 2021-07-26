@@ -154,7 +154,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 ),
                 ("consume_product_on_execution", boolean().default(false)),
                 ("product_id", boolean().nullable(true)), // integer()
-                ("product_amount", float().nullable(true)),
+                ("product_amount", double().nullable(true)),
                 ("period_interval", integer().default(1)),
                 ("active", boolean().default(true)),
             ]
@@ -209,7 +209,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 ("recipe_servings", integer().nullable(true).default(1)),
                 ("note", text().nullable(true)),
                 ("product_id", integer().nullable(true)),
-                ("product_amount", float().nullable(true).default(0)),
+                ("product_amount", double().nullable(true).default(0)),
                 ("product_qu_id", integer().nullable(true)),
                 created2(),
             ]
@@ -228,7 +228,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 ("product_id", integer()),
                 ("barcode", text()),
                 ("qu_id", integer().nullable(true)),
-                ("amount", float().nullable(true)),
+                ("amount", double().nullable(true)),
                 ("shopping_location_id", integer().nullable(true)),
                 ("last_price", double().nullable(true)), // DECIMAL
                 created2(),
@@ -254,7 +254,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 ("shopping_location_id", integer().nullable(true)),
                 ("qu_id_purchase", foreign("quantity_units", "id")),
                 ("qu_id_stock", foreign("quantity_units", "id")),
-                ("qu_factor_purchase_to_stock", float()),
+                ("qu_factor_purchase_to_stock", double()),
                 ("min_stock_amount", integer().default(0)),
                 ("default_best_before_days", integer().default(0)),
                 ("default_best_before_days_after_open", integer().default(0)),
@@ -268,7 +268,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 ),
                 ("picture_file_name", text().nullable(true)),
                 ("enable_tare_weight_handling", boolean().default(false)),
-                ("tare_weight", float().default(0)),
+                ("tare_weight", double().default(0)),
                 (
                     "not_check_stock_fulfillment_for_recipes",
                     boolean().default(false).nullable(true),
@@ -280,7 +280,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                     boolean().default(false).nullable(true),
                 ),
                 ("due_type", boolean().default(true)), // integer()
-                ("quick_consume_amount", float().default(1)),
+                ("quick_consume_amount", double().default(1)),
                 ("hide_on_stock_overview", boolean().default(false)),
                 created2(),
                 ("default_print_stock_label", integer().default(0)),
@@ -296,7 +296,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                     id2(),
                     ("from_qu_id", integer()),
                     ("to_qu_id", integer()),
-                    ("factor", float()),
+                    ("factor", double()),
                     ("product_id", integer().nullable(true)),
                     created2(),
                 ]
@@ -342,7 +342,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 id2(),
                 ("recipe_id", integer()),
                 ("product_id", integer()),
-                ("amount", float().default(0)),
+                ("amount", double().default(0)),
                 ("note", text().nullable(true)),
                 ("qu_id", integer().nullable(true)),
                 ("only_check_single_unit_in_stock", boolean().default(false)),
@@ -350,7 +350,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 ("not_check_stock_fulfillment", boolean().default(false)),
                 created2(),
                 ("variable_amount", text().nullable(true)),
-                ("price_factor", float().default(1)),
+                ("price_factor", double().default(1)),
             ]
         };
 
