@@ -10,7 +10,9 @@ pub struct BarrelMigration<T: SqlGenerator> {
     pub phantom_data: PhantomData<T>,
 }
 
-impl<T: SqlGenerator + CreateOrUpdate> Migration for BarrelMigration<T> {
+impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migration
+    for BarrelMigration<T>
+{
     fn file_path(&self) -> Option<&Path> {
         None
     }
@@ -60,38 +62,7 @@ impl<T: SqlGenerator + CreateOrUpdate> Migration for BarrelMigration<T> {
         migr.inject_custom("DROP VIEW IF EXISTS userfield_values_resolved");
         migr.inject_custom("DROP VIEW IF EXISTS users_dto");
 
-        /*
-        // should be dropped when the tables are dropped anyways and syntax doesn't match :(
-        migr.inject_custom("DROP TRIGGER IF EXISTS cascade_battery_removal");
-        migr.inject_custom("DROP TRIGGER IF EXISTS cascade_chore_removal");
-        migr.inject_custom("DROP TRIGGER IF EXISTS cascade_product_removal");
-        migr.inject_custom("DROP TRIGGER IF EXISTS create_internal_recipe");
-        migr.inject_custom("DROP TRIGGER IF EXISTS enforce_parent_product_id_null_when_empty_INS");
-        migr.inject_custom("DROP TRIGGER IF EXISTS enforce_parent_product_id_null_when_empty_UPD");
-        migr.inject_custom("DROP TRIGGER IF EXISTS enfore_product_nesting_level");
-        migr.inject_custom("DROP TRIGGER IF EXISTS prevent_empty_userfields_INS");
-        migr.inject_custom("DROP TRIGGER IF EXISTS prevent_empty_userfields_UPD");
-        migr.inject_custom("DROP TRIGGER IF EXISTS prevent_infinite_nested_recipes_INS");
-        migr.inject_custom("DROP TRIGGER IF EXISTS prevent_infinite_nested_recipes_UPD");
-        migr.inject_custom("DROP TRIGGER IF EXISTS prevent_qu_stock_change_after_first_purchase");
-        migr.inject_custom("DROP TRIGGER IF EXISTS prevent_self_nested_recipes_INS");
-        migr.inject_custom("DROP TRIGGER IF EXISTS prevent_self_nested_recipes_UPD");
-        migr.inject_custom(
-            "DROP TRIGGER IF EXISTS quantity_unit_conversions_custom_unique_constraint_INS",
-        );
-        migr.inject_custom(
-            "DROP TRIGGER IF EXISTS quantity_unit_conversions_custom_unique_constraint_UPD",
-        );
-        migr.inject_custom("DROP TRIGGER IF EXISTS recipes_pos_qu_id_default");
-        migr.inject_custom("DROP TRIGGER IF EXISTS remove_internal_recipe");
-        migr.inject_custom("DROP TRIGGER IF EXISTS remove_items_from_deleted_shopping_list");
-        migr.inject_custom("DROP TRIGGER IF EXISTS remove_recipe_from_meal_plans");
-        migr.inject_custom("DROP TRIGGER IF EXISTS set_products_default_location_if_empty_stock");
-        migr.inject_custom(
-            "DROP TRIGGER IF EXISTS set_products_default_location_if_empty_stock_log",
-        );
-        migr.inject_custom("DROP TRIGGER IF EXISTS shopping_list_qu_id_default");
-        */
+        T::database_dependent_migration(&mut migr);
 
         migr.inject_custom("DROP INDEX IF EXISTS ix_batteries_performance1");
         migr.inject_custom("DROP INDEX IF EXISTS ix_chores_performance1");

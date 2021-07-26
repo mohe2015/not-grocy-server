@@ -21,6 +21,7 @@ use diesel_migrations::Migration;
 use diesel_migrations::MigrationConnection;
 use dotenv::dotenv;
 use migrations::utils::CreateOrUpdate;
+use migrations::utils::DatabaseDependentMigrationCommands;
 use migrations_internals::schema::__diesel_schema_migrations::dsl::*;
 use structopt::StructOpt;
 
@@ -37,7 +38,7 @@ enum Cli {
 // also switching databases is not supported.
 
 fn migrate<
-    T: 'static + SqlGenerator + CreateOrUpdate,
+    T: 'static + SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands,
     Q: SimpleConnection + Connection + MigrationConnection,
 >(
     connection: Q,
