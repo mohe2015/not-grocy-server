@@ -112,6 +112,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 ("tracked_time", datetime().nullable(true)),
                 created2(),
                 undone2(),
+                undone_timestamp2(),
             ]
         };
 
@@ -156,6 +157,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 ("done_by_user_id", integer().nullable(true)),
                 created2(),
                 undone2(),
+                undone_timestamp2(),
             ]
         };
 
