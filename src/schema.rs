@@ -416,6 +416,8 @@ table! {
     }
 }
 
+joinable!(products -> locations (location_id));
+joinable!(stock -> locations (location_id));
 joinable!(stock -> products (product_id));
 
 allow_tables_to_appear_in_same_query!(

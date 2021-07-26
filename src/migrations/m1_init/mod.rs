@@ -250,7 +250,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 description2(),
                 ("product_group_id", integer().nullable(true)),
                 ("active", boolean().default(true)),
-                ("location_id", integer()),
+                ("location_id", foreign("locations", "id")),
                 ("shopping_location_id", integer().nullable(true)),
                 ("qu_id_purchase", foreign("quantity_units", "id")), // don't get a joinable! generated as there are two of them
                 ("qu_id_stock", foreign("quantity_units", "id")),
@@ -411,7 +411,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 ("open", boolean().default(false)),
                 ("opened_date", date().nullable(true)),
                 created2(),
-                ("location_id", integer().nullable(true)),
+                ("location_id", foreign("locations", "id").nullable(true)),
                 ("shopping_location_id", integer().nullable(true)),
             ]
         };
