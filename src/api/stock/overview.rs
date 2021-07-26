@@ -12,6 +12,8 @@ use chrono::NaiveDateTime;
 use diesel::backend::UsesAnsiSavepointSyntax;
 use diesel::connection::AnsiTransactionManager;
 use diesel::prelude::*;
+use diesel::query_dsl::InternalJoinDsl;
+use diesel::query_dsl::JoinWithImplicitOnClause;
 use diesel::r2d2::ConnectionManager;
 use diesel::types::FromSql;
 use diesel::types::HasSqlType;
@@ -21,8 +23,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct StockOverviewResponse {
-    current_stock: Vec<(Stock, Product)>,
-    //current_stock_locations: Vec<(Stock, Location)>,
+    //current_stock: Vec<Stock>,
+//current_stock_locations: Vec<(Stock, Location)>,
 }
 
 // https://stackoverflow.com/questions/62746540/diesel-with-custom-wrapper-types
@@ -42,11 +44,17 @@ where
     *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
     use crate::schema::products::dsl::*;
+    use crate::schema::quantity_units::dsl::*;
     use crate::schema::stock::dsl::*;
+    let teee = products
+        .inner_join(quantity_units.on(qu_id_purchase.eq(crate::schema::quantity_units::dsl::id)))
+        .load::<(Product, QuantityUnit)>(&connection);
+    //let the_stock = stock.load::<Stock>(&connection)?;
+    //let the_products = products.load::<Product>(&connection)?;
+    //the_stock.iter().zip()
+    //let data = stocks.into_iter().zip(the_products).collect::<Vec<_>>();
     Ok(StockOverviewResponse {
-        current_stock: stock
-            .inner_join(products)
-            .load::<(Stock, Product)>(&connection)?,
+        //current_stock: stocks,
         //current_stock_locations: stock.inner_join(locations).load::<(Stock, Location)>(&connection)?,
     })
 }

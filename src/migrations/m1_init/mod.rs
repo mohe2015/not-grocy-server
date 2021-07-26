@@ -252,7 +252,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 ("active", boolean().default(true)),
                 ("location_id", integer()),
                 ("shopping_location_id", integer().nullable(true)),
-                ("qu_id_purchase", foreign("quantity_units", "id")),
+                ("qu_id_purchase", foreign("quantity_units", "id")), // don't get a joinable! generated as there are two of them
                 ("qu_id_stock", foreign("quantity_units", "id")),
                 ("qu_factor_purchase_to_stock", double()),
                 ("min_stock_amount", integer().default(0)),
