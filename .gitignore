@@ -3,3 +3,4 @@
 *.db
 !grocy.db
 not-grocy
+.tmp

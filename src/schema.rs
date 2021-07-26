@@ -1,6 +1,3 @@
-// This file contains parts of https://github.com/grocy/grocy Copyright (c) 2017 Bernd Bestel which is licensed under the MIT License.
-use diesel::table;
-
 table! {
     api_keys (id) {
         id -> Integer,
@@ -52,7 +49,7 @@ table! {
         next_execution_assigned_to_user_id -> Nullable<Integer>,
         consume_product_on_execution -> Bool,
         product_id -> Nullable<Bool>,
-        product_amount -> Nullable<Float>,
+        product_amount -> Nullable<Double>,
         period_interval -> Integer,
         active -> Bool,
     }
@@ -100,7 +97,7 @@ table! {
         recipe_servings -> Nullable<Integer>,
         note -> Nullable<Text>,
         product_id -> Nullable<Integer>,
-        product_amount -> Nullable<Float>,
+        product_amount -> Nullable<Double>,
         product_qu_id -> Nullable<Integer>,
         row_created_timestamp -> Nullable<Timestamp>,
     }
@@ -120,7 +117,7 @@ table! {
         product_id -> Integer,
         barcode -> Text,
         qu_id -> Nullable<Integer>,
-        amount -> Nullable<Float>,
+        amount -> Nullable<Double>,
         shopping_location_id -> Nullable<Integer>,
         last_price -> Nullable<Double>,
         row_created_timestamp -> Nullable<Timestamp>,
@@ -148,7 +145,7 @@ table! {
         shopping_location_id -> Nullable<Integer>,
         qu_id_purchase -> Integer,
         qu_id_stock -> Integer,
-        qu_factor_purchase_to_stock -> Float,
+        qu_factor_purchase_to_stock -> Double,
         min_stock_amount -> Integer,
         default_best_before_days -> Integer,
         default_best_before_days_after_open -> Integer,
@@ -156,13 +153,13 @@ table! {
         default_best_before_days_after_thawing -> Integer,
         picture_file_name -> Nullable<Text>,
         enable_tare_weight_handling -> Bool,
-        tare_weight -> Float,
+        tare_weight -> Double,
         not_check_stock_fulfillment_for_recipes -> Nullable<Bool>,
         parent_product_id -> Nullable<Integer>,
         calories -> Nullable<Integer>,
         cumulate_min_stock_amount_of_sub_products -> Nullable<Bool>,
         due_type -> Bool,
-        quick_consume_amount -> Float,
+        quick_consume_amount -> Double,
         hide_on_stock_overview -> Bool,
         row_created_timestamp -> Nullable<Timestamp>,
         default_print_stock_label -> Integer,
@@ -175,7 +172,7 @@ table! {
         id -> Integer,
         from_qu_id -> Integer,
         to_qu_id -> Integer,
-        factor -> Float,
+        factor -> Double,
         product_id -> Nullable<Integer>,
         row_created_timestamp -> Nullable<Timestamp>,
     }
@@ -223,7 +220,7 @@ table! {
         id -> Integer,
         recipe_id -> Integer,
         product_id -> Integer,
-        amount -> Float,
+        amount -> Double,
         note -> Nullable<Text>,
         qu_id -> Nullable<Integer>,
         only_check_single_unit_in_stock -> Bool,
@@ -231,7 +228,7 @@ table! {
         not_check_stock_fulfillment -> Bool,
         row_created_timestamp -> Nullable<Timestamp>,
         variable_amount -> Nullable<Text>,
-        price_factor -> Float,
+        price_factor -> Double,
     }
 }
 
@@ -254,7 +251,7 @@ table! {
         amount -> Double,
         row_created_timestamp -> Nullable<Timestamp>,
         shopping_list_id -> Nullable<Integer>,
-        done -> Nullable<Integer>,
+        done -> Nullable<Bool>,
         qu_id -> Nullable<Integer>,
     }
 }
@@ -287,10 +284,10 @@ table! {
         stock_id -> Text,
         price -> Nullable<Double>,
         open -> Bool,
+        opened_date -> Nullable<Date>,
         row_created_timestamp -> Nullable<Timestamp>,
         location_id -> Nullable<Integer>,
         shopping_location_id -> Nullable<Integer>,
-        opened_date -> Nullable<Date>,
     }
 }
 
@@ -302,7 +299,7 @@ table! {
         best_before_date -> Nullable<Date>,
         purchased_date -> Nullable<Date>,
         used_date -> Nullable<Date>,
-        spoiled -> Integer,
+        spoiled -> Bool,
         stock_id -> Text,
         transaction_type -> Text,
         price -> Nullable<Double>,
@@ -418,6 +415,8 @@ table! {
         picture_file_name -> Nullable<Text>,
     }
 }
+
+joinable!(stock -> products (product_id));
 
 allow_tables_to_appear_in_same_query!(
     api_keys,

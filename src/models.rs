@@ -3,7 +3,7 @@ use chrono::NaiveDate;
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 
-// TODO FIXME check diesel doc - maybe it's possible so the order here doesn't matter
+// TODO FIXME this file could more or less be generated from schema.rs?
 
 #[derive(Queryable, Debug, Serialize, Deserialize)]
 pub struct Stock {
@@ -15,10 +15,10 @@ pub struct Stock {
     pub stock_id: String,
     pub price: Option<f64>,
     pub open: bool,
+    pub opened_date: Option<NaiveDate>,
     pub row_created_timestamp: Option<NaiveDateTime>,
     pub location_id: Option<i32>,
     pub shopping_location_id: Option<i32>,
-    pub opened_date: Option<NaiveDate>,
 }
 
 #[derive(Queryable, Debug, Serialize, Deserialize)]
@@ -32,7 +32,7 @@ pub struct Product {
     shopping_location_id: Option<i32>,
     qu_id_purchase: i32,
     qu_id_stock: i32,
-    qu_factor_purchase_to_stock: f32,
+    qu_factor_purchase_to_stock: f64,
     min_stock_amount: i32,
     default_best_before_days: i32,
     default_best_before_days_after_open: i32,
@@ -40,13 +40,13 @@ pub struct Product {
     default_best_before_days_after_thawing: i32,
     picture_file_name: Option<String>,
     enable_tare_weight_handling: bool,
-    tare_weight: f32,
+    tare_weight: f64,
     not_check_stock_fulfillment_for_recipes: Option<bool>,
     parent_product_id: Option<i32>,
     calories: Option<i32>,
     cumulate_min_stock_amount_of_sub_products: Option<bool>,
     due_type: bool,
-    quick_consume_amount: f32,
+    quick_consume_amount: f64,
     hide_on_stock_overview: bool,
     row_created_timestamp: Option<NaiveDateTime>,
     default_print_stock_label: i32,
@@ -61,4 +61,13 @@ pub struct QuantityUnit {
     row_created_timestamp: Option<NaiveDateTime>,
     name_plural: Option<String>,
     plural_forms: Option<String>,
+}
+
+#[derive(Queryable, Debug, Serialize, Deserialize)]
+pub struct Location {
+    id: i32,
+    name: String,
+    description: Option<String>,
+    row_created_timestamp: Option<NaiveDateTime>,
+    is_freezer: bool,
 }
