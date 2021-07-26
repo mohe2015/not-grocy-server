@@ -72,6 +72,19 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
         migr.inject_custom("DROP INDEX IF EXISTS ix_recipes");
         migr.inject_custom("DROP INDEX IF EXISTS ix_stock_performance1");
 
+        static QUANTITY_UNITS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
+                id2(),
+                name2(),
+                description2(),
+                created2(),
+                ("name_plural", text().nullable(true)),
+                ("plural_forms", text().nullable(true)),
+            ]
+        };
+
+        T::create_or_update2(&mut migr, "quantity_units", &QUANTITY_UNITS_FN);
+
         static API_KEYS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
                 id2(),
@@ -294,19 +307,6 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             "quantity_unit_conversions",
             &QUANTITY_UNIT_CONVERSIONS_FN,
         );
-
-        static QUANTITY_UNITS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
-            vec![
-                id2(),
-                name2(),
-                description2(),
-                created2(),
-                ("name_plural", text().nullable(true)),
-                ("plural_forms", text().nullable(true)),
-            ]
-        };
-
-        T::create_or_update2(&mut migr, "quantity_units", &QUANTITY_UNITS_FN);
 
         static RECIPES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
