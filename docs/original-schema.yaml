@@ -437,32 +437,38 @@ they reference multiple user fields"
           description: "primary key"
         name:
           type: string
-          description: "unique"
         description:
           type: string
           nullable: true
         product_group_id:
           type: integer
           nullable: true
-          description: "improvements: foreign-key product_groups"
+        product_group:
+          $ref: '#/components/schemas/ProductGroup'
         active:
           type: boolean
           default: true
         location_id:
           type: integer
-          description: "improvemetns: foreign-key locations"
+        location:
+          $ref: '#/components/schemas/Location'
         shopping_location_id:
           type: integer
-          description: "improvements: foreign-key shopping_locations"
+        shopping_location:
+          $ref: '#/components/schemas/ShoppingLocation'
         qu_id_purchase:
           type: integer
-          description: "quantity unit for purchase - default unit when adding product to shopping list - improvements: foreignkey to quantity_units"
+          description: "quantity unit for purchase - default unit when adding product to shopping list"
+        qu_purchase:
+          $ref: '#/components/schemas/QuantityUnit'
         qu_id_stock:
           type: integer
-          description: "the quantity unit in the stock - can't be changed later. probably this is used to store the amount of things you have in stock - improvements: foreign-key quantity_units"
+          description: "the quantity unit in the stock - can't be changed later. probably this is used to store the amount of things you have in stock"
+        qu_stock:
+          $ref: '#/components/schemas/QuantityUnit'
         qu_factor_purchase_to_stock:
           type: integer
-          description: "probably the factor when converting from purchase to stock unit - improvements: why is the quantity_unit_conversions not used? or does this mean something else"
+          description: "probably the factor when converting from purchase to stock unit - improvements: why is the quantity_unit_conversions not used? or does this mean something else?"
         min_stock_amount:
           type: integer
           default: 0
@@ -495,12 +501,13 @@ they reference multiple user fields"
         parent_product_id:
           type: integer
           description: "improvements: usage / use unknown - i imagine you add a product like cookies and then add different cookie types as children?"
+        parent_product:
+          $ref: '#/components/schemas/Product'
         calories:
           type: integer
         cumulate_min_stock_amount_of_sub_products:
           type: boolean
           nullable: true
-          description: "improvements: non-null"
         due_type:
           type: integer
           default: best-before-date
@@ -518,7 +525,6 @@ they reference multiple user fields"
           type: string
           format: date-time
           default: now
-          nullable: true
         default_print_stock_label:
           type: integer
           default: 0
@@ -535,30 +541,27 @@ they reference multiple user fields"
           description: "primary key"
         product_id:
           type: number
-          description: "improvements: foreign key to products"
+        product:
+          $ref: '#/components/schemas/Product'
         barcode:
           type: string
         qu_id:
           type: string
-          nullable: true
-          description: "quantity unit, improvemnts: foreign key to quantity_units, non-null"
         amount:
           type: number
           format: real
-          nullable: true
-          description: "amount of the quantity unit"
         shopping_location_id:
           type: integer
           nullable: true
-          description: "improvements: foreign key to locations"
+          description: "improvements: maybe non-null by adding a location called unknown or so?"
         last_price:
           type: number
           format: decimal(15, 2)
+          nullable: true
         row_created_timestamp:
           type: string
           format: date-time
           default: now
-          nullable: true
         note:
           type: string
           nullable: true
@@ -570,7 +573,6 @@ they reference multiple user fields"
           description: "primary key"
         name:
           type: string
-          description: "unique"
         description:
           type: string
           nullable: true
@@ -578,7 +580,6 @@ they reference multiple user fields"
           type: string
           format: date-time
           default: now
-          nullable: true
         name_plural:
           type: string
           nullable: true
@@ -594,10 +595,14 @@ they reference multiple user fields"
           description: "primary key - improvements: probably not needed"
         from_qu_id:
           type: integer
-          description: "the quantity unit to convert from, improvements: foreign key to quantity_units"
+          description: "the quantity unit to convert from"
+        from_qu:
+          $ref: '#/components/schemas/QuantityUnit'
         to_qu_id:
           type: integer
-          description: "the quantity unit to convert to, improvements: foreign key to quantity_units"
+          description: "the quantity unit to convert to"
+        to_qu:
+          $ref: '#/components/schemas/QuantityUnit'
         factor:
           type: integer
           format: real
@@ -606,11 +611,13 @@ they reference multiple user fields"
           type: integer
           nullable: true
           description: "the product this conversion belongs to, improvements: why is this associated with a product?"
+        product:
+          $ref: '#/components/schemas/Product'
+          nullable: true
         row_created_timestamp:
           type: string
           format: date-time
           default: now
-          nullable: true
     Session:
       description: "these are the active sessions of the users"
       properties:
@@ -622,20 +629,15 @@ they reference multiple user fields"
           description: "unique"
         user_id:
           type: integer
-          description: "improvements: foreign key to users"
         expires:
           type: string
           format: date-time
-          nullable: true
-          description: "when this session becomes invalid"
         last_used:
           type: string
           format: date-time
-          nullable: true
         row_created_timestamp:
           type: string
           format: date-time
-          nullable: true
           default: now
     UserPermission:
       description: the permissions of a user
@@ -645,10 +647,10 @@ they reference multiple user fields"
           description: "primary key, improvements: remove? and make the other two fields composed primary key"
         permissions_id:
           type: integer
-          description: "improvements: foreign key of permission_hierarchy(id)"
+        permission:
+          $ref: '#/components/schemas/Permission'
         user_id:
           type: integer
-          description: "improvements: foreign key of user(id)"
         user:
           $ref: '#/components/schemas/User'
     ProductGroup:
@@ -659,7 +661,6 @@ they reference multiple user fields"
           description: "primary key"
         name:
           type: string
-          description: "unique"
         description:
           type: string
           nullable: true
@@ -667,7 +668,6 @@ they reference multiple user fields"
           type: string
           format: date-time
           default: now
-          nullable: true
     Stock:
       description: "table stock"
       properties:
@@ -676,7 +676,8 @@ they reference multiple user fields"
           description: "primary key"
         product_id:
           type: integer
-          description: "improvements foreign_key product(id)"
+        product:
+          $ref: '#/components/schemas/Product'
         amount:
           type: number
           format: decimal(15, 2)
@@ -709,15 +710,15 @@ they reference multiple user fields"
           type: string
           format: date-time
           default: now
-          nullable: true
         location_id:
           type: integer
           nullable: true
-          description: "improvements: foreign_key locations(id)"
+        location:
+          $ref: '#/components/schemas/Location'
         shopping_location_id:
           type: integer
           nullable: true
-          description: "where you bought this - improvements: foreign_key shopping_locations(id)"
+          description: "where you bought this"
     StockLogEntry:
       description: "table stock_log"
       properties:
@@ -726,7 +727,8 @@ they reference multiple user fields"
           description: "primary key"
         product_id:
           type: integer
-          description: "improvements: foreign_key products(id)"
+        product:
+          $ref: '#/components/schemas/Product'
         amount:
           type: number
           format: decimal(15,2)
@@ -778,11 +780,14 @@ they reference multiple user fields"
         location_id:
           type: integer
           nullable: true
-          description: "improvements: foreign_key locations(id)"
+        location:
+          $ref: '#/components/schemas/Location'
         recipe_id:
           type: integer
           nullable: true
-          description: "improvements: foreign-key recipe(id)"
+        recipe:
+          $ref: '#/components/schemas/Recipe'
+          nullable: true
         correlation_id:
           type: string
           nullable: true
@@ -798,11 +803,13 @@ they reference multiple user fields"
         shopping_location_id:
           type: integer
           nullable: true
-          description: "where you bought this - improvements: foreign-key shopping_location(id)"
+          description: "where you bought this"
+        shopping_location:
+          $ref: '#/components/schemas/ShoppingLocation'
         user_id:
           type: integer
-          default: 1
-          description: "improvements: why default? foreign-key users(id)"
+        user:
+          $ref: '#/components/schemas/User'
     UserSetting:
       description: "table user_settings"
       properties:
@@ -811,7 +818,8 @@ they reference multiple user fields"
           description: "primary key"
         user_id:
           type: integer
-          description: "improvements: foreign key users"
+        user:
+          $ref: '#/components/schemas/User'
         key:
           type: string
         value:
@@ -821,12 +829,10 @@ they reference multiple user fields"
           type: string
           format: date-time
           default: now
-          nullable: true
         row_updated_timestamp:
           type: string
           format: date-time
           default: now
-          nullable: true
     Task:
       description: "table tasks"
       properties:
@@ -844,6 +850,7 @@ they reference multiple user fields"
           nullable: true
         done:
           type: boolean
+          improvements: "remove"
         done_timestamp:
           type: string
           format: date-time
@@ -851,15 +858,16 @@ they reference multiple user fields"
         category_id:
           type: integer
           nullable: true
-          description: "foreign_key tasks_categories"
+        category:
+          $ref: '#/components/schemas/TaskCategory'
         assigned_to_user_id:
           type: integer
           nullable: true
-          description: "foreign-key to users"
+        assigned_to_user:
+          $ref: '#/components/schemas/User'
         row_created_timestamp:
           type: string
           format: date-time
-          nullable: true
           default: now
     TaskCategory:
       description: "table task_categories"
@@ -869,14 +877,12 @@ they reference multiple user fields"
           description: "primary key"
         name:
           type: string
-          description: "unique - improvements: maybe not needed (uses index which needs storage and is slow to update)"
         description:
           type: string
           nullable: true
         row_created_timestamp:
           type: string
           format: date-time
-          nullable: true
           default: now
     Recipe:
       description: "table recipes"
@@ -920,7 +926,8 @@ they reference multiple user fields"
         product_id:
           type: integer
           nullable: true
-          description: "Improvements: foreign-key products - non-null"
+        product:
+          $ref: '#/components/schemas/Product'
     NestedRecipe:
       description: "table recipes_nestings"
       properties:
@@ -929,14 +936,16 @@ they reference multiple user fields"
           description: "primary key"
         recipe_id:
           type: integer
-          description: "improvements: foreign-key recipes"
+        recipe:
+          $ref: '#/components/schemas/Recipe'
         includes_recipe_id:
           type: integer
-          description: "improvements: foreign-key recipes - exact usage unknown"
+          description: "exact usage unknown"
+        includes_recipe:
+          $ref: '#/components/schemas/Recipe'
         row_created_timestamp:
           type: string
           format: date-time
-          nullable: true
           default: now
         servings:
           type: integer
@@ -950,11 +959,13 @@ they reference multiple user fields"
           description: "primary key"
         recipe_id:
           type: integer
-          description: "improvements: foreign-key recipes"
+        recipe:
+          $ref: '#/components/schemas/Recipe'
         product_id:
           type: integer
           nullable: true
-          description: "improvements: foreign-key products"
+        product:
+          $ref: '#/components/schemas/Product'
         amount:
           type: number
           format: real
@@ -965,10 +976,12 @@ they reference multiple user fields"
         qu_id:
           type: integer
           nullable: true
-          description: "improvements: non-null, foreign-key quantity_units"
+          description: "improvements: non-null"
+        qu:
+          $ref: '#/components/schemas/QuantityUnit'
         only_check_single_unit_in_stock:
           type: boolean
-          description: "unkown usage"
+          description: "unknown usage"
         ingredient_group:
           type: string
           nullable: true
@@ -998,14 +1011,12 @@ they reference multiple user fields"
           description: "primary key"
         name:
           type: string
-          description: "improvements: unique really needed?"
         description:
           type: string
           nullable: true
         row_created_timestamp:
           type: string
-          format: date-time
-          nullable: true
+          format: date-time          nullable: true
           default: now
     ShoppingList:
       description: "table shopping_lists"
@@ -1015,14 +1026,12 @@ they reference multiple user fields"
           description: "primary key"
         name:
           type: string
-          description: "improvements: unique really needed?"
         description:
           type: string
           nullable: true
         row_created_timestamp:
           type: string
           format: date-time
-          nullable: true
           default: now
     ShoppingListEntry:
       description: "table shopping_list"
@@ -1033,15 +1042,12 @@ they reference multiple user fields"
         product_id:
           type: integer
           nullable: true
-          description: "improvements: foreign-key products"
         note:
           type: string
           nullable: true
         amount:
           type: number
           format: decimal(15, 2)
-          default: 0
-          description: "improvements why default 0?"
         row_created_timestamp:
           type: string
           format: date-time
@@ -1049,15 +1055,13 @@ they reference multiple user fields"
           default: now
         shopping_list_id:
           type: integer
-          default: 1
           nullable: true
-          description: "improvements: why nullable, why default 1, foreign-key to shopping_lists"
+          description: "improvements: why nullable"
         done:
           type: boolean
           default: false
         qu_id:
           type: integer
-          description: "quantity unit, improvements: foreign-key to quantity_units"
     CustomEntityColumn:
       description: "table userfields"
       properties:

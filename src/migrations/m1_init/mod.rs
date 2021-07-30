@@ -234,11 +234,14 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
         static PRODUCT_BARCODES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
                 id2(),
-                ("product_id", integer()),
+                ("product_id", foreign("products", "id")),
                 ("barcode", text()),
-                ("qu_id", integer().nullable(true)),
-                ("amount", double().nullable(true)),
-                ("shopping_location_id", integer().nullable(true)),
+                ("qu_id", foreign("quantity_units", "id")),
+                ("amount", double()),
+                (
+                    "shopping_location_id",
+                    foreign("shopping_locations", "id").nullable(true),
+                ),
                 ("last_price", double().nullable(true)), // DECIMAL
                 created2(),
                 ("note", text().nullable(true)),
@@ -257,10 +260,16 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 id2(),
                 name2(),
                 description2(),
-                ("product_group_id", integer().nullable(true)),
+                (
+                    "product_group_id",
+                    foreign("product_groups", "id").nullable(true),
+                ),
                 ("active", boolean().default(true)),
                 ("location_id", foreign("locations", "id")),
-                ("shopping_location_id", integer().nullable(true)),
+                (
+                    "shopping_location_id",
+                    foreign("shopping_locations", "id").nullable(true),
+                ),
                 ("qu_id_purchase", foreign("quantity_units", "id")), // don't get a joinable! generated as there are two of them
                 ("qu_id_stock", foreign("quantity_units", "id")),
                 ("qu_factor_purchase_to_stock", double()),
@@ -276,17 +285,20 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                     integer().default(0),
                 ),
                 ("picture_file_name", text().nullable(true)),
-                ("enable_tare_weight_handling", boolean().default(false)),
-                ("tare_weight", double().default(0)),
+                ("enable_tare_weight_handling", boolean().default(false)), // TODO remove
+                ("tare_weight", double().default(0)), // default 0 is fine for how tare-weight works
                 (
                     "not_check_stock_fulfillment_for_recipes",
                     boolean().default(false).nullable(true),
                 ),
-                ("parent_product_id", integer().nullable(true)),
+                (
+                    "parent_product_id",
+                    foreign("products", "id").nullable(true),
+                ),
                 ("calories", integer().nullable(true)),
                 (
                     "cumulate_min_stock_amount_of_sub_products",
-                    boolean().default(false).nullable(true),
+                    boolean().default(false),
                 ),
                 ("due_type", integer().default(1)),
                 ("quick_consume_amount", double().default(1)),
@@ -302,11 +314,11 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
         static QUANTITY_UNIT_CONVERSIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> =
             || {
                 vec![
-                    id2(),
-                    ("from_qu_id", integer()),
-                    ("to_qu_id", integer()),
+                    id2(), // TODO remove
+                    ("from_qu_id", foreign("quantity_units", "id")),
+                    ("to_qu_id", foreign("quantity_units", "id")),
                     ("factor", double()),
-                    ("product_id", integer().nullable(true)),
+                    ("product_id", foreign("products", "id").nullable(true)),
                     created2(),
                 ]
             };
@@ -328,7 +340,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 ("desired_servings", integer().nullable(true).default(1)),
                 ("not_check_shoppinglist", boolean().default(false)),
                 ("type", text().nullable(true).default("normal")),
-                ("product_id", integer().nullable(true)),
+                ("product_id", foreign("products", "id").nullable(true)),
             ]
         };
 
@@ -337,8 +349,8 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
         static RECIPES_NESTINGS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
                 id2(),
-                ("recipe_id", integer()),
-                ("includes_recipe_id", integer()),
+                ("recipe_id", foreign("recipes", "id")),
+                ("includes_recipe_id", foreign("recipes", "id")),
                 created2(),
                 ("servings", integer().default(1).nullable(true)),
             ]
@@ -349,11 +361,11 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
         static RECIPES_POS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
                 id2(),
-                ("recipe_id", integer()),
-                ("product_id", integer()),
+                ("recipe_id", foreign("recipes", "id")),
+                ("product_id", foreign("products", "id")),
                 ("amount", double().default(0)),
                 ("note", text().nullable(true)),
-                ("qu_id", integer().nullable(true)),
+                ("qu_id", foreign("quantity_units", "id").nullable(true)),
                 ("only_check_single_unit_in_stock", boolean().default(false)),
                 ("ingredient_group", text().nullable(true)),
                 ("not_check_stock_fulfillment", boolean().default(false)),
@@ -369,9 +381,9 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             vec![
                 id2(),
                 ("session_key", text().unique(true)),
-                ("user_id", integer()),
-                ("expires", datetime().nullable(true)),
-                ("last_used", datetime().nullable(true)),
+                ("user_id", foreign("users", "id")),
+                ("expires", datetime()),
+                ("last_used", datetime()),
                 created2(),
             ]
         };
@@ -381,13 +393,16 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
         static SHOPPING_LIST_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
                 id2(),
-                ("product_id", integer().nullable(true)),
+                ("product_id", foreign("products", "id").nullable(true)),
                 ("note", text().nullable(true)),
-                ("amount", double().default(0)), // DECIMAL
+                ("amount", double()), // DECIMAL
                 created2(),
-                ("shopping_list_id", integer().nullable(true).default(1)),
-                ("done", boolean().nullable(true).default(false)), // boolean()
-                ("qu_id", integer().nullable(true)),
+                (
+                    "shopping_list_id",
+                    foreign("shopping_lists", "id").nullable(true),
+                ),
+                ("done", boolean().default(false)),
+                ("qu_id", foreign("quantity_units", "id").nullable(true)),
             ]
         };
 
@@ -417,11 +432,14 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 ),
                 ("stock_id", text()),
                 ("price", double().nullable(true)), // DECIMAL
-                ("open", boolean().default(false)),
+                ("open", boolean().default(false)), // TODO remove
                 ("opened_date", date().nullable(true)),
                 created2(),
                 ("location_id", foreign("locations", "id").nullable(true)),
-                ("shopping_location_id", integer().nullable(true)),
+                (
+                    "shopping_location_id",
+                    foreign("shopping_locations", "id").nullable(true),
+                ),
             ]
         };
 
@@ -430,7 +448,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
         static STOCK_LOG_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
                 id2(),
-                ("product_id", integer()),
+                ("product_id", foreign("products", "id")),
                 ("amount", double()), // DECIMAL
                 ("best_before_date", date().nullable(true)),
                 ("purchased_date", date().nullable(true)),
@@ -439,17 +457,20 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 ("stock_id", text()),
                 ("transaction_type", text()),
                 ("price", double().nullable(true)), // DECIMAL
-                undone2(),
+                undone2(),                          // TODO remove
                 undone_timestamp2(),
                 ("opened_date", datetime().nullable(true)),
                 created2(),
-                ("location_id", integer().nullable(true)),
-                ("recipe_id", integer().nullable(true)),
+                ("location_id", foreign("locations", "id").nullable(true)),
+                ("recipe_id", foreign("recipes", "id").nullable(true)),
                 ("correlation_id", text().nullable(true)),
                 ("transaction_id", text().nullable(true)),
                 ("stock_row_id", integer().nullable(true)),
-                ("shopping_location_id", integer().nullable(true)),
-                ("user_id", integer().default(1)),
+                (
+                    "shopping_location_id",
+                    foreign("shopping_locations", "id").nullable(true),
+                ),
+                ("user_id", foreign("users", "id")),
             ]
         };
 
@@ -466,33 +487,39 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 name2(),
                 description2(),
                 ("due_date", datetime().nullable(true)),
-                ("done", boolean().default(false)),
+                ("done", boolean().default(false)), // TODO remove
                 ("done_timestamp", datetime().nullable(true)),
-                ("category_id", integer().nullable(true)),
-                ("assigned_to_user_id", integer().nullable(true)),
+                (
+                    "category_id",
+                    foreign("task_categories", "id").nullable(true),
+                ),
+                ("assigned_to_user_id", foreign("users", "id").nullable(true)),
                 created2(),
             ]
         };
 
         T::create_or_update2(&mut migr, "tasks", &TASKS_FN);
 
-        static USER_PERMISSIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> =
-            || vec![id2(), ("permission_id", integer()), ("user_id", integer())];
+        static USER_PERMISSIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
+                id2(), // TODO remove
+                ("permission_id", foreign("permission_hierarchy", "id")),
+                ("user_id", foreign("users", "id")),
+            ]
+        };
 
         T::create_or_update2(&mut migr, "user_permissions", &USER_PERMISSIONS_FN);
 
         static USER_SETTINGS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
                 id2(),
-                ("user_id", integer()),
+                ("user_id", foreign("users", "id")),
                 ("key", text()),
                 ("value", text().nullable(true)),
                 created2(),
                 (
                     "row_updated_timestamp",
-                    datetime()
-                        .nullable(true)
-                        .default(AutogenFunction::CurrentTimestamp),
+                    datetime().default(AutogenFunction::CurrentTimestamp),
                 ),
             ]
         };
