@@ -1086,7 +1086,6 @@ they reference multiple user fields"
         row_created_timestamp:
           type: string
           format: date-time
-          nullable: true
           default: now
         config:
           type: string
@@ -1103,16 +1102,14 @@ they reference multiple user fields"
           description: "primary key"
         field_id:
           type: integer
-          description: "improvements: probably foreign-key userfields, maybe make this a primary key with object_id"
         object_id:
           type: integer
-          description: "probably the row (maybe directly the id)"
+          description: "probably the row (maybe directly the id) TODO FIXME foreign key"
         value:
           type: string
         row_created_timestamp:
           type: string
           format: date-time
-          nullable: true
           default: now
     GlobalConfig:
       properties:

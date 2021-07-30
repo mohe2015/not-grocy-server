@@ -542,9 +542,9 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
 
         static USERFIELD_VALUES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
-                id2(),
-                ("field_id", integer()),
-                ("object_id", integer()),
+                id2(), // probably remove and make field_id and object_id the primary key
+                ("field_id", foreign("userfields", "id")),
+                ("object_id", integer()), // TODO FIXMe foreign key
                 ("value", text()),
                 created2(),
             ]
