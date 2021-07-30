@@ -236,8 +236,8 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 id2(),
                 ("product_id", foreign("products", "id")),
                 ("barcode", text()),
-                ("qu_id", foreign("quantity_units", "id")),
-                ("amount", double()),
+                ("qu_id", foreign("quantity_units", "id").nullable(true)), // these are optional when the barcode shouldn't contain this information
+                ("amount", double().nullable(true)), // these are optional when the barcode shouldn't contain this information
                 (
                     "shopping_location_id",
                     foreign("shopping_locations", "id").nullable(true),

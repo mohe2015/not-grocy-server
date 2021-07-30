@@ -43,7 +43,10 @@ cargo install cargo-watch
 RUST_BACKTRACE=1 RUST_LOG=actix_web=debug cargo watch -x 'run --bin server'
 ```
 
-https://rust-lang.github.io/wg-async-foundations/vision/status_quo/alan_picks_web_server.html
-99% fitting
-
+```
 cargo clippy --fix
+```
+
+# What the experience currently feels like
+
+https://rust-lang.github.io/wg-async-foundations/vision/submitted_stories/status_quo/alan_picks_web_server.html
