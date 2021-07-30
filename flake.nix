@@ -11,11 +11,13 @@
         {
           devShell = pkgs.mkShell {
             nativeBuildInputs = [
+              pkgs.bashInteractive # fix nested shells
               pkgs.pkg-config
               #pkgs.diesel-cli
               pkgs.nixpkgs-fmt
               pkgs.sqlitebrowser
               pkgs.rustup
+              pkgs.rust-analyzer
             ];
 
             buildInputs = [
@@ -75,4 +77,5 @@
         }
       );
 }
+
 

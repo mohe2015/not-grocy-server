@@ -89,7 +89,7 @@ impl CreateOrUpdate for Pg {
         test: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
     ) {
         migr.create_table_if_not_exists(table_name.to_string(), move |t| {
-            for (column_name, column_type) in test.call(()) {
+            for (column_name, column_type) in test() {
                 t.add_column(column_name, column_type.clone());
             }
         });
@@ -110,14 +110,14 @@ impl CreateOrUpdate for Sqlite {
         test: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
     ) {
         migr.create_table_if_not_exists(format!("new_{}", table_name), move |t| {
-            for (column_name, column_type) in test.call(()) {
+            for (column_name, column_type) in test() {
                 t.add_column(column_name, column_type.clone());
             }
         });
 
         // TO prevent errors if it didn't exist
         migr.create_table_if_not_exists(table_name.to_string(), move |t| {
-            for (column_name, column_type) in test.call(()) {
+            for (column_name, column_type) in test() {
                 t.add_column(column_name, column_type.clone());
             }
         });
