@@ -64,14 +64,6 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
 
         T::database_dependent_migration(&mut migr);
 
-        migr.inject_custom("DROP INDEX IF EXISTS ix_batteries_performance1");
-        migr.inject_custom("DROP INDEX IF EXISTS ix_chores_performance1");
-        migr.inject_custom("DROP INDEX IF EXISTS ix_product_barcodes");
-        migr.inject_custom("DROP INDEX IF EXISTS ix_products_performance1");
-        migr.inject_custom("DROP INDEX IF EXISTS ix_products_performance2");
-        migr.inject_custom("DROP INDEX IF EXISTS ix_recipes");
-        migr.inject_custom("DROP INDEX IF EXISTS ix_stock_performance1");
-
         static LOCATIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
                 id2(),

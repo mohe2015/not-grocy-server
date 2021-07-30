@@ -7,6 +7,7 @@ use std::marker::PhantomData;
 use barrel::backend::SqlGenerator;
 use diesel::connection::SimpleConnection;
 use diesel::migration::RunMigrationsError;
+use diesel::mysql::MysqlConnection;
 use diesel::sql_query;
 use diesel::Connection;
 use diesel::ExpressionMethods;
@@ -96,6 +97,12 @@ fn main() -> Result<(), RunMigrationsError> {
         // enable if needed - but try to order changes appropiately so we don't need this
         //sql_query("SET CONSTRAINTS ALL DEFERRED;").execute(&connection)?;
         migrate::<barrel::backend::Pg, PgConnection>(connection)
+    } else if database_url.starts_with("mysql://") {
+        let connection = MysqlConnection::establish(&database_url)
+            .unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
+        // enable if needed - but try to order changes appropiately so we don't need this
+        //sql_query("SET CONSTRAINTS ALL DEFERRED;").execute(&connection)?;
+        migrate::<barrel::backend::MySql, MysqlConnection>(connection)
     } else {
         let connection = SqliteConnection::establish(&database_url)
             .unwrap_or_else(|_| panic!("Error connecting to {}", database_url));

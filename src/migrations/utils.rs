@@ -1,5 +1,5 @@
 use barrel::{
-    backend::{Pg, Sqlite},
+    backend::{MySql, Pg, Sqlite},
     functions::AutogenFunction,
     types::*,
     Migration,
@@ -38,6 +38,8 @@ pub trait DatabaseDependentMigrationCommands {
 
 impl DatabaseDependentMigrationCommands for Pg {}
 
+impl DatabaseDependentMigrationCommands for MySql {}
+
 impl DatabaseDependentMigrationCommands for Sqlite {
     fn database_dependent_migration(migr: &mut Migration) {
         migr.inject_custom("DROP TRIGGER IF EXISTS cascade_battery_removal");
@@ -69,6 +71,14 @@ impl DatabaseDependentMigrationCommands for Sqlite {
             "DROP TRIGGER IF EXISTS set_products_default_location_if_empty_stock_log",
         );
         migr.inject_custom("DROP TRIGGER IF EXISTS shopping_list_qu_id_default");
+
+        migr.inject_custom("DROP INDEX IF EXISTS ix_batteries_performance1");
+        migr.inject_custom("DROP INDEX IF EXISTS ix_chores_performance1");
+        migr.inject_custom("DROP INDEX IF EXISTS ix_product_barcodes");
+        migr.inject_custom("DROP INDEX IF EXISTS ix_products_performance1");
+        migr.inject_custom("DROP INDEX IF EXISTS ix_products_performance2");
+        migr.inject_custom("DROP INDEX IF EXISTS ix_recipes");
+        migr.inject_custom("DROP INDEX IF EXISTS ix_stock_performance1");
     }
 }
 
@@ -81,6 +91,27 @@ pub trait CreateOrUpdate {
 }
 
 impl CreateOrUpdate for Pg {
+    fn create_or_update2(
+        migr: &mut Migration,
+        table_name: &str,
+        test: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
+    ) {
+        migr.create_table_if_not_exists(table_name.to_string(), move |t| {
+            for (column_name, column_type) in test() {
+                t.add_column(column_name, column_type.clone());
+            }
+        });
+
+        // TODO FIXME implement change_column (for postgres)
+        /*migr.change_table(table_name.to_string(), move |t| {
+            for (column_name, column_type) in test.call(()) {
+                t.change_column(column_name, column_type.clone());
+            }
+        });*/
+    }
+}
+
+impl CreateOrUpdate for MySql {
     fn create_or_update2(
         migr: &mut Migration,
         table_name: &str,
