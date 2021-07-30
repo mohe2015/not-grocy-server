@@ -30,6 +30,7 @@
 
           # sudo nixos-container create not-grocy --flake .#x86_64-linux  # don't ask - just choose your architecture
           # psql -h not-grocy -U not-grocy
+          # mysql -h not-grocy -u not-grocy -p
           nixosConfigurations = nixpkgs.lib.nixosSystem {
             inherit system;
             modules = [
@@ -43,6 +44,22 @@
                   package = pkgs.mariadb;
                 };
 
+                systemd.services.mysql-not-grocy-init = {
+                  after = [ "mysql.service" ];
+                  wantedBy = [ "multi-user.target" ];
+
+                  serviceConfig = {
+                    Type = "oneshot";
+                    ExecStart = pkgs.writeShellScript "crdt-init.sh" ''
+                    (
+                      echo "CREATE DATABASE IF NOT EXISTS \`not-grocy\`;"
+                      echo "CREATE USER IF NOT EXISTS 'not-grocy'@'%' IDENTIFIED BY 'not-grocy';"
+                      echo "GRANT ALL PRIVILEGES ON \`not-grocy\`.* TO 'not-grocy'@'%';"
+                    ) | ${config.services.mysql.package}/bin/mysql -N
+                    '';
+                  };
+                };
+
                 services.postgresql = {
                   enable = true;
                   package = pkgs.postgresql_13;
@@ -52,7 +69,6 @@
                     "password_encryption" = "scram-sha-256";
                   };
                 };
-                networking.firewall.allowedTCPPorts = [ 5432 ];
 
                 systemd.services.not-grocy-init = {
                   after = [ "postgresql.service" ];
@@ -72,10 +88,12 @@
                     SELECT 'CREATE DATABASE "not-grocy" OWNER "not-grocy" TEMPLATE template0 ENCODING UTF8' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'not-grocy')\gexec
                     \c 'not-grocy'
                     ''; in "${config.services.postgresql.package}/bin/psql -f ${psqlSetupCommands}";
-              };
-            };
+                  };
+                };
 
-            system.stateVersion = "21.11";
+                networking.firewall.allowedTCPPorts = [ 5432 3306 ];
+
+                system.stateVersion = "21.11";
           })
         ];
       };
