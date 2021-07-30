@@ -79,12 +79,12 @@ https://github.com/mistressofjellyfish/not-grocy/blob/246c7fcb64d63caf1a4a1e8daf
           description: unique - the api key to authenticate with.
         user_id:
           type: integer
-          description: "references a row in users table? - improvements: make foreign key to users?"
+        user:
+          $ref: '#/components/schemas/User'
         expires:
           type: string
           format: date-time
-          nullable: true
-          description: "when the api key expires. By default this is set to a date in 2999. - improvements: could be non-null"
+          description: "when the api key expires. By default this is set to a date in 2999."
         last_used:
           type: string
           format: date-time
@@ -95,7 +95,7 @@ https://github.com/mistressofjellyfish/not-grocy/blob/246c7fcb64d63caf1a4a1e8daf
           format: date-time
           nullable: true
           default: now
-          description: "the time this row was created (usage unknown) - improvements: non-null"
+          description: "the time this row was created (usage unknown)"
         key_type:
           type: string
           description: "probably what permissions the api key has - improvements: possibly type enum if database support exists
@@ -113,7 +113,6 @@ could possibly be unified with the permission system of users - so an api key is
           description: primary key
         name:
           type: string
-          description: "unique - not sure if uniqueness needs to be enforced - should not matter"
         description:
           type: string
           nullable: true
@@ -140,18 +139,17 @@ could possibly be unified with the permission system of users - so an api key is
           type: integer
           description: "primary key"
         battery_id:
-          type: string
-          description: "the battery this charge cycle belongs to improvements: should be type integer and foreign key battery(id)"
+          type: integer
+        Battery:
+          $ref: '#/components/schemas/Battery'
         tracked_time:
           type: string
           format: date-time
-          nullable: true
-          description: "the time at which you charged the battery improvements: non-null"
+          description: "the time at which you charged the battery"
         row_created_timestamp:
           type: string
           format: date-time
           default: now
-          description: "improvements: non-null (probably also for the others)."
         undone:
           type: boolean
           description: "whether this charge cycle was undone improvements: think about merging into undone_timestamp and use null instead? / use no timestamp?"
@@ -177,7 +175,6 @@ could possibly be unified with the permission system of users - so an api key is
           description: primary key
         name:
           type: string
-          description: "unique improvements: really needs to be unique?"
         description:
           type: string
           nullable: true
@@ -197,7 +194,6 @@ could possibly be unified with the permission system of users - so an api key is
         row_created_timestamp:
           type: string
           format: date-time
-          nullable: true
           default: now
         period_config:
           type: string
@@ -241,16 +237,18 @@ who-least-did-first seems to not support this."
           type: integer
           nullable: true
           description: "the person who has to do this next
-it seems like undo doesn't undo this? - improvements: foreign key to users"
+it seems like undo doesn't undo this?"
         consume_product_on_execution:
           type: boolean
           description: "whether to consume a product on executing this chore improvements: merge into product_id - it being null means false"
         product_id:
           type: integer
-          description: "the product to consume on execution - improvements: tinyint -> integer, foreign key to products(id)"
+          description: "the product to consume on execution"
+        product:
+          $ref: '#/components/schemas/Product'
         product_amount:
           type: number
-          description: "the amount of the product to consume on execution - improvements: real is an interesting choice (is there not a \"quantum\" unit for everything?)"
+          description: "the amount of the product to consume on execution - improvements: real is an interesting choice (is there not a \"quantum\" unit for everything?), maybe use fraction instead?"
         period_interval:
           type: integer
           minimum: 1
@@ -268,21 +266,17 @@ it seems like undo doesn't undo this? - improvements: foreign key to users"
           description: primary key
         chore_id:
           type: integer
-          description: "improvements: foreign key chore(id)"
+        chore:
+          $ref: '#/components/schemas/Chore'
         tracked_time:
           type: string
           format: date-time
-          nullable: true
-          description: "time when this was done - improvements: non-null"
         done_by_user_id:
           type: integer
           nullable: true
-          description: "who did the chore - improvements: foreign key user_id
-maybe non-null - somebody must have done it"
         row_created_timestamp:
           type: string
           format: date-time
-          nullable: true
           default: now
         undone:
           type: boolean
@@ -301,7 +295,6 @@ may be unified with something else if descriptions can contain files (in a rich 
           description: primary key
         name:
           type: string
-          description: "unique - improvements: unique really needed?"
         description:
           type: string
           nullable: true
@@ -314,7 +307,6 @@ what exactly does file name mean?"
         row_created_timestamp:
           type: string
           format: date-time
-          nullable: true
           default: now
     Location:
       type: object
@@ -366,7 +358,6 @@ still lot's of details missing here"
         recipe_id:
           type: integer
           nullable: true
-          description: "improvements: foreign key to recipes?"
         recipe_servings:
           type: integer
           nullable: true
@@ -378,7 +369,6 @@ still lot's of details missing here"
         product_id:
           type: integer
           nullable: true
-          description: "improvements: foreign key to products"
         product_amount:
           type: number
           nullable: true
@@ -387,13 +377,10 @@ still lot's of details missing here"
         product_qu_id:
           type: integer
           nullable: true
-          description: "probably quantity unit id improvements: rename to a more understandable name
-
-foreign key to quantity_units(id)?"
+          description: "probably quantity unit id improvements: rename to a more understandable name"
         row_created_timestamp:
           type: string
           format: date-time
-          nullable: true
           default: now
     Permission:
       type: object
@@ -406,14 +393,12 @@ https://github.com/mistressofjellyfish/not-grocy/blob/246c7fcb64d63caf1a4a1e8daf
           description: primary key
         name:
           type: string
-          description: "unique improvements: check if id could be merged into name (probably don't do because of string join performance)"
+          description: "improvements: check if id could be merged into name (probably don't do because of string join performance)"
           example: ADMIN
         parent:
           type: integer
           nullable: true
-          description: "the parent of this permission or null improvements: foreign key to permission_hierarchy(id)
-
-from the permissions in the table this seems to be not super worth it although creating an admin is significantly easier in this way"
+          description: "the parent of this permission or null improvements: from the permissions in the table this seems to be not super worth it although creating an admin is significantly easier in this way"
     CustomEntity:
       description: "table userentities userentities are in the master data
 
@@ -425,7 +410,7 @@ they reference multiple user fields"
       properties:
         id:
           type: integer
-          description: unique
+          description: primary key
         name:
           type: string
         caption:
@@ -439,10 +424,10 @@ they reference multiple user fields"
         icon_css_class:
           type: string
           nullable: true
+          description: "the icon name as css class"
         row_created_timestamp:
           type: string
           format: date-time
-          nullable: true
           default: now
     Product:
       description: "table products"

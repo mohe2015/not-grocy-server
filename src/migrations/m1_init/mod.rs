@@ -89,12 +89,10 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             vec![
                 id2(),
                 ("api_key", text().unique(true)),
-                ("user_id", integer()),
+                ("user_id", foreign("users", "id")),
                 (
                     "expires",
-                    datetime()
-                        .nullable(true)
-                        .default(AutogenFunction::CurrentTimestamp),
+                    datetime().default(AutogenFunction::CurrentTimestamp),
                 ),
                 ("last_used", datetime().nullable(true)),
                 created2(),
@@ -121,10 +119,10 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
         static BATTERY_CHARGE_CYCLES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
                 id2(),
-                ("battery_id", text()),
-                ("tracked_time", datetime().nullable(true)),
+                ("battery_id", foreign("battery", "id")),
+                ("tracked_time", datetime()),
                 created2(),
-                undone2(),
+                undone2(), // TODO FIXME remove all of these (probably needs fixes in the migration function as the SELECT has fewer rows then)
                 undone_timestamp2(),
             ]
         };
@@ -144,16 +142,16 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 ("period_days", integer().nullable(true)),
                 created2(),
                 ("period_config", text().nullable(true)),
-                ("track_date_only", boolean().nullable(true).default(false)),
+                ("track_date_only", boolean().nullable(true).default(false)), // can probably be removed
                 ("rollover", boolean().nullable(true).default(false)),
                 ("assignment_type", text().nullable(true)),
                 ("assignment_config", text().nullable(true)),
                 (
                     "next_execution_assigned_to_user_id",
-                    integer().nullable(true),
+                    foreign("users", "id").nullable(true),
                 ),
                 ("consume_product_on_execution", boolean().default(false)),
-                ("product_id", boolean().nullable(true)), // integer()
+                ("product_id", foreign("products", "id").nullable(true)),
                 ("product_amount", double().nullable(true)),
                 ("period_interval", integer().default(1)),
                 ("active", boolean().default(true)),
@@ -165,9 +163,9 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
         static CHORES_LOG_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
                 id2(),
-                ("chore_id", integer()),
-                ("tracked_time", datetime().nullable(true)),
-                ("done_by_user_id", integer().nullable(true)),
+                ("chore_id", foreign("chores", "id")),
+                ("tracked_time", datetime()),
+                ("done_by_user_id", foreign("users", "id")),
                 created2(),
                 undone2(),
                 undone_timestamp2(),
@@ -205,20 +203,31 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 id2(),
                 ("day", date()),
                 ("type", text().nullable(true).default("recipe")),
-                ("recipe_id", integer().nullable(true)),
+                ("recipe_id", foreign("recipes", "id").nullable(true)),
                 ("recipe_servings", integer().nullable(true).default(1)),
                 ("note", text().nullable(true)),
-                ("product_id", integer().nullable(true)),
-                ("product_amount", double().nullable(true).default(0)),
-                ("product_qu_id", integer().nullable(true)),
+                ("product_id", foreign("products", "id").nullable(true)),
+                ("product_amount", double().nullable(true)),
+                (
+                    "product_qu_id",
+                    foreign("quantity_units", "id").nullable(true),
+                ),
                 created2(),
             ]
         };
 
         T::create_or_update2(&mut migr, "meal_plan", &MEAL_PLAN_FN);
 
-        static PERMISSION_HIERARCHY_FN: fn() -> Vec<(&'static str, barrel::types::Type)> =
-            || vec![id2(), name2(), ("parent", integer().nullable(true))];
+        static PERMISSION_HIERARCHY_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
+                id2(),
+                name2(),
+                (
+                    "parent",
+                    foreign("permission_hierarchy", "id").nullable(true),
+                ),
+            ]
+        };
 
         T::create_or_update2(&mut migr, "permission_hierarchy", &PERMISSION_HIERARCHY_FN);
 
@@ -279,7 +288,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                     "cumulate_min_stock_amount_of_sub_products",
                     boolean().default(false).nullable(true),
                 ),
-                ("due_type", boolean().default(true)), // integer()
+                ("due_type", integer().default(1)),
                 ("quick_consume_amount", double().default(1)),
                 ("hide_on_stock_overview", boolean().default(false)),
                 created2(),
@@ -430,8 +439,8 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 ("stock_id", text()),
                 ("transaction_type", text()),
                 ("price", double().nullable(true)), // DECIMAL
-                ("undone", boolean().default(false)),
-                ("undone_timestamp", datetime().nullable(true)),
+                undone2(),
+                undone_timestamp2(),
                 ("opened_date", datetime().nullable(true)),
                 created2(),
                 ("location_id", integer().nullable(true)),

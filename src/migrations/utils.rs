@@ -12,9 +12,7 @@ pub fn id2() -> (&'static str, barrel::types::Type) {
 pub fn created2() -> (&'static str, barrel::types::Type) {
     (
         "row_created_timestamp",
-        datetime()
-            .nullable(true)
-            .default(AutogenFunction::CurrentTimestamp),
+        datetime().default(AutogenFunction::CurrentTimestamp),
     )
 }
 
@@ -27,7 +25,7 @@ pub fn undone_timestamp2() -> (&'static str, barrel::types::Type) {
 }
 
 pub fn name2() -> (&'static str, barrel::types::Type) {
-    ("name", text().unique(true))
+    ("name", text())
 }
 
 pub fn description2() -> (&'static str, barrel::types::Type) {
