@@ -13,7 +13,7 @@
             nativeBuildInputs = [
               pkgs.bashInteractive # fix nested shells
               pkgs.pkg-config
-              #pkgs.diesel-cli
+              pkgs.diesel-cli
               pkgs.nixpkgs-fmt
               pkgs.sqlitebrowser
               pkgs.rustup
