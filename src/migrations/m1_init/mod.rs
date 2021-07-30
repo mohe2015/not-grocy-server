@@ -72,6 +72,28 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
         migr.inject_custom("DROP INDEX IF EXISTS ix_recipes");
         migr.inject_custom("DROP INDEX IF EXISTS ix_stock_performance1");
 
+        static LOCATIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
+                id2(),
+                name2(),
+                description2(),
+                created2(),
+                ("is_freezer", boolean().default(false)),
+            ]
+        };
+
+        T::create_or_update2(&mut migr, "locations", &LOCATIONS_FN);
+
+        static SHOPPING_LOCATIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> =
+            || vec![id2(), name2(), description2(), created2()];
+
+        T::create_or_update2(&mut migr, "shopping_locations", &SHOPPING_LOCATIONS_FN);
+
+        static SHOPPING_LISTS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> =
+            || vec![id2(), name2(), description2(), created2()];
+
+        T::create_or_update2(&mut migr, "shopping_lists", &SHOPPING_LISTS_FN);
+
         static QUANTITY_UNITS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
                 id2(),
@@ -84,6 +106,114 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
         };
 
         T::create_or_update2(&mut migr, "quantity_units", &QUANTITY_UNITS_FN);
+
+        static USERFIELDS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
+                id2(),
+                ("entity", text()),
+                name2(),
+                ("caption", text()),
+                ("type", text()),
+                ("show_as_column_in_tables", boolean().default(false)),
+                created2(),
+                ("config", text().nullable(true)),
+                ("sort_number", integer().nullable(true)),
+            ]
+        };
+
+        T::create_or_update2(&mut migr, "userfields", &USERFIELDS_FN);
+
+        static USERS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
+                id2(),
+                ("username", text().unique(true)),
+                ("first_name", text().nullable(true)),
+                ("last_name", text().nullable(true)),
+                ("password", text()),
+                created2(),
+                ("picture_file_name", text().nullable(true)),
+            ]
+        };
+
+        T::create_or_update2(&mut migr, "users", &USERS_FN);
+
+        static PRODUCT_GROUPS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> =
+            || vec![id2(), name2(), description2(), created2()];
+
+        T::create_or_update2(&mut migr, "product_groups", &PRODUCT_GROUPS_FN);
+
+        static PRODUCTS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
+                id2(),
+                name2(),
+                description2(),
+                (
+                    "product_group_id",
+                    foreign("product_groups", "id").nullable(true),
+                ),
+                ("active", boolean().default(true)),
+                ("location_id", foreign("locations", "id")),
+                (
+                    "shopping_location_id",
+                    foreign("shopping_locations", "id").nullable(true),
+                ),
+                ("qu_id_purchase", foreign("quantity_units", "id")), // don't get a joinable! generated as there are two of them
+                ("qu_id_stock", foreign("quantity_units", "id")),
+                ("qu_factor_purchase_to_stock", double()),
+                ("min_stock_amount", integer().default(0)),
+                ("default_best_before_days", integer().default(0)),
+                ("default_best_before_days_after_open", integer().default(0)),
+                (
+                    "default_best_before_days_after_freezing",
+                    integer().default(0),
+                ),
+                (
+                    "default_best_before_days_after_thawing",
+                    integer().default(0),
+                ),
+                ("picture_file_name", text().nullable(true)),
+                ("enable_tare_weight_handling", boolean().default(false)), // TODO remove
+                ("tare_weight", double().default(0)), // default 0 is fine for how tare-weight works
+                (
+                    "not_check_stock_fulfillment_for_recipes",
+                    boolean().default(false).nullable(true),
+                ),
+                (
+                    "parent_product_id",
+                    foreign("products", "id").nullable(true),
+                ),
+                ("calories", integer().nullable(true)),
+                (
+                    "cumulate_min_stock_amount_of_sub_products",
+                    boolean().default(false),
+                ),
+                ("due_type", integer().default(1)),
+                ("quick_consume_amount", double().default(1)),
+                ("hide_on_stock_overview", boolean().default(false)),
+                created2(),
+                ("default_print_stock_label", integer().default(0)),
+                ("allow_label_per_unit", integer().default(0)),
+            ]
+        };
+
+        T::create_or_update2(&mut migr, "products", &PRODUCTS_FN);
+
+        static RECIPES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
+            vec![
+                id2(),
+                name2(),
+                description2(),
+                created2(),
+                ("picture_file_name", text().nullable(true)),
+                ("base_servings", integer().nullable(true).default(1)),
+                ("desired_servings", integer().nullable(true).default(1)),
+                ("not_check_shoppinglist", boolean().default(false)),
+                ("type", text().nullable(true).default("normal")),
+                ("product_id", foreign("products", "id").nullable(true)),
+            ]
+        };
+
+        T::create_or_update2(&mut migr, "recipes", &RECIPES_FN);
 
         static API_KEYS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -119,7 +249,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
         static BATTERY_CHARGE_CYCLES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
                 id2(),
-                ("battery_id", foreign("battery", "id")),
+                ("battery_id", foreign("batteries", "id")),
                 ("tracked_time", datetime()),
                 created2(),
                 undone2(), // TODO FIXME remove all of these (probably needs fixes in the migration function as the SELECT has fewer rows then)
@@ -186,18 +316,6 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
 
         T::create_or_update2(&mut migr, "equipment", &EQUIPMENT_FN);
 
-        static LOCATIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
-            vec![
-                id2(),
-                name2(),
-                description2(),
-                created2(),
-                ("is_freezer", boolean().default(false)),
-            ]
-        };
-
-        T::create_or_update2(&mut migr, "locations", &LOCATIONS_FN);
-
         static MEAL_PLAN_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
                 id2(),
@@ -250,67 +368,6 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
 
         T::create_or_update2(&mut migr, "product_barcodes", &PRODUCT_BARCODES_FN);
 
-        static PRODUCT_GROUPS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> =
-            || vec![id2(), name2(), description2(), created2()];
-
-        T::create_or_update2(&mut migr, "product_groups", &PRODUCT_GROUPS_FN);
-
-        static PRODUCTS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
-            vec![
-                id2(),
-                name2(),
-                description2(),
-                (
-                    "product_group_id",
-                    foreign("product_groups", "id").nullable(true),
-                ),
-                ("active", boolean().default(true)),
-                ("location_id", foreign("locations", "id")),
-                (
-                    "shopping_location_id",
-                    foreign("shopping_locations", "id").nullable(true),
-                ),
-                ("qu_id_purchase", foreign("quantity_units", "id")), // don't get a joinable! generated as there are two of them
-                ("qu_id_stock", foreign("quantity_units", "id")),
-                ("qu_factor_purchase_to_stock", double()),
-                ("min_stock_amount", integer().default(0)),
-                ("default_best_before_days", integer().default(0)),
-                ("default_best_before_days_after_open", integer().default(0)),
-                (
-                    "default_best_before_days_after_freezing",
-                    integer().default(0),
-                ),
-                (
-                    "default_best_before_days_after_thawing",
-                    integer().default(0),
-                ),
-                ("picture_file_name", text().nullable(true)),
-                ("enable_tare_weight_handling", boolean().default(false)), // TODO remove
-                ("tare_weight", double().default(0)), // default 0 is fine for how tare-weight works
-                (
-                    "not_check_stock_fulfillment_for_recipes",
-                    boolean().default(false).nullable(true),
-                ),
-                (
-                    "parent_product_id",
-                    foreign("products", "id").nullable(true),
-                ),
-                ("calories", integer().nullable(true)),
-                (
-                    "cumulate_min_stock_amount_of_sub_products",
-                    boolean().default(false),
-                ),
-                ("due_type", integer().default(1)),
-                ("quick_consume_amount", double().default(1)),
-                ("hide_on_stock_overview", boolean().default(false)),
-                created2(),
-                ("default_print_stock_label", integer().default(0)),
-                ("allow_label_per_unit", integer().default(0)),
-            ]
-        };
-
-        T::create_or_update2(&mut migr, "products", &PRODUCTS_FN);
-
         static QUANTITY_UNIT_CONVERSIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> =
             || {
                 vec![
@@ -328,23 +385,6 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             "quantity_unit_conversions",
             &QUANTITY_UNIT_CONVERSIONS_FN,
         );
-
-        static RECIPES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
-            vec![
-                id2(),
-                name2(),
-                description2(),
-                created2(),
-                ("picture_file_name", text().nullable(true)),
-                ("base_servings", integer().nullable(true).default(1)),
-                ("desired_servings", integer().nullable(true).default(1)),
-                ("not_check_shoppinglist", boolean().default(false)),
-                ("type", text().nullable(true).default("normal")),
-                ("product_id", foreign("products", "id").nullable(true)),
-            ]
-        };
-
-        T::create_or_update2(&mut migr, "recipes", &RECIPES_FN);
 
         static RECIPES_NESTINGS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -407,16 +447,6 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
         };
 
         T::create_or_update2(&mut migr, "shopping_list", &SHOPPING_LIST_FN);
-
-        static SHOPPING_LISTS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> =
-            || vec![id2(), name2(), description2(), created2()];
-
-        T::create_or_update2(&mut migr, "shopping_lists", &SHOPPING_LISTS_FN);
-
-        static SHOPPING_LOCATIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> =
-            || vec![id2(), name2(), description2(), created2()];
-
-        T::create_or_update2(&mut migr, "shopping_locations", &SHOPPING_LOCATIONS_FN);
 
         static STOCK_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -552,40 +582,10 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
 
         T::create_or_update2(&mut migr, "userfield_values", &USERFIELD_VALUES_FN);
 
-        static USERFIELDS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
-            vec![
-                id2(),
-                ("entity", text()),
-                name2(),
-                ("caption", text()),
-                ("type", text()),
-                ("show_as_column_in_tables", boolean().default(false)),
-                created2(),
-                ("config", text().nullable(true)),
-                ("sort_number", integer().nullable(true)),
-            ]
-        };
-
-        T::create_or_update2(&mut migr, "userfields", &USERFIELDS_FN);
-
         static USEROBJECTS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> =
             || vec![id2(), ("userentity_id", integer()), created2()];
 
         T::create_or_update2(&mut migr, "userobjects", &USEROBJECTS_FN);
-
-        static USERS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
-            vec![
-                id2(),
-                ("username", text().unique(true)),
-                ("first_name", text().nullable(true)),
-                ("last_name", text().nullable(true)),
-                ("password", text()),
-                created2(),
-                ("picture_file_name", text().nullable(true)),
-            ]
-        };
-
-        T::create_or_update2(&mut migr, "users", &USERS_FN);
 
         println!("{}", &migr.make::<T>());
         conn.batch_execute(&migr.make::<T>())?;

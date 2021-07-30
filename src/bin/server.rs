@@ -18,15 +18,15 @@ use actix_web::web::Data;
 use actix_web::HttpRequest;
 use actix_web::{web, HttpResponse};
 use actix_web::{App, HttpServer};
-use api::utils::{DieselError, R2D2Error};
+
 use chrono::{NaiveDate, NaiveDateTime};
 use diesel::backend::UsesAnsiSavepointSyntax;
 use diesel::connection::AnsiTransactionManager;
 use diesel::r2d2::ConnectionManager;
 use diesel::sqlite::SqliteConnection;
 use diesel::types::{FromSql, HasSqlType};
+use diesel::Connection;
 use diesel::PgConnection;
-use diesel::{sql_query, Connection, RunQueryDsl};
 use dotenv::dotenv;
 use r2d2::Pool;
 

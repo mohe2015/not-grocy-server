@@ -12,8 +12,7 @@ use chrono::NaiveDateTime;
 use diesel::backend::UsesAnsiSavepointSyntax;
 use diesel::connection::AnsiTransactionManager;
 use diesel::prelude::*;
-use diesel::query_dsl::InternalJoinDsl;
-use diesel::query_dsl::JoinWithImplicitOnClause;
+
 use diesel::r2d2::ConnectionManager;
 use diesel::types::FromSql;
 use diesel::types::HasSqlType;

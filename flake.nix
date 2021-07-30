@@ -28,7 +28,7 @@
             ];
           };
 
-          # sudo nixos-container <command> not-grocy --flake .#x86_64-linux  # don't ask - just choose your architecture
+          # sudo nixos-container create not-grocy --flake .#x86_64-linux  # don't ask - just choose your architecture
           # psql -h not-grocy -U not-grocy
           nixosConfigurations = nixpkgs.lib.nixosSystem {
             inherit system;
@@ -37,6 +37,11 @@
                 boot.isContainer = true;
 
                 networking.hostName = "not-grocy";
+
+                services.mysql = {
+                  enable = true;
+                  package = pkgs.mariadb;
+                };
 
                 services.postgresql = {
                   enable = true;

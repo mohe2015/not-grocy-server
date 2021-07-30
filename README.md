@@ -44,7 +44,7 @@ RUST_BACKTRACE=1 RUST_LOG=actix_web=debug cargo watch -x 'run --bin server'
 ```
 
 ```
-cargo clippy --fix
+cargo +nightly -Z unstable-options clippy --fix
 ```
 
 # What the experience currently feels like
