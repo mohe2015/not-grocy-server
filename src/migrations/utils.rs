@@ -100,6 +100,8 @@ impl CreateOrUpdate for Pg {
             for (column_name, column_type) in test() {
                 t.add_column(column_name, column_type.clone());
             }
+            // TODO FIXME make this configurable but this possibly creates working results for mysql
+            t.add_foreign_key(&["test_id"], "test", &["id"]);
         });
 
         // TODO FIXME implement change_column (for postgres)
