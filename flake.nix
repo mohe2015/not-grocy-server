@@ -31,6 +31,7 @@
           # sudo nixos-container create not-grocy --flake .#x86_64-linux  # don't ask - just choose your architecture
           # psql -h not-grocy -U not-grocy
           # mysql -h not-grocy -u not-grocy -p
+          # CREATE TABLE IF NOT EXISTS `products` (`id` INTEGER PRIMARY KEY NOT NULL, `product_id` INTEGER REFERENCES products(id) NOT NULL);
           nixosConfigurations = nixpkgs.lib.nixosSystem {
             inherit system;
             modules = [
