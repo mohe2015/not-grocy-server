@@ -19,7 +19,7 @@ pub struct Stock {
     pub price: Option<f64>,
     pub open: bool,
     pub opened_date: Option<NaiveDate>,
-    pub row_created_timestamp: Option<NaiveDateTime>,
+    pub row_created_timestamp: NaiveDateTime,
     pub location_id: Option<i32>,
     pub shopping_location_id: Option<i32>,
 }
@@ -47,11 +47,11 @@ pub struct Product {
     not_check_stock_fulfillment_for_recipes: Option<bool>,
     parent_product_id: Option<i32>,
     calories: Option<i32>,
-    cumulate_min_stock_amount_of_sub_products: Option<bool>,
-    due_type: bool,
+    cumulate_min_stock_amount_of_sub_products: bool,
+    due_type: i32,
     quick_consume_amount: f64,
     hide_on_stock_overview: bool,
-    row_created_timestamp: Option<NaiveDateTime>,
+    row_created_timestamp: NaiveDateTime,
     default_print_stock_label: i32,
     allow_label_per_unit: i32,
 }
@@ -61,7 +61,7 @@ pub struct QuantityUnit {
     id: i32,
     name: String,
     description: Option<String>,
-    row_created_timestamp: Option<NaiveDateTime>,
+    row_created_timestamp: NaiveDateTime,
     name_plural: Option<String>,
     plural_forms: Option<String>,
 }
@@ -71,6 +71,6 @@ pub struct Location {
     id: i32,
     name: String,
     description: Option<String>,
-    row_created_timestamp: Option<NaiveDateTime>,
+    row_created_timestamp: NaiveDateTime,
     is_freezer: bool,
 }
