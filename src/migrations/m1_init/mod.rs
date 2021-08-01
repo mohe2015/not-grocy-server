@@ -64,6 +64,8 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
 
         T::database_dependent_migration(&mut migr);
 
+        static PLACEHOLDER_FOREIGN_KEY: &[(&str, &str)] = &[];
+
         static LOCATIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
                 id2(),
@@ -74,17 +76,29 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "locations", &LOCATIONS_FN);
+        static LOCATIONS_FOREIGN_KEY: &[(&str, &str)] = &[("description", "test")];
+
+        T::create_or_update2(&mut migr, "locations", &LOCATIONS_FN, LOCATIONS_FOREIGN_KEY);
 
         static SHOPPING_LOCATIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> =
             || vec![id2(), name2(), description2(), created2()];
 
-        T::create_or_update2(&mut migr, "shopping_locations", &SHOPPING_LOCATIONS_FN);
+        T::create_or_update2(
+            &mut migr,
+            "shopping_locations",
+            &SHOPPING_LOCATIONS_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static SHOPPING_LISTS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> =
             || vec![id2(), name2(), description2(), created2()];
 
-        T::create_or_update2(&mut migr, "shopping_lists", &SHOPPING_LISTS_FN);
+        T::create_or_update2(
+            &mut migr,
+            "shopping_lists",
+            &SHOPPING_LISTS_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static QUANTITY_UNITS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -97,7 +111,12 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "quantity_units", &QUANTITY_UNITS_FN);
+        T::create_or_update2(
+            &mut migr,
+            "quantity_units",
+            &QUANTITY_UNITS_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static USERFIELDS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -113,7 +132,12 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "userfields", &USERFIELDS_FN);
+        T::create_or_update2(
+            &mut migr,
+            "userfields",
+            &USERFIELDS_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static USERS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -127,12 +151,17 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "users", &USERS_FN);
+        T::create_or_update2(&mut migr, "users", &USERS_FN, PLACEHOLDER_FOREIGN_KEY);
 
         static PRODUCT_GROUPS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> =
             || vec![id2(), name2(), description2(), created2()];
 
-        T::create_or_update2(&mut migr, "product_groups", &PRODUCT_GROUPS_FN);
+        T::create_or_update2(
+            &mut migr,
+            "product_groups",
+            &PRODUCT_GROUPS_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static PRODUCTS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -188,7 +217,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "products", &PRODUCTS_FN);
+        T::create_or_update2(&mut migr, "products", &PRODUCTS_FN, PLACEHOLDER_FOREIGN_KEY);
 
         static RECIPES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -205,7 +234,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "recipes", &RECIPES_FN);
+        T::create_or_update2(&mut migr, "recipes", &RECIPES_FN, PLACEHOLDER_FOREIGN_KEY);
 
         static API_KEYS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -222,7 +251,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "api_keys", &API_KEYS_FN);
+        T::create_or_update2(&mut migr, "api_keys", &API_KEYS_FN, PLACEHOLDER_FOREIGN_KEY);
 
         static BATTERIES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -236,7 +265,12 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "batteries", &BATTERIES_FN);
+        T::create_or_update2(
+            &mut migr,
+            "batteries",
+            &BATTERIES_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static BATTERY_CHARGE_CYCLES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -253,6 +287,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             &mut migr,
             "battery_charge_cycles",
             &BATTERY_CHARGE_CYCLES_FN,
+            PLACEHOLDER_FOREIGN_KEY,
         );
 
         static CHORES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
@@ -280,7 +315,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "chores", &CHORES_FN);
+        T::create_or_update2(&mut migr, "chores", &CHORES_FN, PLACEHOLDER_FOREIGN_KEY);
 
         static CHORES_LOG_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -294,7 +329,12 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "chores_log", &CHORES_LOG_FN);
+        T::create_or_update2(
+            &mut migr,
+            "chores_log",
+            &CHORES_LOG_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static EQUIPMENT_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -306,7 +346,12 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "equipment", &EQUIPMENT_FN);
+        T::create_or_update2(
+            &mut migr,
+            "equipment",
+            &EQUIPMENT_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static MEAL_PLAN_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -326,7 +371,12 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "meal_plan", &MEAL_PLAN_FN);
+        T::create_or_update2(
+            &mut migr,
+            "meal_plan",
+            &MEAL_PLAN_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static PERMISSION_HIERARCHY_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -339,7 +389,12 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "permission_hierarchy", &PERMISSION_HIERARCHY_FN);
+        T::create_or_update2(
+            &mut migr,
+            "permission_hierarchy",
+            &PERMISSION_HIERARCHY_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static PRODUCT_BARCODES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -358,7 +413,12 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "product_barcodes", &PRODUCT_BARCODES_FN);
+        T::create_or_update2(
+            &mut migr,
+            "product_barcodes",
+            &PRODUCT_BARCODES_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static QUANTITY_UNIT_CONVERSIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> =
             || {
@@ -376,6 +436,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             &mut migr,
             "quantity_unit_conversions",
             &QUANTITY_UNIT_CONVERSIONS_FN,
+            PLACEHOLDER_FOREIGN_KEY,
         );
 
         static RECIPES_NESTINGS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
@@ -388,7 +449,12 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "recipes_nestings", &RECIPES_NESTINGS_FN);
+        T::create_or_update2(
+            &mut migr,
+            "recipes_nestings",
+            &RECIPES_NESTINGS_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static RECIPES_POS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -407,7 +473,12 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "recipes_pos", &RECIPES_POS_FN);
+        T::create_or_update2(
+            &mut migr,
+            "recipes_pos",
+            &RECIPES_POS_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static SESSIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -420,7 +491,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "sessions", &SESSIONS_FN);
+        T::create_or_update2(&mut migr, "sessions", &SESSIONS_FN, PLACEHOLDER_FOREIGN_KEY);
 
         static SHOPPING_LIST_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -438,7 +509,12 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "shopping_list", &SHOPPING_LIST_FN);
+        T::create_or_update2(
+            &mut migr,
+            "shopping_list",
+            &SHOPPING_LIST_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static STOCK_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -465,7 +541,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "stock", &STOCK_FN);
+        T::create_or_update2(&mut migr, "stock", &STOCK_FN, PLACEHOLDER_FOREIGN_KEY);
 
         static STOCK_LOG_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -496,12 +572,22 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "stock_log", &STOCK_LOG_FN);
+        T::create_or_update2(
+            &mut migr,
+            "stock_log",
+            &STOCK_LOG_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static TASK_CATEGORIES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> =
             || vec![id2(), name2(), description2(), created2()];
 
-        T::create_or_update2(&mut migr, "task_categories", &TASK_CATEGORIES_FN);
+        T::create_or_update2(
+            &mut migr,
+            "task_categories",
+            &TASK_CATEGORIES_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static TASKS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -520,7 +606,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "tasks", &TASKS_FN);
+        T::create_or_update2(&mut migr, "tasks", &TASKS_FN, PLACEHOLDER_FOREIGN_KEY);
 
         static USER_PERMISSIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -530,7 +616,12 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "user_permissions", &USER_PERMISSIONS_FN);
+        T::create_or_update2(
+            &mut migr,
+            "user_permissions",
+            &USER_PERMISSIONS_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static USER_SETTINGS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -546,7 +637,12 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "user_settings", &USER_SETTINGS_FN);
+        T::create_or_update2(
+            &mut migr,
+            "user_settings",
+            &USER_SETTINGS_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static USERENTITIES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -560,7 +656,12 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "userentities", &USERENTITIES_FN);
+        T::create_or_update2(
+            &mut migr,
+            "userentities",
+            &USERENTITIES_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static USERFIELD_VALUES_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
@@ -572,12 +673,22 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             ]
         };
 
-        T::create_or_update2(&mut migr, "userfield_values", &USERFIELD_VALUES_FN);
+        T::create_or_update2(
+            &mut migr,
+            "userfield_values",
+            &USERFIELD_VALUES_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         static USEROBJECTS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> =
             || vec![id2(), ("userentity_id", integer()), created2()];
 
-        T::create_or_update2(&mut migr, "userobjects", &USEROBJECTS_FN);
+        T::create_or_update2(
+            &mut migr,
+            "userobjects",
+            &USEROBJECTS_FN,
+            PLACEHOLDER_FOREIGN_KEY,
+        );
 
         println!("{}", &migr.make::<T>());
         conn.batch_execute(&migr.make::<T>())?;

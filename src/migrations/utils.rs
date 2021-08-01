@@ -86,7 +86,8 @@ pub trait CreateOrUpdate {
     fn create_or_update2(
         migr: &mut Migration,
         table_name: &str,
-        test: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
+        columns: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
+        foreign_keys: &'static [(&str, &str)],
     );
 }
 
@@ -94,14 +95,16 @@ impl CreateOrUpdate for Pg {
     fn create_or_update2(
         migr: &mut Migration,
         table_name: &str,
-        test: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
+        columns: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
+        foreign_keys: &'static [(&str, &str)],
     ) {
         migr.create_table_if_not_exists(table_name.to_string(), move |t| {
-            for (column_name, column_type) in test() {
+            for (column_name, column_type) in columns() {
                 t.add_column(column_name, column_type.clone());
             }
-            // TODO FIXME make this configurable but this possibly creates working results for mysql
-            t.add_foreign_key(&["test_id"], "test", &["id"]);
+            for (column_name, foreign_table) in foreign_keys {
+                t.add_foreign_key(&[column_name], foreign_table, &["id"]);
+            }
         });
 
         // TODO FIXME implement change_column (for postgres)
@@ -117,11 +120,15 @@ impl CreateOrUpdate for MySql {
     fn create_or_update2(
         migr: &mut Migration,
         table_name: &str,
-        test: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
+        columns: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
+        foreign_keys: &'static [(&str, &str)],
     ) {
         migr.create_table_if_not_exists(table_name.to_string(), move |t| {
-            for (column_name, column_type) in test() {
+            for (column_name, column_type) in columns() {
                 t.add_column(column_name, column_type.clone());
+            }
+            for (column_name, foreign_table) in foreign_keys {
+                t.add_foreign_key(&[column_name], foreign_table, &["id"]);
             }
         });
 
@@ -138,18 +145,25 @@ impl CreateOrUpdate for Sqlite {
     fn create_or_update2(
         migr: &mut Migration,
         table_name: &str,
-        test: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
+        columns: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
+        foreign_keys: &'static [(&str, &str)],
     ) {
         migr.create_table_if_not_exists(format!("new_{}", table_name), move |t| {
-            for (column_name, column_type) in test() {
+            for (column_name, column_type) in columns() {
                 t.add_column(column_name, column_type.clone());
+            }
+            for (column_name, foreign_table) in foreign_keys {
+                t.add_foreign_key(&[column_name], foreign_table, &["id"]);
             }
         });
 
         // TO prevent errors if it didn't exist
         migr.create_table_if_not_exists(table_name.to_string(), move |t| {
-            for (column_name, column_type) in test() {
+            for (column_name, column_type) in columns() {
                 t.add_column(column_name, column_type.clone());
+            }
+            for (column_name, foreign_table) in foreign_keys {
+                t.add_foreign_key(&[column_name], foreign_table, &["id"]);
             }
         });
 
