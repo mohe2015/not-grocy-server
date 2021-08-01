@@ -79,12 +79,12 @@ fn migrate<
         }
     };
 
-    println!("RUN\n~/.cargo/bin/diesel print-schema > src/schema.rs");
+    println!("RUN\ndiesel print-schema > src/schema.rs");
 
     return_value
 
     // TODO FIXME
-    // run ~/.cargo/bin/diesel print-schema > src/schema.rs
+    // diesel print-schema > src/schema.rs
 }
 
 fn main() -> Result<(), RunMigrationsError> {
