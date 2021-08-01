@@ -1,11 +1,14 @@
 // This file contains parts of https://github.com/grocy/grocy Copyright (c) 2017 Bernd Bestel which is licensed under the MIT License.
+use crate::schema::{locations, products, quantity_units, stock};
 use chrono::NaiveDate;
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 
 // TODO FIXME this file could more or less be generated from schema.rs?
 
-#[derive(Queryable, Debug, Serialize, Deserialize)]
+#[derive(Identifiable, Queryable, Debug, Serialize, Deserialize, Associations, PartialEq)]
+#[belongs_to(Product)]
+#[table_name = "stock"]
 pub struct Stock {
     pub id: i32,
     pub product_id: i32,
@@ -16,12 +19,12 @@ pub struct Stock {
     pub price: Option<f64>,
     pub open: bool,
     pub opened_date: Option<NaiveDate>,
-    pub row_created_timestamp: Option<NaiveDateTime>,
+    pub row_created_timestamp: NaiveDateTime,
     pub location_id: Option<i32>,
     pub shopping_location_id: Option<i32>,
 }
 
-#[derive(Queryable, Debug, Serialize, Deserialize)]
+#[derive(Identifiable, Queryable, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Product {
     id: i32,
     name: String,
@@ -44,30 +47,30 @@ pub struct Product {
     not_check_stock_fulfillment_for_recipes: Option<bool>,
     parent_product_id: Option<i32>,
     calories: Option<i32>,
-    cumulate_min_stock_amount_of_sub_products: Option<bool>,
-    due_type: bool,
+    cumulate_min_stock_amount_of_sub_products: bool,
+    due_type: i32,
     quick_consume_amount: f64,
     hide_on_stock_overview: bool,
-    row_created_timestamp: Option<NaiveDateTime>,
+    row_created_timestamp: NaiveDateTime,
     default_print_stock_label: i32,
     allow_label_per_unit: i32,
 }
 
-#[derive(Queryable, Debug, Serialize, Deserialize)]
+#[derive(Identifiable, Queryable, Debug, Serialize, Deserialize)]
 pub struct QuantityUnit {
     id: i32,
     name: String,
     description: Option<String>,
-    row_created_timestamp: Option<NaiveDateTime>,
+    row_created_timestamp: NaiveDateTime,
     name_plural: Option<String>,
     plural_forms: Option<String>,
 }
 
-#[derive(Queryable, Debug, Serialize, Deserialize)]
+#[derive(Identifiable, Queryable, Debug, Serialize, Deserialize)]
 pub struct Location {
     id: i32,
     name: String,
     description: Option<String>,
-    row_created_timestamp: Option<NaiveDateTime>,
+    row_created_timestamp: NaiveDateTime,
     is_freezer: bool,
 }

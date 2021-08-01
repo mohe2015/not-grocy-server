@@ -1,0 +1,3 @@
+[submodule "barrel"]
+	path = barrel
+	url = https://github.com/mohe2015/barrel.git

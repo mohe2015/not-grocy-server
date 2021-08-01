@@ -12,6 +12,7 @@ use chrono::NaiveDateTime;
 use diesel::backend::UsesAnsiSavepointSyntax;
 use diesel::connection::AnsiTransactionManager;
 use diesel::prelude::*;
+
 use diesel::r2d2::ConnectionManager;
 use diesel::types::FromSql;
 use diesel::types::HasSqlType;
@@ -21,7 +22,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct StockOverviewResponse {
-    current_stock: Vec<(Stock, Product)>,
+    current_stock: Vec<(Stock, Location, Product, QuantityUnit)>,
     //current_stock_locations: Vec<(Stock, Location)>,
 }
 
@@ -41,13 +42,18 @@ where
     f32: FromSql<diesel::sql_types::Float, <T as diesel::Connection>::Backend>,
     *const str: FromSql<diesel::sql_types::Text, <T as diesel::Connection>::Backend>,
 {
+    use crate::schema::locations::dsl::*;
     use crate::schema::products::dsl::*;
+    use crate::schema::quantity_units::dsl::*;
     use crate::schema::stock::dsl::*;
+    let teee = stock
+        .inner_join(locations)
+        .inner_join(products)
+        .inner_join(quantity_units.on(qu_id_purchase.eq(crate::schema::quantity_units::dsl::id)))
+        .load::<(Stock, Location, Product, QuantityUnit)>(&connection)?;
     Ok(StockOverviewResponse {
-        current_stock: stock
-            .inner_join(products)
-            .load::<(Stock, Product)>(&connection)?,
-        //current_stock_locations: stock.inner_join(locations).load::<(Stock, Location)>(&connection)?,
+        current_stock: teee,
+        //current_stock_locations: stock.load::<(Stock, Location)>(&connection)?,
     })
 }
 

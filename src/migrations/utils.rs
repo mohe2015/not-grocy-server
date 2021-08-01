@@ -1,5 +1,5 @@
 use barrel::{
-    backend::{Pg, Sqlite},
+    backend::{MySql, Pg, Sqlite},
     functions::AutogenFunction,
     types::*,
     Migration,
@@ -12,9 +12,7 @@ pub fn id2() -> (&'static str, barrel::types::Type) {
 pub fn created2() -> (&'static str, barrel::types::Type) {
     (
         "row_created_timestamp",
-        datetime()
-            .nullable(true)
-            .default(AutogenFunction::CurrentTimestamp),
+        datetime().default(AutogenFunction::CurrentTimestamp),
     )
 }
 
@@ -27,7 +25,7 @@ pub fn undone_timestamp2() -> (&'static str, barrel::types::Type) {
 }
 
 pub fn name2() -> (&'static str, barrel::types::Type) {
-    ("name", text().unique(true))
+    ("name", text())
 }
 
 pub fn description2() -> (&'static str, barrel::types::Type) {
@@ -39,6 +37,8 @@ pub trait DatabaseDependentMigrationCommands {
 }
 
 impl DatabaseDependentMigrationCommands for Pg {}
+
+impl DatabaseDependentMigrationCommands for MySql {}
 
 impl DatabaseDependentMigrationCommands for Sqlite {
     fn database_dependent_migration(migr: &mut Migration) {
@@ -71,6 +71,14 @@ impl DatabaseDependentMigrationCommands for Sqlite {
             "DROP TRIGGER IF EXISTS set_products_default_location_if_empty_stock_log",
         );
         migr.inject_custom("DROP TRIGGER IF EXISTS shopping_list_qu_id_default");
+
+        migr.inject_custom("DROP INDEX IF EXISTS ix_batteries_performance1");
+        migr.inject_custom("DROP INDEX IF EXISTS ix_chores_performance1");
+        migr.inject_custom("DROP INDEX IF EXISTS ix_product_barcodes");
+        migr.inject_custom("DROP INDEX IF EXISTS ix_products_performance1");
+        migr.inject_custom("DROP INDEX IF EXISTS ix_products_performance2");
+        migr.inject_custom("DROP INDEX IF EXISTS ix_recipes");
+        migr.inject_custom("DROP INDEX IF EXISTS ix_stock_performance1");
     }
 }
 
@@ -78,7 +86,8 @@ pub trait CreateOrUpdate {
     fn create_or_update2(
         migr: &mut Migration,
         table_name: &str,
-        test: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
+        columns: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
+        foreign_keys: &'static [(&str, &str)],
     );
 }
 
@@ -86,11 +95,40 @@ impl CreateOrUpdate for Pg {
     fn create_or_update2(
         migr: &mut Migration,
         table_name: &str,
-        test: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
+        columns: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
+        foreign_keys: &'static [(&str, &str)],
     ) {
         migr.create_table_if_not_exists(table_name.to_string(), move |t| {
-            for (column_name, column_type) in test.call(()) {
+            for (column_name, column_type) in columns() {
                 t.add_column(column_name, column_type.clone());
+            }
+            for (column_name, foreign_table) in foreign_keys {
+                t.add_foreign_key(&[column_name], foreign_table, &["id"]);
+            }
+        });
+
+        // TODO FIXME implement change_column (for postgres)
+        /*migr.change_table(table_name.to_string(), move |t| {
+            for (column_name, column_type) in test.call(()) {
+                t.change_column(column_name, column_type.clone());
+            }
+        });*/
+    }
+}
+
+impl CreateOrUpdate for MySql {
+    fn create_or_update2(
+        migr: &mut Migration,
+        table_name: &str,
+        columns: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
+        foreign_keys: &'static [(&str, &str)],
+    ) {
+        migr.create_table_if_not_exists(table_name.to_string(), move |t| {
+            for (column_name, column_type) in columns() {
+                t.add_column(column_name, column_type.clone());
+            }
+            for (column_name, foreign_table) in foreign_keys {
+                t.add_foreign_key(&[column_name], foreign_table, &["id"]);
             }
         });
 
@@ -107,18 +145,25 @@ impl CreateOrUpdate for Sqlite {
     fn create_or_update2(
         migr: &mut Migration,
         table_name: &str,
-        test: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
+        columns: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
+        foreign_keys: &'static [(&str, &str)],
     ) {
         migr.create_table_if_not_exists(format!("new_{}", table_name), move |t| {
-            for (column_name, column_type) in test.call(()) {
+            for (column_name, column_type) in columns() {
                 t.add_column(column_name, column_type.clone());
+            }
+            for (column_name, foreign_table) in foreign_keys {
+                t.add_foreign_key(&[column_name], foreign_table, &["id"]);
             }
         });
 
         // TO prevent errors if it didn't exist
         migr.create_table_if_not_exists(table_name.to_string(), move |t| {
-            for (column_name, column_type) in test.call(()) {
+            for (column_name, column_type) in columns() {
                 t.add_column(column_name, column_type.clone());
+            }
+            for (column_name, foreign_table) in foreign_keys {
+                t.add_foreign_key(&[column_name], foreign_table, &["id"]);
             }
         });
 
