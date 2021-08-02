@@ -20,14 +20,12 @@ vitess is pissing me off - skipping it and maybe use a static mysql cluster?
 potentially use https://vitess.io/ at some point to learn something new but this is so impressively overkill...
 
 git clone https://github.com/vitessio/vitess.git
-cd vitess/examples/operator
-kubectl apply -f operator.yaml
-#kubectl apply -f 101_initial_cluster.yaml
-
-kubectl apply -f vtorc_example.yaml
+kubectl apply -f vitess/examples/operator/operator.yaml
+kubectl apply -f vitess/examples/operator/101_initial_cluster.yaml
+#kubectl apply -f vitess/examples/operator/vtorc_example.yaml
 
 
-
+rook-ceph-block
 
 
 
@@ -47,10 +45,13 @@ kubectl -n rook-ceph get pod
 
 https://rook.io/docs/rook/v1.6/ceph-osd-mgmt.html
 https://rook.io/docs/rook/v1.6/ceph-cluster-crd.html
-\# GPT is not supported as disk format
+\# GPT is not supported as disk format use MSDOS
 kubectl create -f rook/host-based-cluster.yaml
 
 
+\# make default
+kubectl get storageclass
+kubectl patch storageclass rook-ceph-block -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 
 
 https://rook.io/docs/rook/v1.6/ceph-toolbox.html
@@ -67,6 +68,28 @@ kubectl -n rook-ceph delete deploy/rook-ceph-tools
 
 
 https://rook.io/docs/rook/v1.6/ceph-dashboard.html
+
+
+
+
+https://rook.io/docs/rook/v1.6/ceph-object.html
+this only seems to work with 3 nodes...
+kubectl create -f docs/kubernetes/rook/object.yaml
+kubectl -n rook-ceph get pod -l app=rook-ceph-rgw
+kubectl create -f docs/kubernetes/rook/bucket.yaml
+kubectl create -f docs/kubernetes/rook/bucket-claim.yaml
+
+
+
+https://rook.io/docs/rook/v1.6/ceph-block.html
+kubectl create -f rook/cluster/examples/kubernetes/ceph/csi/rbd/storageclass-test.yaml
+
+
+
+https://rook.io/docs/rook/v1.6/ceph-filesystem.html
+kubectl create -f rook/cluster/examples/kubernetes/ceph/filesystem-test.yaml
+kubectl -n rook-ceph get pod -l app=rook-ceph-mds
+kubectl create -f rook/cluster/examples/kubernetes/ceph/csi/cephfs/storageclass.yaml
 
 
 
