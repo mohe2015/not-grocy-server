@@ -15,23 +15,8 @@ hints: https://medium.com/kubernetes-tutorials/cluster-level-logging-in-kubernet
 
 
 
-
-vitess is pissing me off - skipping it and maybe use a static mysql cluster?
-potentially use https://vitess.io/ at some point to learn something new but this is so impressively overkill...
-
-git clone https://github.com/vitessio/vitess.git
-kubectl apply -f vitess/examples/operator/operator.yaml
-kubectl apply -f vitess/examples/operator/101_initial_cluster.yaml
-#kubectl apply -f vitess/examples/operator/vtorc_example.yaml
-
-
-rook-ceph-block
-
-
-
-
-
-
+https://nixos.wiki/wiki/Kubernetes
+boot.kernelModules = [ "ceph" ];
 
 
 
@@ -49,8 +34,9 @@ https://rook.io/docs/rook/v1.6/ceph-cluster-crd.html
 kubectl create -f rook/host-based-cluster.yaml
 
 
-\# make default
+https://kubernetes.io/docs/tasks/administer-cluster/change-default-storage-class/
 kubectl get storageclass
+kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 kubectl patch storageclass rook-ceph-block -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 
 
@@ -96,6 +82,49 @@ kubectl create -f rook/cluster/examples/kubernetes/ceph/csi/cephfs/storageclass.
 https://rook.io/docs/rook/v1.0/ceph-teardown.html#troubleshooting
 
 rm -R /var/lib/rook
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+vitess is pissing me off - skipping it and maybe use a static mysql cluster?
+potentially use https://vitess.io/ at some point to learn something new but this is so impressively overkill...
+
+git clone https://github.com/vitessio/vitess.git
+kubectl apply -f vitess/examples/operator/operator.yaml
+kubectl apply -f vitess/examples/operator/101_initial_cluster.yaml
+#kubectl apply -f vitess/examples/operator/vtorc_example.yaml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
