@@ -14,9 +14,10 @@ cargo install diesel_cli
 
 Specify a database in the `.env` file:
 ```
+DATABASE_URL=mysql://user@127.0.0.1:15306/commerce
 #DATABASE_URL=mysql://not-grocy:not-grocy@not-grocy/not-grocy
 #DATABASE_URL=postgres://not-grocy:not-grocy@not-grocy/not-grocy
-DATABASE_URL=test.db
+#DATABASE_URL=test.db
 ```
 
 You can copy your old grocy database file if you have one.
