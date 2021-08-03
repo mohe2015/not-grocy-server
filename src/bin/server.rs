@@ -117,7 +117,7 @@ where
             )
             .default_service(web::get().to(handler))
     })
-    .bind("127.0.0.1:8080")?
+    .bind("0.0.0.0:8080")? // TODO FIXME don't listen on all interfaces but docker needs this
     .run()
     .await
 }
@@ -126,6 +126,8 @@ where
 async fn main() -> std::io::Result<()> {
     env_logger::init();
     dotenv().ok();
+
+    println!("init");
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 

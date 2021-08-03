@@ -52,3 +52,8 @@ cargo +nightly -Z unstable-options clippy --fix
 # What the experience currently feels like
 
 https://rust-lang.github.io/wg-async-foundations/vision/submitted_stories/status_quo/alan_picks_web_server.html
+
+## Docker
+
+docker build .
+docker run -it -e DATABASE_URL=test.dev -p 8080:8080 814595076785

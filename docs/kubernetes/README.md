@@ -17,6 +17,7 @@ hints: https://medium.com/kubernetes-tutorials/cluster-level-logging-in-kubernet
 
 https://nixos.wiki/wiki/Kubernetes
 boot.kernelModules = [ "ceph" ];
+sudo modprobe rbd
 
 
 
@@ -163,3 +164,25 @@ mysql -h127.0.0.1 -P6447 -uroot -p
 so now I know that this works more or less. failover is a bit slow but well.
 
 SELECT @@hostname;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+helm repo add harbor https://helm.goharbor.io
+helm fetch harbor/harbor --untar
