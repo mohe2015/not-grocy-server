@@ -209,3 +209,8 @@ docker login https://core.harbor.domain/
 docker build -t not-grocy-server .
 docker tag not-grocy-server:latest core.harbor.domain/library/not-grocy-server
 docker push core.harbor.domain/library/not-grocy-server
+
+https://github.com/aquasecurity/trivy/issues/67
+https://github.com/aquasecurity/trivy/issues/160
+
+trivy --clear-cache
