@@ -31,6 +31,17 @@
           # TODO https://github.com/kolloch/crate2nix
           # TODO https://github.com/nix-community/naersk
           packages = rec {
+            libkrb5 = pkgs.krb5.overrideAttrs (old: {
+              type = "lib";
+              postInstall = ''
+                ${old.postInstall}
+                ls -R $out
+                ls -R $dev
+                rm -R $out/bin
+                rm -R $out/sbin
+              '';
+            });
+
             not-grocy-server = pkgs.rustPlatform.buildRustPackage rec {
               pname = "not-grocy-server";
               version = "0.1.0";
@@ -39,8 +50,9 @@
               nativeBuildInputs = [ pkgs.pkg-config ];
               buildInputs = [
                 pkgs.sqlite
-                pkgs.postgresql.lib # https://github.com/NixOS/nixpkgs/issues/61580
-                #pkgs.mysql57.connector-c
+                ((pkgs.postgresql.override {
+                  inherit libkrb5;
+                }).lib) # https://github.com/NixOS/nixpkgs/issues/61580
                 pkgs.mariadb-connector-c
                 pkgs.openssl
               ];
