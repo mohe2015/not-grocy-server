@@ -214,3 +214,43 @@ https://github.com/aquasecurity/trivy/issues/67
 https://github.com/aquasecurity/trivy/issues/160
 
 trivy --clear-cache
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+https://github.com/ory/kratos
+https://github.com/ory/k8s
+
+
+
+https://www.keycloak.org/getting-started/getting-started-kube
+\# also has an operator
+
+wget -q -O - https://raw.githubusercontent.com/keycloak/keycloak-quickstarts/latest/kubernetes-examples/keycloak-ingress.yaml | \
+sed "s/KEYCLOAK_HOST/keycloak.local/" | \
+kubectl create -f -
+
+username: admin
+password: admin
+
+http://keycloak.local/auth/realms/not-grocy/account/#/

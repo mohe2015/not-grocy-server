@@ -42,18 +42,29 @@
               '';
             });
 
+            libossp_uuid = pkgs.libossp_uuid.overrideAttrs (old: {
+              postInstall = ''
+                rm $out/bin/uuid-config
+              '';
+            });
+
             not-grocy-server = pkgs.rustPlatform.buildRustPackage rec {
               pname = "not-grocy-server";
               version = "0.1.0";
-              src = pkgs.nix-gitignore.gitignoreSource [ ./.gitignore "flake.nix" "result" ] ./.;
+              src = pkgs.nix-gitignore.gitignoreSource [ ./.gitignore "kubernetes" "flake.nix" "result" ] ./.;
 
               nativeBuildInputs = [ pkgs.pkg-config ];
               buildInputs = [
                 pkgs.sqlite
                 ((pkgs.postgresql.override {
                   inherit libkrb5;
+                  inherit libossp_uuid;
                 }).lib) # https://github.com/NixOS/nixpkgs/issues/61580
-                pkgs.mariadb-connector-c
+                (pkgs.mariadb-connector-c.override {
+                  curl = pkgs.curl.override {
+                    inherit libkrb5;
+                  };
+                })
                 pkgs.openssl
               ];
 
