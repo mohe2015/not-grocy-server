@@ -1,5 +1,7 @@
 with https://k3s.io/
 
+currently after every startup: kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+
 for later: https://rancher.com/docs/k3s/latest/en/installation/private-registry/
 for later: https://kubernetes.io/docs/tasks/debug-application-cluster/audit/
 for later: https://kubernetes.io/docs/concepts/cluster-administration/logging/
@@ -186,3 +188,24 @@ SELECT @@hostname;
 
 helm repo add harbor https://helm.goharbor.io
 helm fetch harbor/harbor --untar
+cd harbor
+helm install harbor .
+\# wait
+harbor ingress -> resource information
+/etc/hosts from core.harbor.domain to that ip
+
+username admin password Harbor12345
+
+https://goharbor.io/docs/2.3.0/administration/configure-authentication/db-auth/
+
+https://goharbor.io/docs/2.3.0/working-with-projects/create-projects/
+
+sudo mkdir -p /etc/docker/certs.d/core.harbor.domain/
+sudo cp ~/Downloads/core-harbor-domain-chain.pem /etc/docker/certs.d/core.harbor.domain/ca.crt
+
+docker login https://core.harbor.domain/
+
+
+docker build -t not-grocy-server .
+docker tag not-grocy-server:latest core.harbor.domain/library/not-grocy-server
+docker push core.harbor.domain/library/not-grocy-server
