@@ -34,13 +34,14 @@
             not-grocy-server = pkgs.rustPlatform.buildRustPackage rec {
               pname = "not-grocy-server";
               version = "0.1.0";
-              src = ./.;
+              src = pkgs.nix-gitignore.gitignoreSource [ ./.gitignore "flake.nix" "result" ] ./.;
 
               nativeBuildInputs = [ pkgs.pkg-config ];
               buildInputs = [
                 pkgs.sqlite
                 pkgs.postgresql.lib # https://github.com/NixOS/nixpkgs/issues/61580
-                pkgs.mysql57.connector-c
+                #pkgs.mysql57.connector-c
+                pkgs.mariadb-connector-c
                 pkgs.openssl
               ];
 
@@ -53,16 +54,18 @@
             };
 
             container =
-              # 743M
-              # ls -Llh result
-              # du -sh result/
+/*
+/nix/store/lld6ww2bivyz8ylhmf4xn3i7s7fk41m8-libkrb5-1.18
+        └───bin/compile_et: …#!/nix/store/b45zavallnsvqwjs9wg9xw167jcs0935-bash-4.4-p23/bin/sh.#.#.AWK=gaw…
+            → /nix/store/b45zavallnsvqwjs9wg9xw167jcs0935-bash-4.4-p23
+*/
+              # 64.7M
               # nix path-info -rsSh .#not-grocy-server
               # the following command is epic
               # nix why-depends .#not-grocy-server /nix/store/gmsv7hm0wd5siyhi4nsbn1aqpbcbi0cl-perl-5.32.1
               # docker load --input result
               # docker images
-              # docker run -it projektwahl-sveltekit
-              # nodejs is probably 71MB but we also need lots of system libs
+              # docker run -it not-grocy-server:latest
               # https://github.com/NixOS/nixpkgs/blob/master/pkgs/build-support/replace-dependency.nix
               pkgs.dockerTools.buildLayeredImage {
                 name = "not-grocy-server";
