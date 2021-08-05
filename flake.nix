@@ -1,13 +1,14 @@
 {
   description = "not-grocy-server's development flake";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs.nixpkgs.url = "git+file:///etc/nixos/nixpkgs";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem
       (system:
-        let pkgs = nixpkgs.legacyPackages.${system}; in
+        # https://github.com/NixOS/nixpkgs/issues/131557
+        let pkgs = nixpkgs.legacyPackages.${system}.pkgsMusl; in # pkgsStatic
         {
           devShell = pkgs.mkShell {
             nativeBuildInputs = [
@@ -48,6 +49,7 @@
               '';
             });
 
+            # TODO use musl
             not-grocy-server = pkgs.rustPlatform.buildRustPackage rec {
               pname = "not-grocy-server";
               version = "0.1.0";
@@ -61,7 +63,7 @@
                   inherit libossp_uuid;
                 }).lib) # https://github.com/NixOS/nixpkgs/issues/61580
                 (pkgs.mariadb-connector-c.override {
-                  curl = pkgs.curl.override {
+                  curl = pkgs.curl.override { # TODO use minimal curl / only libs
                     inherit libkrb5;
                   };
                 })
