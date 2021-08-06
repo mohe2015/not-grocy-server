@@ -127,3 +127,10 @@ sonobuoy delete
 
 
 # TODO storage classes, ingresses
+
+
+
+export KUBECONFIG=$HOME/admin.conf
+
+
+# install rook
