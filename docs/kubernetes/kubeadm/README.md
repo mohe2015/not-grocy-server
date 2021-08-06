@@ -133,4 +133,31 @@ sonobuoy delete
 export KUBECONFIG=$HOME/admin.conf
 
 
+
+dig kube-apiserver.selfmade4u.de
+
+
+# reboot a node:
+kubectl drain kubernetes-node-1 --ignore-daemonsets --delete-emptydir-data
+# rescue system
+
+e2fsck -f /dev/sda1
+resize2fs /dev/sda1 5G
+The filesystem on /dev/sda1 is now 1310720 (4k) blocks long.
+fdisk /dev/sda
+d
+1
+n
+1
+<enter>
++1310720*4 K
+<no>
+p
+q
+reboot
+# now we have soem free space
+
 # install rook
+
+
+kubectl uncordon kubernetes-node-1
