@@ -162,4 +162,9 @@ kubectl uncordon kubernetes-node-1
 # TODO do the same with the two other nodes
 
 
+
+kubectl taint nodes kubernetes-node-1 node-role.kubernetes.io/master:NoSchedule-
+kubectl taint nodes kubernetes-node-2 node-role.kubernetes.io/master:NoSchedule-
+kubectl taint nodes kubernetes-node-3 node-role.kubernetes.io/master:NoSchedule-
+
 # install rook
