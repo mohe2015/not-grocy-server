@@ -8,7 +8,7 @@
     flake-utils.lib.eachDefaultSystem
       (system:
         # https://github.com/NixOS/nixpkgs/issues/131557
-        let pkgs = nixpkgs.legacyPackages.${system}.pkgsMusl; in # pkgsStatic
+        let pkgs = nixpkgs.legacyPackages.${system}; in # pkgsStatic
         {
           devShell = pkgs.mkShell {
             nativeBuildInputs = [
@@ -49,7 +49,7 @@
               '';
             });
 
-            # TODO use musl
+            # TODO don't musl it's probably slow (especially memory allocation). try to reduce other things instead
             not-grocy-server = pkgs.rustPlatform.buildRustPackage rec {
               pname = "not-grocy-server";
               version = "0.1.0";
