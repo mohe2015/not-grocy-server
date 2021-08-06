@@ -155,9 +155,11 @@ n
 p
 q
 reboot
-# now we have soem free space
-
-# install rook
-
+# now we have some free space
 
 kubectl uncordon kubernetes-node-1
+
+# TODO do the same with the two other nodes
+
+
+# install rook
