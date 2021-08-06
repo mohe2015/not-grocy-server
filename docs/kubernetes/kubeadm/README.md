@@ -79,4 +79,27 @@ sudo apt-mark hold kubelet kubeadm kubectl
 # https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/
 # https://pkg.go.dev/k8s.io/kubelet/config/v1beta1?utm_source=godoc#KubeletConfiguration
 
-kubeadm init --config kubeadm-config.yaml --upload-certs
+sudo apt install apparmor-utils
+# https://github.com/rancher/k3os/issues/702
+
+kubeadm init --config kubeadm-config.yaml --upload-certs --ignore-preflight-errors=NumCPU
+
+# on failure:
+kubeadm reset
+iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X
+rm -R /etc/cni/net.d
+
+export KUBECONFIG=/etc/kubernetes/admin.conf
+
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+kubectl get pod -n kube-system -w
+
+kubectl logs -n kube-system kube-flannel-ds-q6cvz
+
+
+scp root@<control-plane-host>:/etc/kubernetes/admin.conf .
+kubectl --kubeconfig ./admin.conf get nodes
+kubectl --kubeconfig ./admin.conf proxy
+
+
