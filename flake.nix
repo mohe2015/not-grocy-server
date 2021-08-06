@@ -58,10 +58,13 @@
               nativeBuildInputs = [ pkgs.pkg-config ];
               buildInputs = [
                 pkgs.sqlite
-                ((pkgs.postgresql.override {
+                (((pkgs.postgresql.override {
                   inherit libkrb5;
                   inherit libossp_uuid;
-                }).lib) # https://github.com/NixOS/nixpkgs/issues/61580
+                  enableSystemd = false;
+                }).overrideAttrs (old: {
+                  doCheck = false; # would need to patch out two tests
+                })).lib) # https://github.com/NixOS/nixpkgs/issues/61580
                 (pkgs.mariadb-connector-c.override {
                   curl = pkgs.curl.override { # TODO use minimal curl / only libs
                     inherit libkrb5;
