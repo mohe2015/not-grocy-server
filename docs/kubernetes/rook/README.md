@@ -81,5 +81,9 @@ rm -R /var/lib/rook
 
 
 
+## On node removal
 
+https://kubernetes-node-1.selfmade4u.de:32599/#/osd
 
+mark osd lost
+destroy, purge?

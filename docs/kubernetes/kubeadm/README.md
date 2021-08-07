@@ -99,11 +99,12 @@ kubectl exec etcd-kubernetes-node-1 -n kube-system -- etcdctl --cacert /etc/kube
 
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
+# only required on first node afaik
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 
 kubectl get pod -n kube-system -w
 
-kubectl logs -n kube-system kube-flannel-ds-q6cvz
+kubectl logs -n kube-system kube-flannel-ds-6z5cf
 
 
 scp root@kubernetes-node-1.selfmade4u.de:/etc/kubernetes/admin.conf .
