@@ -17,87 +17,8 @@ hints: https://medium.com/kubernetes-tutorials/cluster-level-logging-in-kubernet
 
 
 
-https://nixos.wiki/wiki/Kubernetes
-boot.kernelModules = [ "ceph" ];
-sudo modprobe rbd
 
-
-
-https://rook.io/docs/rook/v1.6/ceph-quickstart.html
-git clone --single-branch --branch v1.6.8 https://github.com/rook/rook.git
-cd rook/cluster/examples/kubernetes/ceph
-kubectl create -f crds.yaml -f common.yaml -f operator.yaml
-#kubectl create -f cluster-test.yaml # don't do this this is probably fucking dangerous as it's trying to use all devices
-#kubectl create -f cluster.yaml
-kubectl -n rook-ceph get pod
-
-https://rook.io/docs/rook/v1.6/ceph-osd-mgmt.html
-https://rook.io/docs/rook/v1.6/ceph-cluster-crd.html
-\# GPT is not supported as disk format use MSDOS
-kubectl create -f rook/host-based-cluster.yaml
-
-
-https://kubernetes.io/docs/tasks/administer-cluster/change-default-storage-class/
-kubectl get storageclass
-kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
-kubectl patch storageclass rook-ceph-block -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
-
-
-https://rook.io/docs/rook/v1.6/ceph-toolbox.html
-kubectl create -f rook/toolbox.yaml 
-kubectl -n rook-ceph rollout status deploy/rook-ceph-tools
-kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- bash
-
-
-ceph status
-ceph osd status
-ceph df
-
-kubectl -n rook-ceph delete deploy/rook-ceph-tools
-
-
-https://rook.io/docs/rook/v1.6/ceph-dashboard.html
-
-
-
-
-https://rook.io/docs/rook/v1.6/ceph-object.html
-this only seems to work with 3 nodes...
-kubectl create -f docs/kubernetes/rook/object.yaml
-kubectl -n rook-ceph get pod -l app=rook-ceph-rgw
-kubectl create -f docs/kubernetes/rook/bucket.yaml
-kubectl create -f docs/kubernetes/rook/bucket-claim.yaml
-
-
-
-https://rook.io/docs/rook/v1.6/ceph-block.html
-kubectl create -f rook/cluster/examples/kubernetes/ceph/csi/rbd/storageclass-test.yaml
-
-
-
-https://rook.io/docs/rook/v1.6/ceph-filesystem.html
-kubectl create -f rook/cluster/examples/kubernetes/ceph/filesystem-test.yaml
-kubectl -n rook-ceph get pod -l app=rook-ceph-mds
-kubectl create -f rook/cluster/examples/kubernetes/ceph/csi/cephfs/storageclass.yaml
-
-
-
-https://rook.io/docs/rook/v1.0/ceph-teardown.html#troubleshooting
-
-rm -R /var/lib/rook
-
-
-
-
-
-
-
-
-
-
-
-
-
+see rook/README.md
 
 
 

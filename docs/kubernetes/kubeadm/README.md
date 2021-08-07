@@ -8,8 +8,8 @@ sudo reboot
 
 create three servers
 
-create network kubernetes-network
-add servers
+#create network kubernetes-network
+#add servers
 
 later: use load balancer, now: add dns to node-1 kube-apiserver.selfmade4u.de
 https://github.com/kubernetes/kubeadm/blob/master/docs/ha-considerations.md#keepalived-and-haproxy
@@ -59,6 +59,7 @@ sudo mkdir -p /etc/containerd
 containerd config default | sudo tee /etc/containerd/config.toml
 sudo systemctl restart containerd
 
+sudo nano /etc/containerd/config.toml
 [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
   ...
   [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
@@ -88,6 +89,13 @@ kubeadm init --config kubeadm-config.yaml --upload-certs --ignore-preflight-erro
 kubeadm reset
 iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X
 rm -R /etc/cni/net.d
+# remove node using kubectl delete node to try again
+# also remove from etcd:
+https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/
+kubectl get pods --namespace kube-system -o wide | grep etcd
+kubectl exec etcd-kubernetes-node-1 -n kube-system -- etcdctl --cacert /etc/kubernetes/pki/etcd/ca.crt --key /etc/kubernetes/pki/etcd/server.key --cert /etc/kubernetes/pki/etcd/server.crt  --endpoints=23.88.58.221:2379,23.88.39.133:2379 member list
+kubectl exec etcd-kubernetes-node-1 -n kube-system -- etcdctl --cacert /etc/kubernetes/pki/etcd/ca.crt --key /etc/kubernetes/pki/etcd/server.key --cert /etc/kubernetes/pki/etcd/server.crt  --endpoints=23.88.58.221:2379,23.88.39.133:2379 member remove e5c87eae083faedd
+
 
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
@@ -131,7 +139,8 @@ sonobuoy delete
 
 
 export KUBECONFIG=$HOME/admin.conf
-
+# or
+cp $HOME/admin.conf ~/.kube/config
 
 
 dig kube-apiserver.selfmade4u.de
@@ -142,7 +151,7 @@ kubectl drain kubernetes-node-1 --ignore-daemonsets --delete-emptydir-data
 # rescue system
 
 e2fsck -f /dev/sda1
-resize2fs /dev/sda1 5G
+resize2fs /dev/sda1 10G
 The filesystem on /dev/sda1 is now 1310720 (4k) blocks long.
 fdisk /dev/sda
 d
@@ -150,10 +159,15 @@ d
 n
 1
 <enter>
-+1310720*4 K
++10485760K # 1310720*4
 <no>
+# rook partition:
+n
+<enter>
+<enter>
+<enter>
 p
-q
+w
 reboot
 # now we have some free space
 
@@ -168,3 +182,5 @@ kubectl taint nodes kubernetes-node-2 node-role.kubernetes.io/master:NoSchedule-
 kubectl taint nodes kubernetes-node-3 node-role.kubernetes.io/master:NoSchedule-
 
 # install rook
+
+/dev/sda2
