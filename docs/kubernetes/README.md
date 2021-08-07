@@ -99,7 +99,8 @@ trivy --clear-cache
 
 
 
-
+helm --namespace harbor uninstall harbor
+kubectl delete namespace harbor
 
 
 

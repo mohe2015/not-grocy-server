@@ -60,18 +60,42 @@ kubectl create -f docs/kubernetes/rook/bucket-claim.yaml
 
 
 https://rook.io/docs/rook/v1.7/ceph-block.html
-kubectl create -f rook/cluster/examples/kubernetes/ceph/csi/rbd/storageclass-test.yaml
+#kubectl create -f rook/cluster/examples/kubernetes/ceph/csi/rbd/storageclass-test.yaml
+kubectl create -f rook/cluster/examples/kubernetes/ceph/csi/rbd/storageclass.yaml
 
 
 
 https://rook.io/docs/rook/v1.7/ceph-filesystem.html
-kubectl create -f rook/cluster/examples/kubernetes/ceph/filesystem-test.yaml
+#kubectl create -f rook/cluster/examples/kubernetes/ceph/filesystem-test.yaml
+kubectl create -f rook/cluster/examples/kubernetes/ceph/filesystem.yaml
 kubectl -n rook-ceph get pod -l app=rook-ceph-mds
 kubectl create -f rook/cluster/examples/kubernetes/ceph/csi/cephfs/storageclass.yaml
 
 
 
-https://rook.io/docs/rook/v1.0/ceph-teardown.html#troubleshooting
+kubectl patch storageclass rook-ceph-block -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+kubectl get storageclass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+https://rook.io/docs/rook/v1.7/ceph-teardown.html
 
 rm -R /var/lib/rook
 
@@ -82,8 +106,22 @@ rm -R /var/lib/rook
 
 
 ## On node removal
+https://rook.io/docs/rook/v1.7/ceph-osd-mgmt.html
 
 https://kubernetes-node-1.selfmade4u.de:32599/#/osd
 
 mark osd lost
 destroy, purge?
+
+kubectl delete deployment -n rook-ceph rook-ceph-osd-<ID>
+
+
+
+
+
+
+
+
+
+
+ceph config set mon mon_data_avail_warn 15
