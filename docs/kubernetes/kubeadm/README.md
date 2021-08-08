@@ -21,10 +21,6 @@ https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-ku
 
 ssh root@kubernetes-node-x.selfmade4u.de
 
-sudo apt update
-sudo apt dist-upgrade
-sudo poweroff
-
 # boot into rescue system
 # TODO do this using cloud-init?
 
@@ -79,12 +75,7 @@ EOF
 # Apply sysctl params without reboot
 sudo sysctl --system
 
-curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-echo \
-  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
-  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt update
-sudo apt install -y containerd.io
+
 sudo mkdir -p /etc/containerd
 containerd config default | sudo tee /etc/containerd/config.toml
 sudo systemctl restart containerd
@@ -99,10 +90,6 @@ sudo systemctl restart containerd
 
 # installing kubeadm, kubelet, kubectl
 
-sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-sudo apt-get update
-sudo apt-get install -y kubelet kubeadm kubectl
 sudo apt-mark hold kubelet kubeadm kubectl
 
 # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/#stacked-control-plane-and-etcd-nodes
@@ -110,8 +97,8 @@ sudo apt-mark hold kubelet kubeadm kubectl
 # https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/
 # https://pkg.go.dev/k8s.io/kubelet/config/v1beta1?utm_source=godoc#KubeletConfiguration
 
-sudo apt install -y apparmor-utils
-# https://github.com/rancher/k3os/issues/702
+
+
 
 kubeadm init --config kubeadm-config.yaml --upload-certs --ignore-preflight-errors=NumCPU
 
