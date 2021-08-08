@@ -2,6 +2,7 @@
 # https://cloudinit.readthedocs.io/en/latest/topics/examples.html
 # https://cloudinit.readthedocs.io/en/latest/topics/modules.html
 resize_rootfs: false
+# TODO FIXME create unprivileged user for local kubectl etc.
 bootcmd:
   - "cloud-init-per once setup1 sgdisk -d 1 /dev/sda"
   - "cloud-init-per once setup2 sgdisk -n 1:0:+20GiB -t 1:8300 /dev/sda"
@@ -337,6 +338,6 @@ runcmd:
   - "sudo sysctl --system"
   - "sudo apt-mark hold kubelet kubeadm kubectl"
   - "sudo systemctl restart containerd"
-  - "kubeadm init --config /root/kubeadm-config.yaml --upload-certs #--ignore-preflight-errors=Swap"
-  - "kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
 final_message: "The system is finally up, after $UPTIME seconds"
+power_state:
+  mode: "reboot"

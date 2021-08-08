@@ -12,26 +12,53 @@ hcloud context create kubernetes
 
 create three servers of type cpx11 (min 40GB disk)
 
-hcloud server create --type cpx11 --image debian-10 --ssh-key moritz@nixos --name node-1 --datacenter nbg1-dc3 --user-data-from-file docs/kubernetes/kubeadm/cloud-init.yaml
-hcloud server ssh node-1 tail -f /var/log/cloud-init-output.log
+hcloud server create --type cpx11 --image debian-10 --ssh-key moritz@nixos --user-data-from-file docs/kubernetes/kubeadm/cloud-init.yaml --name node-1 --datacenter nbg1-dc3
+hcloud server create --type cpx11 --image debian-10 --ssh-key moritz@nixos --user-data-from-file docs/kubernetes/kubeadm/cloud-init.yaml --name node-2 --datacenter hel1-dc2
+hcloud server create --type cpx11 --image debian-10 --ssh-key moritz@nixos --user-data-from-file docs/kubernetes/kubeadm/cloud-init.yaml --name node-3 --datacenter fsn1-dc14
+# wait until all nodes have booted and then rebooted
 
 
-hcloud server create --type cpx11 --image debian-10 --ssh-key moritz@nixos --name node-2 --datacenter hel1-dc2
-hcloud server create --type cpx11 --image debian-10 --ssh-key moritz@nixos --name node-3 --datacenter fsn1-dc14
+hcloud server ssh node-1
 
-hcloud server enable-protection kubernetes-node-1 delete rebuild
-hcloud server enable-protection kubernetes-node-2 delete rebuild
-hcloud server enable-protection kubernetes-node-3 delete rebuild
+kubeadm init --config /root/kubeadm-config.yaml --upload-certs #--ignore-preflight-errors=Swap
+cp /etc/kubernetes/admin.conf ~/.kube/config
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+kubectl get pod -n kube-system -w
 
-cat /var/log/cloud-init-output.log
+scp root@kubernetes-node-1.selfmade4u.de:/etc/kubernetes/admin.conf ~/.kube/config
+
+
+hcloud server ssh node-2
+# use join command from above
+
+hcloud server ssh node-3
+# use join command from above
+
+kubectl get nodes
+
+kubectl taint nodes node-1 node-role.kubernetes.io/master:NoSchedule-
+kubectl taint nodes node-2 node-role.kubernetes.io/master:NoSchedule-
+kubectl taint nodes node-3 node-role.kubernetes.io/master:NoSchedule-
+
+hcloud server enable-protection node-1 delete rebuild
+hcloud server enable-protection node-2 delete rebuild
+hcloud server enable-protection node-3 delete rebuild
+
+# now see kubernetes-dashboard, rook, sonobuoy, harbor, keycloak, vitess
+
+
+
+
+
+# ----------------- old notes -------------------------
+
+# TODO https://www.hetzner.com/dns-console
+# https://dns.hetzner.com/api-docs
 
 later: use load balancer, now: add dns to node-1 kube-apiserver.selfmade4u.de
 https://github.com/kubernetes/kubeadm/blob/master/docs/ha-considerations.md#keepalived-and-haproxy
 
 https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
-
-ssh root@kubernetes-node-x.selfmade4u.de
-
 
 # installing kubeadm, kubelet, kubectl
 
@@ -53,35 +80,7 @@ kubectl get pods --namespace kube-system -o wide | grep etcd
 kubectl exec etcd-kubernetes-node-1 -n kube-system -- etcdctl --cacert /etc/kubernetes/pki/etcd/ca.crt --key /etc/kubernetes/pki/etcd/server.key --cert /etc/kubernetes/pki/etcd/server.crt  --endpoints=23.88.58.221:2379,23.88.39.133:2379 member list
 kubectl exec etcd-kubernetes-node-1 -n kube-system -- etcdctl --cacert /etc/kubernetes/pki/etcd/ca.crt --key /etc/kubernetes/pki/etcd/server.key --cert /etc/kubernetes/pki/etcd/server.crt  --endpoints=23.88.58.221:2379,23.88.39.133:2379 member remove e5c87eae083faedd
 
-
-export KUBECONFIG=/etc/kubernetes/admin.conf
-
-# only required on first node afaik
-kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
-
-kubectl get pod -n kube-system -w
-
 kubectl logs -n kube-system kube-flannel-ds-6z5cf
-
-
-scp root@kubernetes-node-1.selfmade4u.de:/etc/kubernetes/admin.conf .
-
-export KUBECONFIG=$HOME/admin.conf
-
-kubectl get nodes
-kubectl proxy
-
-
-# https://github.com/kubernetes/dashboard
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.3.1/aio/deploy/recommended.yaml
-
-# https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md
-
-kubectl apply -f dashboard-adminuser.yaml
-
-kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"
-
-
 
 https://github.com/cncf/k8s-conformance/blob/master/instructions.md
 # this only works with a non-master node
@@ -91,28 +90,7 @@ sonobuoy logs
 outfile=$(sonobuoy retrieve)
 sonobuoy delete
 
-
-# TODO storage classes, ingresses
-
-
-
-export KUBECONFIG=$HOME/admin.conf
-# or
-cp $HOME/admin.conf ~/.kube/config
-
-
-dig kube-apiserver.selfmade4u.de
-
-
 # maintenance
 kubectl drain kubernetes-node-1 --ignore-daemonsets --delete-emptydir-data
 # do maintenance
 kubectl uncordon kubernetes-node-1
-
-kubectl taint nodes kubernetes-node-1 node-role.kubernetes.io/master:NoSchedule-
-kubectl taint nodes kubernetes-node-2 node-role.kubernetes.io/master:NoSchedule-
-kubectl taint nodes kubernetes-node-3 node-role.kubernetes.io/master:NoSchedule-
-
-# install rook
-
-/dev/sda2
