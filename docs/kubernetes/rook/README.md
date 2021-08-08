@@ -31,7 +31,7 @@ kubectl create -f rook/toolbox.yaml
 kubectl -n rook-ceph rollout status deploy/rook-ceph-tools
 kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- bash
 
-
+ceph health
 ceph status
 ceph osd status
 ceph df
@@ -73,6 +73,8 @@ kubectl create -f rook/cluster/examples/kubernetes/ceph/csi/cephfs/storageclass.
 
 
 
+
+# TODO FIXME make the other one default as some nodes seem to want to attach the disk to multiple pods
 kubectl patch storageclass rook-ceph-block -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 kubectl get storageclass
 
@@ -125,3 +127,11 @@ kubectl delete deployment -n rook-ceph rook-ceph-osd-<ID>
 
 
 ceph config set mon mon_data_avail_warn 15
+
+
+
+https://rook.io/docs/rook/v1.7/ceph-common-issues.html
+
+
+
+# Move and resize disk

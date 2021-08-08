@@ -1,0 +1,7 @@
+# https://cloudinit.readthedocs.io/en/latest/topics/examples.html
+apt:
+
+
+packages:
+  
+final_message: "The system is finally up, after $UPTIME seconds"

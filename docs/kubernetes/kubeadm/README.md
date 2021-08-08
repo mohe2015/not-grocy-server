@@ -1,15 +1,18 @@
-sudo apt update
-sudo apt dist-upgrade
-sudo reboot
-
 # https://kubernetes.io/docs/reference/setup-tools/kubeadm/
 # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
 # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/
 
-create three servers
+# install hcloud https://github.com/hetznercloud/cli
+hcloud context create kubernetes
 
-#create network kubernetes-network
-#add servers
+create three servers of type cpx11 (min 40GB disk)
+# hcloud server create --type cpx11 --image debian-10 --ssh-key moritz@nixos --name node-1 --datacenter nbg1-dc3
+# hcloud server create --type cpx11 --image debian-10 --ssh-key moritz@nixos --name node-2 --datacenter hel1-dc2
+# hcloud server create --type cpx11 --image debian-10 --ssh-key moritz@nixos --name node-3 --datacenter fsn1-dc14
+hcloud server enable-protection kubernetes-node-1 delete rebuild
+hcloud server enable-protection kubernetes-node-2 delete rebuild
+hcloud server enable-protection kubernetes-node-3 delete rebuild
+
 
 later: use load balancer, now: add dns to node-1 kube-apiserver.selfmade4u.de
 https://github.com/kubernetes/kubeadm/blob/master/docs/ha-considerations.md#keepalived-and-haproxy
@@ -17,6 +20,33 @@ https://github.com/kubernetes/kubeadm/blob/master/docs/ha-considerations.md#keep
 https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
 
 ssh root@kubernetes-node-x.selfmade4u.de
+
+sudo apt update
+sudo apt dist-upgrade
+sudo poweroff
+
+# boot into rescue system
+# TODO do this using cloud-init?
+
+e2fsck -f /dev/sda1
+resize2fs /dev/sda1 20G
+fdisk /dev/sda
+d
+1
+n
+1
+<enter>
++20G
+<no>
+# rook partition:
+n
+<enter>
+<enter>
+<enter>
+p
+w
+reboot
+# now we have some free space
 
 sudo modprobe br_netfilter
 cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
@@ -89,8 +119,10 @@ kubeadm init --config kubeadm-config.yaml --upload-certs --ignore-preflight-erro
 kubeadm reset
 iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X
 rm -R /etc/cni/net.d
+
+# if already joined cluster:
 # remove node using kubectl delete node to try again
-# also remove from etcd:
+# also remove from etcd (if automatic removal failed):
 https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/
 kubectl get pods --namespace kube-system -o wide | grep etcd
 kubectl exec etcd-kubernetes-node-1 -n kube-system -- etcdctl --cacert /etc/kubernetes/pki/etcd/ca.crt --key /etc/kubernetes/pki/etcd/server.key --cert /etc/kubernetes/pki/etcd/server.crt  --endpoints=23.88.58.221:2379,23.88.39.133:2379 member list
@@ -147,36 +179,10 @@ cp $HOME/admin.conf ~/.kube/config
 dig kube-apiserver.selfmade4u.de
 
 
-# reboot a node:
+# maintenance
 kubectl drain kubernetes-node-1 --ignore-daemonsets --delete-emptydir-data
-# rescue system
-
-e2fsck -f /dev/sda1
-resize2fs /dev/sda1 10G
-The filesystem on /dev/sda1 is now 1310720 (4k) blocks long.
-fdisk /dev/sda
-d
-1
-n
-1
-<enter>
-+10485760K # 1310720*4
-<no>
-# rook partition:
-n
-<enter>
-<enter>
-<enter>
-p
-w
-reboot
-# now we have some free space
-
+# do maintenance
 kubectl uncordon kubernetes-node-1
-
-# TODO do the same with the two other nodes
-
-
 
 kubectl taint nodes kubernetes-node-1 node-role.kubernetes.io/master:NoSchedule-
 kubectl taint nodes kubernetes-node-2 node-role.kubernetes.io/master:NoSchedule-
