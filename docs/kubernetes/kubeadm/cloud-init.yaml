@@ -1,26 +1,18 @@
+#cloud-config
 # https://cloudinit.readthedocs.io/en/latest/topics/examples.html
 # https://cloudinit.readthedocs.io/en/latest/topics/modules.html
 resize_rootfs: false
-
-disk_setup:
-  /dev/sda:
-    table_type: 'gpt'
-    layout:
-      - 50
-      - 50
-    overwrite: true
-
-fs_setup:
-  - label: root_fs
-    filesystem: 'ext4'
-    device: /dev/sda
-    partition: sda1
-    overwrite: true
-  - label: data_disk
-    device: /dev/sda
-    partition: sda2
-    overwrite: true
+bootcmd:
+  - "cloud-init-per once setup1 sgdisk -d 1 /dev/sda"
+  - "cloud-init-per once setup2 sgdisk -n 1:0:+20GiB -t 1:8300 /dev/sda"
+  - "cloud-init-per once setup3 sgdisk -n 2:0:0      -t 2:8300 /dev/sda"
+  #- "hdparm -z /dev/sda"
+  #- "sgdisk -R /dev/sda" # https://fixyacloud.wordpress.com/2020/01/26/reread-partition-table-without-rebooting/
+  - "cloud-init-per once setup4 partx -u /dev/sda" # cat /proc/partitions
 write_files:
+  - content: |
+        # any text
+    path: /etc/growroot-disabled
   - path: /etc/modules-load.d/k8s.conf
     content: |
         br_netfilter
@@ -193,8 +185,10 @@ write_files:
         kind: KubeletConfiguration
         apiVersion: kubelet.config.k8s.io/v1beta1
         cgroupDriver: systemd
+        #failSwapOn: false
         featureGates:
           MemoryQoS: true
+        #  NodeSwapEnabled: true # https://github.com/kubernetes/enhancements/pull/2602/files https://github.com/kubernetes/kubernetes/pull/102823/files
 package_update: true
 package_upgrade: true
 package_reboot_if_required: true
@@ -327,9 +321,9 @@ apt:
           =pRoV
           -----END PGP PUBLIC KEY BLOCK-----
         # https://packages.cloud.google.com/apt/doc/apt-key.gpg.asc
-swap:
-  filename: /swapfile
-  size: 1G
+#swap:
+#  filename: /swapfile
+#  size: 1G
 packages:
   - containerd.io
   - kubelet
@@ -337,8 +331,12 @@ packages:
   - kubectl
   - apparmor-utils # https://github.com/rancher/k3os/issues/702
 runcmd:
+  - "sudo resize2fs /dev/sda1"
+  - "sudo modprobe br_netfilter"
+  - "sudo modprobe overlay"
+  - "sudo sysctl --system"
   - "sudo apt-mark hold kubelet kubeadm kubectl"
   - "sudo systemctl restart containerd"
-  - "kubeadm init --config /root/kubeadm-config.yaml --upload-certs"
+  - "kubeadm init --config /root/kubeadm-config.yaml --upload-certs #--ignore-preflight-errors=Swap"
   - "kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
 final_message: "The system is finally up, after $UPTIME seconds"

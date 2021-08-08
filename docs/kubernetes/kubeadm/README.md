@@ -2,17 +2,28 @@
 # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
 # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/
 
+# TODO FIXME is kubernetes + etcd communicating encrypted?
+
+https://github.com/hetznercloud/csi-driver
+https://github.com/hetznercloud/hcloud-cloud-controller-manager
+
 # install hcloud https://github.com/hetznercloud/cli
 hcloud context create kubernetes
 
 create three servers of type cpx11 (min 40GB disk)
-# hcloud server create --type cpx11 --image debian-10 --ssh-key moritz@nixos --name node-1 --datacenter nbg1-dc3
-# hcloud server create --type cpx11 --image debian-10 --ssh-key moritz@nixos --name node-2 --datacenter hel1-dc2
-# hcloud server create --type cpx11 --image debian-10 --ssh-key moritz@nixos --name node-3 --datacenter fsn1-dc14
+
+hcloud server create --type cpx11 --image debian-10 --ssh-key moritz@nixos --name node-1 --datacenter nbg1-dc3 --user-data-from-file docs/kubernetes/kubeadm/cloud-init.yaml
+hcloud server ssh node-1 tail -f /var/log/cloud-init-output.log
+
+
+hcloud server create --type cpx11 --image debian-10 --ssh-key moritz@nixos --name node-2 --datacenter hel1-dc2
+hcloud server create --type cpx11 --image debian-10 --ssh-key moritz@nixos --name node-3 --datacenter fsn1-dc14
+
 hcloud server enable-protection kubernetes-node-1 delete rebuild
 hcloud server enable-protection kubernetes-node-2 delete rebuild
 hcloud server enable-protection kubernetes-node-3 delete rebuild
 
+cat /var/log/cloud-init-output.log
 
 later: use load balancer, now: add dns to node-1 kube-apiserver.selfmade4u.de
 https://github.com/kubernetes/kubeadm/blob/master/docs/ha-considerations.md#keepalived-and-haproxy
@@ -21,15 +32,6 @@ https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-ku
 
 ssh root@kubernetes-node-x.selfmade4u.de
 
-
-
-sudo nano /etc/containerd/config.toml
-[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-  ...
-  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
-    SystemdCgroup = true
-
-sudo systemctl restart containerd
 
 # installing kubeadm, kubelet, kubectl
 
