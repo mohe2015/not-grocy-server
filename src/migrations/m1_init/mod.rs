@@ -135,7 +135,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
         static USERS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
                 id2(),
-                ("username", text().unique(true)),
+                ("username", varchar(64).unique(true)),
                 ("first_name", text().nullable(true)),
                 ("last_name", text().nullable(true)),
                 ("password", text()),
@@ -222,7 +222,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 ("base_servings", integer().nullable(true).default(1)),
                 ("desired_servings", integer().nullable(true).default(1)),
                 ("not_check_shoppinglist", boolean().default(false)),
-                ("type", text().nullable(true).default("normal")),
+                ("type", varchar(32).nullable(true).default("normal")),
                 ("product_id", integer().nullable(true)),
             ]
         };
@@ -234,7 +234,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
         static API_KEYS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
                 id2(),
-                ("api_key", text().unique(true)),
+                ("api_key", varchar(512).unique(true)),
                 ("user_id", integer()),
                 (
                     "expires",
@@ -242,7 +242,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 ),
                 ("last_used", datetime().nullable(true)),
                 created2(),
-                ("key_type", text().default("default")),
+                ("key_type", varchar(32).default("default")),
             ]
         };
 
@@ -354,7 +354,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
             vec![
                 id2(),
                 ("day", date()),
-                ("type", text().nullable(true).default("recipe")),
+                ("type", varchar(32).nullable(true).default("recipe")),
                 ("recipe_id", integer().nullable(true)),
                 ("recipe_servings", integer().nullable(true).default(1)),
                 ("note", text().nullable(true)),
@@ -496,7 +496,7 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
         static SESSIONS_FN: fn() -> Vec<(&'static str, barrel::types::Type)> = || {
             vec![
                 id2(),
-                ("session_key", text().unique(true)),
+                ("session_key", varchar(512).unique(true)),
                 ("user_id", integer()),
                 ("expires", datetime()),
                 ("last_used", datetime()),
@@ -542,9 +542,8 @@ impl<T: SqlGenerator + CreateOrUpdate + DatabaseDependentMigrationCommands> Migr
                 ("best_before_date", date().nullable(true)),
                 (
                     "purchased_date",
-                    date()
-                        .nullable(true)
-                        .default(AutogenFunction::CurrentTimestamp),
+                    date().nullable(true),
+                    //.default(AutogenFunction::Date),
                 ),
                 ("stock_id", text()),
                 ("price", double().nullable(true)), // DECIMAL

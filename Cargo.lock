@@ -574,6 +574,7 @@ dependencies = [
 [[package]]
 name = "barrel"
 version = "0.6.6-alpha.0"
+source = "git+https://github.com/mohe2015/barrel.git#b83c661e934a0733525f3aa7bf1f806417bb3f8e"
 
 [[package]]
 name = "base-x"

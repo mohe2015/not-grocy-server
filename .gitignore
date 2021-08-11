@@ -1,6 +1,9 @@
+/harbor
 /target
 .env
 *.db
 !grocy.db
 not-grocy
 .tmp
+result
+secret*
