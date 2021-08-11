@@ -1,7 +1,15 @@
-use reqwest::{header::CONTENT_TYPE, Method, Result};
+extern crate quick_xml;
+extern crate serde;
+use quick_xml::de::from_str;
+use reqwest::{header::CONTENT_TYPE, Method};
+use serde::Deserialize;
+
+#[derive(Debug, Deserialize, PartialEq)]
+#[serde(rename = "d:multistatus")]
+struct MultiStatus {}
 
 #[actix_web::main]
-async fn main() -> Result<()> {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // https://github.com/marshalshi/caldav-client-rust
     // https://marshalshi.medium.com/rust-caldav-client-from-scratch-da173cfc905d
     // https://sabre.io/dav/building-a-caldav-client/
@@ -24,6 +32,10 @@ async fn main() -> Result<()> {
     let text = response.text().await?;
 
     println!("{}", text);
+
+    let xml: MultiStatus = from_str(text.as_str())?;
+
+    println!("{:?}", xml);
 
     Ok(())
 }
