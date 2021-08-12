@@ -6,7 +6,34 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq)]
 #[serde(rename = "d:multistatus")]
-struct MultiStatus {}
+struct MultiStatus {
+    #[serde(rename = "xmlns:d")]
+    d: String,
+
+    #[serde(rename = "xmlns:cal")]
+    cal: String,
+
+    #[serde(rename = "xmlns:cs")]
+    cs: String,
+
+    #[serde(rename = "xmlns:nc")]
+    nc: String,
+
+    #[serde(rename = "xmlns:oc")]
+    oc: String,
+
+    #[serde(rename = "xmlns:s")]
+    s: String,
+
+    #[serde(rename = "$unflatten=d:response")]
+    response: Response,
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
+struct Response {
+    #[serde(rename = "$unflatten=href")]
+    href: String,
+}
 
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -29,11 +56,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .send()
         .await?;
 
-    let text = response.text().await?;
+    let mut text = response.text().await?;
+
+    text =
+        r#"<response><href>/remote.php/dav/calendars/Moritz.Hedtke/not-grocy/</href></response>"#
+            .to_string();
 
     println!("{}", text);
 
-    let xml: MultiStatus = from_str(text.as_str())?;
+    let xml: Response = from_str(text.as_str())?;
 
     println!("{:?}", xml);
 
