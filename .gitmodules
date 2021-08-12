@@ -4,3 +4,6 @@
 [submodule "quick-xml"]
 	path = quick-xml
 	url = git@github.com:mohe2015/quick-xml.git
+[submodule "yaserde"]
+	path = yaserde
+	url = git@github.com:mohe2015/yaserde.git

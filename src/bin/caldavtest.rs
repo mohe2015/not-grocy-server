@@ -11,38 +11,32 @@ use yaserde::YaDeserialize;
 
 // notes if you don't fully parse previous things this breaks easily
 
+// https://github.com/media-io/yaserde/blob/4f78a2f7019b3328b6b548a07c8171118097abdf/yaserde_derive/src/common/attribute.rs
+// for bad namespace error
 #[derive(Debug, YaDeserialize, PartialEq)]
-#[yaserde(rename = "d:multistatus")]
+#[yaserde(
+    prefix = "d",
+    //default_namespace = "DAV:",
+    rename = "multistatus",
+    namespace = "d: DAV:",
+    namespace = "s: http://sabredav.org/ns",
+    namespace = "cal: urn:ietf:params:xml:ns:caldav",
+    namespace = "cs: http://calendarserver.org/ns/",
+    namespace = "oc: http://owncloud.org/ns",
+    namespace = "nc: http://nextcloud.org/ns",
+)]
 struct MultiStatus {
-    #[yaserde(rename = "xmlns:d")]
-    d: String,
-
-    #[yaserde(rename = "xmlns:cal")]
-    cal: String,
-
-    #[yaserde(rename = "xmlns:cs")]
-    cs: String,
-
-    #[yaserde(rename = "xmlns:nc")]
-    nc: String,
-
-    #[yaserde(rename = "xmlns:oc")]
-    oc: String,
-
-    #[yaserde(rename = "xmlns:s")]
-    s: String,
-
-    #[yaserde(rename = "$unflatten=response")]
+    #[yaserde(rename = "response")]
     response: Response,
 }
 
 #[derive(Default, Debug, YaDeserialize, PartialEq)]
+#[yaserde(namespace = "d: DAV:")]
 struct Response {
-    #[yaserde(rename = "$unflatten=href")]
+    #[yaserde(prefix = "d", rename = "href")]
     href: String,
-
-    #[yaserde(rename = "$unflatten=propstat")]
-    propstat: PropStat,
+    //#[yaserde(rename = "$unflatten=propstat")]
+    //propstat: PropStat,
 }
 
 #[derive(Default, Debug, YaDeserialize, PartialEq)]
@@ -103,13 +97,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let text = response.text().await?;
 
-    //let text =
-    //  r#"<d:prop><d:resourcetype><d:collection /><cal:calendar /></d:resourcetype><getctag>jj</getctag></d:prop>"#
-    //           .to_string();
+    let _text =
+      r#"<?xml version="1.0"?>
+      <d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:cal="urn:ietf:params:xml:ns:caldav" xmlns:cs="http://calendarserver.org/ns/" xmlns:oc="http://owncloud.org/ns" xmlns:nc="http://nextcloud.org/ns"></d:multistatus>"#
+               .to_string();
 
     println!("{}", text);
 
-    let xml: Prop = from_str(text.as_str())?;
+    let xml: MultiStatus = from_str(text.as_str())?;
 
     println!("{:#?}", xml);
 
