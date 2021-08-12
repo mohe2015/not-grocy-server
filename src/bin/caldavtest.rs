@@ -7,24 +7,24 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize, PartialEq)]
 #[serde(rename = "d:multistatus")]
 struct MultiStatus {
-    /*#[serde(rename = "xmlns:d")]
-        d: String,
+    #[serde(rename = "xmlns:d")]
+    d: String,
 
-        #[serde(rename = "xmlns:cal")]
-        cal: String,
+    #[serde(rename = "xmlns:cal")]
+    cal: String,
 
-        #[serde(rename = "xmlns:cs")]
-        cs: String,
+    #[serde(rename = "xmlns:cs")]
+    cs: String,
 
-        #[serde(rename = "xmlns:nc")]
-        nc: String,
+    #[serde(rename = "xmlns:nc")]
+    nc: String,
 
-        #[serde(rename = "xmlns:oc")]
-        oc: String,
+    #[serde(rename = "xmlns:oc")]
+    oc: String,
 
-        #[serde(rename = "xmlns:s")]
-        s: String,
-    */
+    #[serde(rename = "xmlns:s")]
+    s: String,
+
     #[serde(rename = "$unflatten=response")]
     response: Response,
 }
@@ -33,7 +33,27 @@ struct MultiStatus {
 struct Response {
     #[serde(rename = "$unflatten=href")]
     href: String,
+
+    #[serde(rename = "$unflatten=propstat")]
+    propstat: PropStat,
 }
+
+#[derive(Debug, Deserialize, PartialEq)]
+struct PropStat {
+    #[serde(rename = "$unflatten=prop")]
+    prop: Prop,
+    //#[serde(rename = "$unflatten=status")]
+    //status: String,
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
+struct Prop {
+    #[serde(rename = "$unflatten=resourcetype")]
+    resourcetype: ResourceType,
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
+struct ResourceType {}
 
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -67,7 +87,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let xml: MultiStatus = from_str(text.as_str())?;
 
-    println!("{:?}", xml);
+    println!("{:#?}", xml);
 
     Ok(())
 }
