@@ -1,3 +1,6 @@
 [submodule "barrel"]
 	path = barrel
 	url = https://github.com/mohe2015/barrel.git
+[submodule "quick-xml"]
+	path = quick-xml
+	url = git@github.com:mohe2015/quick-xml.git

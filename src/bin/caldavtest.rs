@@ -1,81 +1,87 @@
-extern crate quick_xml;
 extern crate serde;
-use quick_xml::de::from_str;
+
+#[macro_use]
+extern crate yaserde;
+#[macro_use]
+extern crate yaserde_derive;
+
 use reqwest::{header::CONTENT_TYPE, Method};
-use serde::Deserialize;
+use yaserde::de::from_str;
+use yaserde::YaDeserialize;
 
 // notes if you don't fully parse previous things this breaks easily
 
-#[derive(Debug, Deserialize, PartialEq)]
-#[serde(rename = "d:multistatus")]
+#[derive(Debug, YaDeserialize, PartialEq)]
+#[yaserde(rename = "d:multistatus")]
 struct MultiStatus {
-    #[serde(rename = "xmlns:d")]
+    #[yaserde(rename = "xmlns:d")]
     d: String,
 
-    #[serde(rename = "xmlns:cal")]
+    #[yaserde(rename = "xmlns:cal")]
     cal: String,
 
-    #[serde(rename = "xmlns:cs")]
+    #[yaserde(rename = "xmlns:cs")]
     cs: String,
 
-    #[serde(rename = "xmlns:nc")]
+    #[yaserde(rename = "xmlns:nc")]
     nc: String,
 
-    #[serde(rename = "xmlns:oc")]
+    #[yaserde(rename = "xmlns:oc")]
     oc: String,
 
-    #[serde(rename = "xmlns:s")]
+    #[yaserde(rename = "xmlns:s")]
     s: String,
 
-    #[serde(rename = "$unflatten=response")]
+    #[yaserde(rename = "$unflatten=response")]
     response: Response,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, PartialEq)]
 struct Response {
-    #[serde(rename = "$unflatten=href")]
+    #[yaserde(rename = "$unflatten=href")]
     href: String,
 
-    #[serde(rename = "$unflatten=propstat")]
+    #[yaserde(rename = "$unflatten=propstat")]
     propstat: PropStat,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, PartialEq)]
 struct PropStat {
-    #[serde(rename = "$unflatten=prop")]
+    #[yaserde(rename = "$unflatten=prop")]
     prop: Prop,
     //#[serde(rename = "$unflatten=status")]
     //status: String,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, PartialEq)]
 struct Prop {
-    #[serde(rename = "$unflatten=getctag")]
+    #[yaserde(rename = "$unflatten=getctag")]
     getctag: String,
     //#[serde(rename = "$unflatten=resourcetype")]
     //resourcetype: ResourceType,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, PartialEq)]
 struct CTag {}
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, PartialEq)]
 struct ResourceType {
-    #[serde(rename = "$unflatten=collection")]
+    #[yaserde(rename = "$unflatten=collection")]
     collection: String,
 
-    #[serde(rename = "$unflatten=calendar")]
+    #[yaserde(rename = "$unflatten=calendar")]
     calendar: String,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, PartialEq)]
 struct Collection {}
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, PartialEq)]
 struct Calendar {}
 
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    env_logger::init();
     // https://github.com/marshalshi/caldav-client-rust
     // https://marshalshi.medium.com/rust-caldav-client-from-scratch-da173cfc905d
     // https://sabre.io/dav/building-a-caldav-client/
@@ -95,11 +101,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .send()
         .await?;
 
-    let mut text = response.text().await?;
+    let text = response.text().await?;
 
-    text =
-       r#"<d:prop><d:resourcetype><d:collection /><cal:calendar /></d:resourcetype><getctag>jj</getctag></d:prop>"#
-                .to_string();
+    //let text =
+    //  r#"<d:prop><d:resourcetype><d:collection /><cal:calendar /></d:resourcetype><getctag>jj</getctag></d:prop>"#
+    //           .to_string();
 
     println!("{}", text);
 
