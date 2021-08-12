@@ -58,9 +58,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut text = response.text().await?;
 
-    text =
-        r#"<?xml version="1.0" encoding="UTF-8"?><multistatus><response><href>/remote.php/dav/calendars/Moritz.Hedtke/not-grocy/</href></response></multistatus>"#
-            .to_string();
+    //text =
+    //    r#"<?xml version="1.0" encoding="UTF-8"?>
+    //<d:multistatus xmlns:d="DAV:"><d:response><d:href>/remote.php/dav/calendars/Moritz.Hedtke/not-grocy/</d:href></d:response></d:multistatus>"#
+    //            .to_string();
 
     println!("{}", text);
 
