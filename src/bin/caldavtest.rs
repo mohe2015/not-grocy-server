@@ -50,17 +50,14 @@ struct PropStat {
 
 #[derive(Debug, Deserialize, PartialEq)]
 struct Prop {
-    #[serde(rename = "$unflatten=resourcetype")]
-    resourcetype: ResourceType,
-
     #[serde(rename = "$unflatten=getctag")]
-    getctag: CTag,
+    getctag: String,
+    //#[serde(rename = "$unflatten=resourcetype")]
+    //resourcetype: ResourceType,
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
-struct CTag {
-
-}
+struct CTag {}
 
 #[derive(Debug, Deserialize, PartialEq)]
 struct ResourceType {
@@ -72,13 +69,10 @@ struct ResourceType {
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
-struct Collection {
-}
+struct Collection {}
 
 #[derive(Debug, Deserialize, PartialEq)]
-struct Calendar {
-
-}
+struct Calendar {}
 
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -103,14 +97,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut text = response.text().await?;
 
-    //text =
-    //    r#"<?xml version="1.0" encoding="UTF-8"?>
-    //<d:multistatus xmlns:d="DAV:"><d:response><d:href>/remote.php/dav/calendars/Moritz.Hedtke/not-grocy/</d:href></d:response></d:multistatus>"#
-    //            .to_string();
+    text =
+       r#"<d:prop><d:resourcetype><d:collection /><cal:calendar /></d:resourcetype><getctag>jj</getctag></d:prop>"#
+                .to_string();
 
     println!("{}", text);
 
-    let xml: MultiStatus = from_str(text.as_str())?;
+    let xml: Prop = from_str(text.as_str())?;
 
     println!("{:#?}", xml);
 
