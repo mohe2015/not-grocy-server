@@ -4,6 +4,8 @@ use quick_xml::de::from_str;
 use reqwest::{header::CONTENT_TYPE, Method};
 use serde::Deserialize;
 
+// notes if you don't fully parse previous things this breaks easily
+
 #[derive(Debug, Deserialize, PartialEq)]
 #[serde(rename = "d:multistatus")]
 struct MultiStatus {
@@ -50,10 +52,33 @@ struct PropStat {
 struct Prop {
     #[serde(rename = "$unflatten=resourcetype")]
     resourcetype: ResourceType,
+
+    #[serde(rename = "$unflatten=getctag")]
+    getctag: CTag,
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
-struct ResourceType {}
+struct CTag {
+
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
+struct ResourceType {
+    #[serde(rename = "$unflatten=collection")]
+    collection: String,
+
+    #[serde(rename = "$unflatten=calendar")]
+    calendar: String,
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
+struct Collection {
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
+struct Calendar {
+
+}
 
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
