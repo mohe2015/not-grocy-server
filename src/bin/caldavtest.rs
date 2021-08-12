@@ -7,25 +7,25 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize, PartialEq)]
 #[serde(rename = "d:multistatus")]
 struct MultiStatus {
-    #[serde(rename = "xmlns:d")]
-    d: String,
+    /*#[serde(rename = "xmlns:d")]
+        d: String,
 
-    #[serde(rename = "xmlns:cal")]
-    cal: String,
+        #[serde(rename = "xmlns:cal")]
+        cal: String,
 
-    #[serde(rename = "xmlns:cs")]
-    cs: String,
+        #[serde(rename = "xmlns:cs")]
+        cs: String,
 
-    #[serde(rename = "xmlns:nc")]
-    nc: String,
+        #[serde(rename = "xmlns:nc")]
+        nc: String,
 
-    #[serde(rename = "xmlns:oc")]
-    oc: String,
+        #[serde(rename = "xmlns:oc")]
+        oc: String,
 
-    #[serde(rename = "xmlns:s")]
-    s: String,
-
-    #[serde(rename = "$unflatten=d:response")]
+        #[serde(rename = "xmlns:s")]
+        s: String,
+    */
+    #[serde(rename = "$unflatten=response")]
     response: Response,
 }
 
@@ -59,12 +59,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut text = response.text().await?;
 
     text =
-        r#"<response><href>/remote.php/dav/calendars/Moritz.Hedtke/not-grocy/</href></response>"#
+        r#"<?xml version="1.0" encoding="UTF-8"?><multistatus><response><href>/remote.php/dav/calendars/Moritz.Hedtke/not-grocy/</href></response></multistatus>"#
             .to_string();
 
     println!("{}", text);
 
-    let xml: Response = from_str(text.as_str())?;
+    let xml: MultiStatus = from_str(text.as_str())?;
 
     println!("{:?}", xml);
 
