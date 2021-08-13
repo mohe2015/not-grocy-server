@@ -21,7 +21,7 @@ use yaserde::de::from_str;
 )]
 struct MultiStatus {
     #[yaserde(prefix = "d", rename = "response")]
-    response: Response,
+    response: Vec<Response>,
 }
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
@@ -38,7 +38,7 @@ struct Response {
     href: String,
 
     #[yaserde(prefix = "d", rename = "propstat")]
-    propstat: PropStat,
+    propstat: Vec<PropStat>,
 }
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
@@ -300,10 +300,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let href = davclient_response
         .response
-        .propstat
-        .prop
-        .current_user_principal
-        .and_then(|u| u.href)
+        .first()
+        .and_then(|r| {
+            r.propstat
+                .first()
+                .and_then(|p| p.prop.current_user_principal.as_ref())
+        })
+        .and_then(|u| u.href.as_ref())
         .unwrap();
 
     println!("href: {}", href);
@@ -347,10 +350,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let homeset_href = homeset_response
         .response
-        .propstat
-        .prop
-        .calendar_home_set
-        .and_then(|u| u.href)
+        .first()
+        .and_then(|r| {
+            r.propstat
+                .first()
+                .and_then(|p| p.prop.calendar_home_set.as_ref())
+        })
+        .and_then(|u| u.href.as_ref())
         .unwrap();
 
     let mut parsed_homeset_url = Url::parse(&url).unwrap();
