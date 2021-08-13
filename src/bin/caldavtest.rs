@@ -5,6 +5,7 @@ extern crate yaserde;
 extern crate yaserde_derive;
 
 use reqwest::{header::CONTENT_TYPE, Method};
+use url::Url;
 use yaserde::de::from_str;
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
@@ -105,7 +106,7 @@ struct Prop {
     #[yaserde(prefix = "d", rename = "current-user-principal")]
     current_user_principal: Option<CurrentUserPrincipal>,
 
-    #[yaserde(prefix = "c", rename = "calendar-home-set")]
+    #[yaserde(prefix = "cal", rename = "calendar-home-set")]
     calendar_home_set: Option<CalendarHomeSet>,
 }
 
@@ -132,7 +133,10 @@ struct CurrentUserPrincipal {
     namespace = "oc: http://owncloud.org/ns",
     namespace = "nc: http://nextcloud.org/ns"
 )]
-struct CalendarHomeSet {}
+struct CalendarHomeSet {
+    #[yaserde(prefix = "d", rename = "href")]
+    href: Option<String>,
+}
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
@@ -277,16 +281,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let url = std::env::var("URL").expect("URL required");
     let password = std::env::var("PASSWORD").expect("PASSWORD required");
     let client = reqwest::Client::new();
-    let response = client
-        .request(Method::from_bytes(b"PROPFIND").expect("PROPFIND"), url)
+    let davclient_response_xml = client
+        .request(Method::from_bytes(b"PROPFIND").expect("PROPFIND"), &url)
         .header("Depth", 0)
         .header(CONTENT_TYPE, "application/xml")
-        .basic_auth("Moritz.Hedtke", Some(password))
+        .basic_auth("Moritz.Hedtke", Some(&password))
         .body(davclient_xml)
         .send()
+        .await?
+        .text()
         .await?;
-
-    let davclient_response_xml = response.text().await?;
 
     println!("{}", davclient_response_xml);
 
@@ -299,7 +303,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .propstat
         .prop
         .current_user_principal
-        .and_then(|u| u.href);
+        .and_then(|u| u.href)
+        .unwrap();
+
+    println!("href: {}", href);
+
+    let mut parsed_url = Url::parse(&url).unwrap();
+    parsed_url.set_path(&href);
 
     let homeset = Propfind {
         the_self: Some(TheSelf {}),
@@ -314,6 +324,37 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let homeset_xml = yaserde::ser::to_string_with_config(&homeset, &yaserde_cfg).unwrap();
 
     println!("{}", homeset_xml);
+
+    let homeset_response_xml = client
+        .request(
+            Method::from_bytes(b"PROPFIND").expect("PROPFIND"),
+            parsed_url.as_str(),
+        )
+        .header("Depth", 0)
+        .header(CONTENT_TYPE, "application/xml")
+        .basic_auth("Moritz.Hedtke", Some(&password))
+        .body(homeset_xml)
+        .send()
+        .await?
+        .text()
+        .await?;
+
+    println!("{}", homeset_response_xml);
+
+    let homeset_response: MultiStatus = from_str(homeset_response_xml.as_str())?;
+
+    println!("{:#?}", homeset_response);
+
+    let homeset_href = homeset_response
+        .response
+        .propstat
+        .prop
+        .calendar_home_set
+        .and_then(|u| u.href)
+        .unwrap();
+
+    let mut parsed_homeset_url = Url::parse(&url).unwrap();
+    parsed_homeset_url.set_path(&homeset_href);
 
     let cal = Propfind {
         prop: Prop {
@@ -332,6 +373,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cal_xml = yaserde::ser::to_string_with_config(&cal, &yaserde_cfg).unwrap();
 
     println!("{}", cal_xml);
+
+    // TODO FIXME get multiple calendars
+    let cal_response_xml = client
+        .request(
+            Method::from_bytes(b"PROPFIND").expect("PROPFIND"),
+            parsed_homeset_url.as_str(),
+        )
+        .header("Depth", 1)
+        .header(CONTENT_TYPE, "application/xml")
+        .basic_auth("Moritz.Hedtke", Some(&password))
+        .body(cal_xml)
+        .send()
+        .await?
+        .text()
+        .await?;
+
+    println!("{}", cal_response_xml);
+
+    let cal_response: MultiStatus = from_str(cal_response_xml.as_str())?;
+
+    println!("{:#?}", cal_response);
 
     Ok(())
 }

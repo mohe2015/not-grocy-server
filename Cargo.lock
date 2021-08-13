@@ -1620,6 +1620,7 @@ dependencies = [
  "serde_json",
  "structopt",
  "thiserror",
+ "url 2.2.2",
  "yaserde",
  "yaserde_derive",
 ]
