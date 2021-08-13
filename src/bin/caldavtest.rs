@@ -115,7 +115,10 @@ struct Prop {
     namespace = "oc: http://owncloud.org/ns",
     namespace = "nc: http://nextcloud.org/ns"
 )]
-struct CurrentUserPrincipal {}
+struct CurrentUserPrincipal {
+    #[yaserde(prefix = "d", rename = "href")]
+    href: Option<String>,
+}
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
@@ -223,7 +226,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let body_xml = Propfind {
         prop: Prop {
-            current_user_principal: Some(CurrentUserPrincipal {}),
+            current_user_principal: Some(CurrentUserPrincipal {
+                ..Default::default()
+            }),
             ..Default::default()
         },
     };
@@ -257,6 +262,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let xml: MultiStatus = from_str(text.as_str())?;
 
     println!("{:#?}", xml);
+
+    let href = xml
+        .response
+        .propstat
+        .prop
+        .current_user_principal
+        .and_then(|u| u.href);
 
     Ok(())
 }
