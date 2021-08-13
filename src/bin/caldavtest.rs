@@ -16,61 +16,178 @@ use yaserde::YaDeserialize;
 #[derive(Debug, YaDeserialize, PartialEq)]
 #[yaserde(
     prefix = "d",
-    //default_namespace = "DAV:",
     rename = "multistatus",
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "cal: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
     namespace = "oc: http://owncloud.org/ns",
-    namespace = "nc: http://nextcloud.org/ns",
+    namespace = "nc: http://nextcloud.org/ns"
 )]
 struct MultiStatus {
-    #[yaserde(rename = "response")]
+    #[yaserde(prefix = "d", rename = "response")]
     response: Response,
 }
 
 #[derive(Default, Debug, YaDeserialize, PartialEq)]
-#[yaserde(namespace = "d: DAV:")]
+#[yaserde(
+    namespace = "d: DAV:",
+    namespace = "s: http://sabredav.org/ns",
+    namespace = "cal: urn:ietf:params:xml:ns:caldav",
+    namespace = "cs: http://calendarserver.org/ns/",
+    namespace = "oc: http://owncloud.org/ns",
+    namespace = "nc: http://nextcloud.org/ns"
+)]
 struct Response {
     #[yaserde(prefix = "d", rename = "href")]
     href: String,
-    //#[yaserde(rename = "$unflatten=propstat")]
-    //propstat: PropStat,
+
+    #[yaserde(prefix = "d", rename = "propstat")]
+    propstat: PropStat,
 }
 
 #[derive(Default, Debug, YaDeserialize, PartialEq)]
+#[yaserde(
+    namespace = "d: DAV:",
+    namespace = "s: http://sabredav.org/ns",
+    namespace = "cal: urn:ietf:params:xml:ns:caldav",
+    namespace = "cs: http://calendarserver.org/ns/",
+    namespace = "oc: http://owncloud.org/ns",
+    namespace = "nc: http://nextcloud.org/ns"
+)]
 struct PropStat {
-    #[yaserde(rename = "$unflatten=prop")]
+    #[yaserde(rename = "prop")]
     prop: Prop,
-    //#[serde(rename = "$unflatten=status")]
-    //status: String,
+
+    #[yaserde(prefix = "d", rename = "status")]
+    status: String,
 }
 
 #[derive(Default, Debug, YaDeserialize, PartialEq)]
+#[yaserde(
+    namespace = "d: DAV:",
+    namespace = "s: http://sabredav.org/ns",
+    namespace = "cal: urn:ietf:params:xml:ns:caldav",
+    namespace = "cs: http://calendarserver.org/ns/",
+    namespace = "oc: http://owncloud.org/ns",
+    namespace = "nc: http://nextcloud.org/ns",
+    namespace = "x1: http://apple.com/ns/ical/",
+    namespace = "x2: http://nextcloud.com/ns"
+)]
 struct Prop {
-    #[yaserde(rename = "$unflatten=getctag")]
+    #[yaserde(prefix = "d", rename = "resourcetype")]
+    resourcetype: ResourceType,
+
+    #[yaserde(prefix = "cs", rename = "getctag")]
     getctag: String,
-    //#[serde(rename = "$unflatten=resourcetype")]
-    //resourcetype: ResourceType,
+
+    #[yaserde(prefix = "s", rename = "sync-token")]
+    sync_token: i32,
+
+    #[yaserde(prefix = "cal", rename = "supported-calendar-component-set")]
+    supported_calendar_component_set: SupportedCalendarComponentSet,
+
+    #[yaserde(prefix = "cal", rename = "schedule-calendar-transp")]
+    schedule_calendar_transp: ScheduleCalendarTransp,
+
+    #[yaserde(prefix = "oc", rename = "owner-principal")]
+    owner_principal: String,
+
+    #[yaserde(prefix = "d", rename = "displayname")]
+    displayname: String,
+
+    #[yaserde(prefix = "cal", rename = "calendar-timezone")]
+    calendar_timezone: String,
+
+    #[yaserde(prefix = "x1", rename = "calendar-order")]
+    calendar_order: String,
+
+    #[yaserde(prefix = "x1", rename = "calendar-color")]
+    calendar_color: String,
+
+    #[yaserde(prefix = "x2", rename = "owner-displayname")]
+    owner_displayname: String,
 }
 
 #[derive(Default, Debug, YaDeserialize, PartialEq)]
-struct CTag {}
+#[yaserde(
+    namespace = "d: DAV:",
+    namespace = "s: http://sabredav.org/ns",
+    namespace = "cal: urn:ietf:params:xml:ns:caldav",
+    namespace = "cs: http://calendarserver.org/ns/",
+    namespace = "oc: http://owncloud.org/ns",
+    namespace = "nc: http://nextcloud.org/ns"
+)]
+struct SupportedCalendarComponentSet {
+    #[yaserde(prefix = "cal", rename = "comp")]
+    comp: Component,
+}
 
 #[derive(Default, Debug, YaDeserialize, PartialEq)]
+#[yaserde(
+    namespace = "d: DAV:",
+    namespace = "s: http://sabredav.org/ns",
+    namespace = "cal: urn:ietf:params:xml:ns:caldav",
+    namespace = "cs: http://calendarserver.org/ns/",
+    namespace = "oc: http://owncloud.org/ns",
+    namespace = "nc: http://nextcloud.org/ns"
+)]
+struct Component {
+    #[yaserde(attribute)]
+    name: String,
+}
+
+#[derive(Default, Debug, YaDeserialize, PartialEq)]
+#[yaserde(
+    namespace = "d: DAV:",
+    namespace = "s: http://sabredav.org/ns",
+    namespace = "cal: urn:ietf:params:xml:ns:caldav",
+    namespace = "cs: http://calendarserver.org/ns/",
+    namespace = "oc: http://owncloud.org/ns",
+    namespace = "nc: http://nextcloud.org/ns"
+)]
+struct ScheduleCalendarTransp {
+    #[yaserde(prefix = "cal", rename = "opaque")]
+    opaque: String,
+}
+
+#[derive(Default, Debug, YaDeserialize, PartialEq)]
+#[yaserde(
+    namespace = "d: DAV:",
+    namespace = "s: http://sabredav.org/ns",
+    namespace = "cal: urn:ietf:params:xml:ns:caldav",
+    namespace = "cs: http://calendarserver.org/ns/",
+    namespace = "oc: http://owncloud.org/ns",
+    namespace = "nc: http://nextcloud.org/ns"
+)]
 struct ResourceType {
-    #[yaserde(rename = "$unflatten=collection")]
-    collection: String,
+    #[yaserde(prefix = "d", rename = "collection")]
+    collection: Collection,
 
-    #[yaserde(rename = "$unflatten=calendar")]
-    calendar: String,
+    #[yaserde(prefix = "cal", rename = "calendar")]
+    calendar: Calendar,
 }
 
 #[derive(Default, Debug, YaDeserialize, PartialEq)]
+#[yaserde(
+    namespace = "d: DAV:",
+    namespace = "s: http://sabredav.org/ns",
+    namespace = "cal: urn:ietf:params:xml:ns:caldav",
+    namespace = "cs: http://calendarserver.org/ns/",
+    namespace = "oc: http://owncloud.org/ns",
+    namespace = "nc: http://nextcloud.org/ns"
+)]
 struct Collection {}
 
 #[derive(Default, Debug, YaDeserialize, PartialEq)]
+#[yaserde(
+    namespace = "d: DAV:",
+    namespace = "s: http://sabredav.org/ns",
+    namespace = "cal: urn:ietf:params:xml:ns:caldav",
+    namespace = "cs: http://calendarserver.org/ns/",
+    namespace = "oc: http://owncloud.org/ns",
+    namespace = "nc: http://nextcloud.org/ns"
+)]
 struct Calendar {}
 
 #[actix_web::main]
