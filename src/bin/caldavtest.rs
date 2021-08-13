@@ -50,7 +50,7 @@ struct Response {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct PropStat {
-    #[yaserde(rename = "prop")]
+    #[yaserde(prefix = "d", rename = "prop")]
     prop: Prop,
 
     #[yaserde(prefix = "d", rename = "status")]
@@ -70,40 +70,40 @@ struct PropStat {
 )]
 struct Prop {
     #[yaserde(prefix = "d", rename = "resourcetype")]
-    resourcetype: ResourceType,
+    resourcetype: Option<ResourceType>,
 
     #[yaserde(prefix = "cs", rename = "getctag")]
-    getctag: String,
+    getctag: Option<String>,
 
     #[yaserde(prefix = "s", rename = "sync-token")]
-    sync_token: i32,
+    sync_token: Option<i32>,
 
     #[yaserde(prefix = "cal", rename = "supported-calendar-component-set")]
-    supported_calendar_component_set: SupportedCalendarComponentSet,
+    supported_calendar_component_set: Option<SupportedCalendarComponentSet>,
 
     #[yaserde(prefix = "cal", rename = "schedule-calendar-transp")]
-    schedule_calendar_transp: ScheduleCalendarTransp,
+    schedule_calendar_transp: Option<ScheduleCalendarTransp>,
 
     #[yaserde(prefix = "oc", rename = "owner-principal")]
-    owner_principal: String,
+    owner_principal: Option<String>,
 
     #[yaserde(prefix = "d", rename = "displayname")]
-    displayname: String,
+    displayname: Option<String>,
 
     #[yaserde(prefix = "cal", rename = "calendar-timezone")]
-    calendar_timezone: String,
+    calendar_timezone: Option<String>,
 
     #[yaserde(prefix = "x1", rename = "calendar-order")]
-    calendar_order: String,
+    calendar_order: Option<String>,
 
     #[yaserde(prefix = "x1", rename = "calendar-color")]
-    calendar_color: String,
+    calendar_color: Option<String>,
 
     #[yaserde(prefix = "x2", rename = "owner-displayname")]
-    owner_displayname: String,
+    owner_displayname: Option<String>,
 
     #[yaserde(prefix = "d", rename = "current-user-principal")]
-    current_user_principal: CurrentUserPrincipal,
+    current_user_principal: Option<CurrentUserPrincipal>,
 }
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
@@ -210,7 +210,7 @@ struct Calendar {}
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct Propfind {
-    #[yaserde(rename = "prop")]
+    #[yaserde(prefix = "d", rename = "prop")]
     prop: Prop,
 }
 
@@ -223,7 +223,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let body_xml = Propfind {
         prop: Prop {
-            current_user_principal: CurrentUserPrincipal {},
+            current_user_principal: Some(CurrentUserPrincipal {}),
             ..Default::default()
         },
     };
