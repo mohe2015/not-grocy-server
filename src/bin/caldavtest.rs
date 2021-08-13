@@ -254,8 +254,8 @@ struct TheSelf {}
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
-    // https://github.com/marshalshi/caldav-client-rust
-    // https://marshalshi.medium.com/rust-caldav-client-from-scratch-da173cfc905d
+    // DONE https://github.com/marshalshi/caldav-client-rust
+    // DONE https://marshalshi.medium.com/rust-caldav-client-from-scratch-da173cfc905d
     // https://sabre.io/dav/building-a-caldav-client/
 
     let yaserde_cfg = yaserde::ser::Config {
@@ -380,7 +380,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("{}", cal_xml);
 
-    // TODO FIXME get multiple calendars
     let cal_response_xml = client
         .request(
             Method::from_bytes(b"PROPFIND").expect("PROPFIND"),
@@ -423,6 +422,49 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     println!("{:?}", calendar_href);
+
+    let mut calendar_url = Url::parse(&url).unwrap();
+    calendar_url.set_path(&calendar_href.unwrap());
+
+    // TODO FIXME xml
+    let calendar_query = format!(
+        r#"
+    <c:calendar-query xmlns:d="DAV:" xmlns:c="urn:ietf:params:xml:ns:caldav">
+      <d:prop>
+        <d:getetag />
+        <c:calendar-data />
+      </d:prop>
+      <c:filter>
+        <c:comp-filter name="VCALENDAR">
+          <c:comp-filter name="VEVENT" >
+            <c:time-range start="{}" end="{}" />
+          </c:comp-filter>
+        </c:comp-filter>
+      </c:filter>
+    </c:calendar-query>
+"#,
+        "20201102T000000Z", "20251107T000000Z"
+    );
+
+    let calendar_response_xml = client
+        .request(
+            Method::from_bytes(b"REPORT").expect("REPORT"),
+            calendar_url.as_str(),
+        )
+        .header("Depth", 1)
+        .header(CONTENT_TYPE, "application/xml")
+        .basic_auth("Moritz.Hedtke", Some(&password))
+        .body(calendar_query)
+        .send()
+        .await?
+        .text()
+        .await?;
+
+    println!("{}", calendar_response_xml);
+
+    let calendar_response: MultiStatus = from_str(calendar_response_xml.as_str())?;
+
+    println!("{:#?}", calendar_response);
 
     Ok(())
 }
