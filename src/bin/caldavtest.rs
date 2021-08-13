@@ -1,19 +1,13 @@
 extern crate serde;
 
-#[macro_use]
 extern crate yaserde;
 #[macro_use]
 extern crate yaserde_derive;
 
 use reqwest::{header::CONTENT_TYPE, Method};
 use yaserde::de::from_str;
-use yaserde::YaDeserialize;
 
-// notes if you don't fully parse previous things this breaks easily
-
-// https://github.com/media-io/yaserde/blob/4f78a2f7019b3328b6b548a07c8171118097abdf/yaserde_derive/src/common/attribute.rs
-// for bad namespace error
-#[derive(Debug, YaDeserialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     prefix = "d",
     rename = "multistatus",
@@ -29,7 +23,7 @@ struct MultiStatus {
     response: Response,
 }
 
-#[derive(Default, Debug, YaDeserialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -46,7 +40,7 @@ struct Response {
     propstat: PropStat,
 }
 
-#[derive(Default, Debug, YaDeserialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -63,7 +57,7 @@ struct PropStat {
     status: String,
 }
 
-#[derive(Default, Debug, YaDeserialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -107,9 +101,23 @@ struct Prop {
 
     #[yaserde(prefix = "x2", rename = "owner-displayname")]
     owner_displayname: String,
+
+    #[yaserde(prefix = "d", rename = "current-user-principal")]
+    current_user_principal: CurrentUserPrincipal,
 }
 
-#[derive(Default, Debug, YaDeserialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[yaserde(
+    namespace = "d: DAV:",
+    namespace = "s: http://sabredav.org/ns",
+    namespace = "cal: urn:ietf:params:xml:ns:caldav",
+    namespace = "cs: http://calendarserver.org/ns/",
+    namespace = "oc: http://owncloud.org/ns",
+    namespace = "nc: http://nextcloud.org/ns"
+)]
+struct CurrentUserPrincipal {}
+
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -123,7 +131,7 @@ struct SupportedCalendarComponentSet {
     comp: Component,
 }
 
-#[derive(Default, Debug, YaDeserialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -137,7 +145,7 @@ struct Component {
     name: String,
 }
 
-#[derive(Default, Debug, YaDeserialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -151,7 +159,7 @@ struct ScheduleCalendarTransp {
     opaque: String,
 }
 
-#[derive(Default, Debug, YaDeserialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -168,7 +176,7 @@ struct ResourceType {
     calendar: Calendar,
 }
 
-#[derive(Default, Debug, YaDeserialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -179,7 +187,7 @@ struct ResourceType {
 )]
 struct Collection {}
 
-#[derive(Default, Debug, YaDeserialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -190,15 +198,44 @@ struct Collection {}
 )]
 struct Calendar {}
 
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[yaserde(
+    prefix = "d",
+    rename = "propfind",
+    namespace = "d: DAV:",
+    namespace = "s: http://sabredav.org/ns",
+    namespace = "cal: urn:ietf:params:xml:ns:caldav",
+    namespace = "cs: http://calendarserver.org/ns/",
+    namespace = "oc: http://owncloud.org/ns",
+    namespace = "nc: http://nextcloud.org/ns"
+)]
+struct Propfind {
+    #[yaserde(rename = "prop")]
+    prop: Prop,
+}
+
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
     // https://github.com/marshalshi/caldav-client-rust
     // https://marshalshi.medium.com/rust-caldav-client-from-scratch-da173cfc905d
     // https://sabre.io/dav/building-a-caldav-client/
-    // probably no caldav: https://github.com/fmeringdal/nettu-schedulerc
 
-    let body = "";
+    let body_xml = Propfind {
+        prop: Prop {
+            current_user_principal: CurrentUserPrincipal {},
+            ..Default::default()
+        },
+    };
+
+    let yaserde_cfg = yaserde::ser::Config {
+        perform_indent: true,
+        ..Default::default()
+    };
+
+    let body = yaserde::ser::to_string_with_config(&body_xml, &yaserde_cfg).unwrap();
+
+    println!("{}", body);
 
     // https://cloud.selfmade4u.de/remote.php/dav/calendars/Moritz.Hedtke/not-grocy/
     let url = std::env::var("URL").expect("URL required");
@@ -206,6 +243,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = reqwest::Client::new();
     let response = client
         .request(Method::from_bytes(b"PROPFIND").expect("PROPFIND"), url)
+        .header("Depth", 0)
         .header(CONTENT_TYPE, "application/xml")
         .basic_auth("Moritz.Hedtke", Some(password))
         .body(body)
@@ -213,11 +251,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
 
     let text = response.text().await?;
-
-    let _text =
-      r#"<?xml version="1.0"?>
-      <d:multistatus xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns" xmlns:cal="urn:ietf:params:xml:ns:caldav" xmlns:cs="http://calendarserver.org/ns/" xmlns:oc="http://owncloud.org/ns" xmlns:nc="http://nextcloud.org/ns"></d:multistatus>"#
-               .to_string();
 
     println!("{}", text);
 
