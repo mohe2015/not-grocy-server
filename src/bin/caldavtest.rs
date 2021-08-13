@@ -104,6 +104,9 @@ struct Prop {
 
     #[yaserde(prefix = "d", rename = "current-user-principal")]
     current_user_principal: Option<CurrentUserPrincipal>,
+
+    #[yaserde(prefix = "c", rename = "calendar-home-set")]
+    calendar_home_set: Option<CalendarHomeSet>,
 }
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
@@ -129,9 +132,20 @@ struct CurrentUserPrincipal {
     namespace = "oc: http://owncloud.org/ns",
     namespace = "nc: http://nextcloud.org/ns"
 )]
+struct CalendarHomeSet {}
+
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[yaserde(
+    namespace = "d: DAV:",
+    namespace = "s: http://sabredav.org/ns",
+    namespace = "cal: urn:ietf:params:xml:ns:caldav",
+    namespace = "cs: http://calendarserver.org/ns/",
+    namespace = "oc: http://owncloud.org/ns",
+    namespace = "nc: http://nextcloud.org/ns"
+)]
 struct SupportedCalendarComponentSet {
     #[yaserde(prefix = "cal", rename = "comp")]
-    comp: Component,
+    comp: Option<Component>,
 }
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
@@ -173,10 +187,10 @@ struct ScheduleCalendarTransp {
 )]
 struct ResourceType {
     #[yaserde(prefix = "d", rename = "collection")]
-    collection: Collection,
+    collection: Option<Collection>,
 
     #[yaserde(prefix = "cal", rename = "calendar")]
-    calendar: Calendar,
+    calendar: Option<Calendar>,
 }
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
@@ -213,9 +227,25 @@ struct Calendar {}
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct Propfind {
+    #[yaserde(prefix = "d", rename = "self")]
+    the_self: Option<TheSelf>,
+
     #[yaserde(prefix = "d", rename = "prop")]
     prop: Prop,
 }
+
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[yaserde(
+    prefix = "d",
+    rename = "propfind",
+    namespace = "d: DAV:",
+    namespace = "s: http://sabredav.org/ns",
+    namespace = "cal: urn:ietf:params:xml:ns:caldav",
+    namespace = "cs: http://calendarserver.org/ns/",
+    namespace = "oc: http://owncloud.org/ns",
+    namespace = "nc: http://nextcloud.org/ns"
+)]
+struct TheSelf {}
 
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -224,23 +254,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // https://marshalshi.medium.com/rust-caldav-client-from-scratch-da173cfc905d
     // https://sabre.io/dav/building-a-caldav-client/
 
-    let body_xml = Propfind {
+    let yaserde_cfg = yaserde::ser::Config {
+        perform_indent: true,
+        ..Default::default()
+    };
+
+    let davclient = Propfind {
         prop: Prop {
             current_user_principal: Some(CurrentUserPrincipal {
                 ..Default::default()
             }),
             ..Default::default()
         },
-    };
-
-    let yaserde_cfg = yaserde::ser::Config {
-        perform_indent: true,
         ..Default::default()
     };
 
-    let body = yaserde::ser::to_string_with_config(&body_xml, &yaserde_cfg).unwrap();
+    let davclient_xml = yaserde::ser::to_string_with_config(&davclient, &yaserde_cfg).unwrap();
 
-    println!("{}", body);
+    println!("{}", davclient_xml);
 
     // https://cloud.selfmade4u.de/remote.php/dav/calendars/Moritz.Hedtke/not-grocy/
     let url = std::env::var("URL").expect("URL required");
@@ -251,24 +282,56 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .header("Depth", 0)
         .header(CONTENT_TYPE, "application/xml")
         .basic_auth("Moritz.Hedtke", Some(password))
-        .body(body)
+        .body(davclient_xml)
         .send()
         .await?;
 
-    let text = response.text().await?;
+    let davclient_response_xml = response.text().await?;
 
-    println!("{}", text);
+    println!("{}", davclient_response_xml);
 
-    let xml: MultiStatus = from_str(text.as_str())?;
+    let davclient_response: MultiStatus = from_str(davclient_response_xml.as_str())?;
 
-    println!("{:#?}", xml);
+    println!("{:#?}", davclient_response);
 
-    let href = xml
+    let href = davclient_response
         .response
         .propstat
         .prop
         .current_user_principal
         .and_then(|u| u.href);
+
+    let homeset = Propfind {
+        the_self: Some(TheSelf {}),
+        prop: Prop {
+            calendar_home_set: Some(CalendarHomeSet {
+                ..Default::default()
+            }),
+            ..Default::default()
+        },
+    };
+
+    let homeset_xml = yaserde::ser::to_string_with_config(&homeset, &yaserde_cfg).unwrap();
+
+    println!("{}", homeset_xml);
+
+    let cal = Propfind {
+        prop: Prop {
+            displayname: Some("".to_string()),
+            resourcetype: Some(ResourceType {
+                ..Default::default()
+            }),
+            supported_calendar_component_set: Some(SupportedCalendarComponentSet {
+                ..Default::default()
+            }),
+            ..Default::default()
+        },
+        ..Default::default()
+    };
+
+    let cal_xml = yaserde::ser::to_string_with_config(&cal, &yaserde_cfg).unwrap();
+
+    println!("{}", cal_xml);
 
     Ok(())
 }
