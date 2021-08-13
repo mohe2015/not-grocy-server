@@ -149,7 +149,7 @@ struct CalendarHomeSet {
 )]
 struct SupportedCalendarComponentSet {
     #[yaserde(prefix = "cal", rename = "comp")]
-    comp: Option<Component>,
+    comp: Vec<Component>,
 }
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
@@ -400,6 +400,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cal_response: MultiStatus = from_str(cal_response_xml.as_str())?;
 
     println!("{:#?}", cal_response);
+
+    let mut calendar_href = None;
+
+    'outer: for response in cal_response.response {
+        for propstat in response.propstat {
+            if let Some("") = propstat.prop.displayname.as_deref() {
+                continue 'outer;
+            }
+            if propstat.prop.displayname != Some("not-grocy".to_string()) {
+                continue 'outer;
+            }
+            println!("{:?}", propstat.prop.displayname);
+            if let Some(val) = propstat.prop.supported_calendar_component_set {
+                if !val.comp.iter().any(|c| c.name == "VEVENT") {
+                    continue 'outer;
+                }
+            }
+        }
+        println!("{}", response.href);
+        calendar_href = Some(response.href);
+    }
+
+    println!("{:?}", calendar_href);
 
     Ok(())
 }
