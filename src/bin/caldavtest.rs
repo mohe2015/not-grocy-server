@@ -76,6 +76,12 @@ struct Prop {
     #[yaserde(prefix = "cs", rename = "getctag")]
     getctag: Option<String>,
 
+    #[yaserde(prefix = "d", rename = "getetag")]
+    getetag: Option<String>,
+
+    #[yaserde(prefix = "cal", rename = "calendar-data")]
+    calendar_data: Option<String>,
+
     #[yaserde(prefix = "s", rename = "sync-token")]
     sync_token: Option<i32>,
 
@@ -312,7 +318,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("href: {}", href);
 
     let mut parsed_url = Url::parse(&url).unwrap();
-    parsed_url.set_path(&href);
+    parsed_url.set_path(href);
 
     let homeset = Propfind {
         the_self: Some(TheSelf {}),
@@ -360,7 +366,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .unwrap();
 
     let mut parsed_homeset_url = Url::parse(&url).unwrap();
-    parsed_homeset_url.set_path(&homeset_href);
+    parsed_homeset_url.set_path(homeset_href);
 
     let cal = Propfind {
         prop: Prop {
@@ -465,6 +471,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let calendar_response: MultiStatus = from_str(calendar_response_xml.as_str())?;
 
     println!("{:#?}", calendar_response);
+
+    // https://crates.io/crates/rrule
+    // https://crates.io/crates/icalendar (probably good for generation)
+    // https://crates.io/crates/ics
+    // https://crates.io/crates/ical (probably good for parsing)
+
+    for response in calendar_response.response {
+        for propstat in response.propstat {
+            let calendar_data = propstat.prop.calendar_data.unwrap();
+
+            let reader = ical::IcalParser::new(calendar_data.as_bytes());
+
+            for line in reader {
+                println!("{:#?}", line);
+            }
+        }
+    }
 
     Ok(())
 }
