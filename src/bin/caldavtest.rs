@@ -4,11 +4,10 @@ extern crate yaserde;
 #[macro_use]
 extern crate yaserde_derive;
 
-use std::process::exit;
-
 use reqwest::{header::CONTENT_TYPE, Method};
 use url::Url;
 use yaserde::de::from_str;
+//use quick_xml::de::from_str;
 
 #[derive(serde::Deserialize, Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
@@ -22,6 +21,7 @@ use yaserde::de::from_str;
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct MultiStatus {
+    #[serde(rename = "$unflatten=d:response")]
     #[yaserde(prefix = "d", rename = "response")]
     response: Vec<Response>,
 }
@@ -36,9 +36,11 @@ struct MultiStatus {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct Response {
+    #[serde(rename = "$unflatten=d:href")]
     #[yaserde(prefix = "d", rename = "href")]
     href: String,
 
+    #[serde(rename = "$unflatten=d:propstat")]
     #[yaserde(prefix = "d", rename = "propstat")]
     propstat: Vec<PropStat>,
 }
@@ -53,9 +55,11 @@ struct Response {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct PropStat {
+    #[serde(rename = "$unflatten=d:prop")]
     #[yaserde(prefix = "d", rename = "prop")]
     prop: Prop,
 
+    #[serde(rename = "$unflatten=d:status")]
     #[yaserde(prefix = "d", rename = "status")]
     status: String,
 }
@@ -72,48 +76,63 @@ struct PropStat {
     namespace = "x2: http://nextcloud.com/ns"
 )]
 struct Prop {
+    #[serde(rename = "$unflatten=d:resourcetype")]
     #[yaserde(prefix = "d", rename = "resourcetype")]
     resourcetype: Option<ResourceType>,
 
+    #[serde(rename = "$unflatten=cs:getctag")]
     #[yaserde(prefix = "cs", rename = "getctag")]
     getctag: Option<String>,
 
+    #[serde(rename = "$unflatten=d:getetag")]
     #[yaserde(prefix = "d", rename = "getetag")]
     getetag: Option<String>,
 
+    #[serde(rename = "$unflatten=cal:calendar-data")]
     #[yaserde(prefix = "cal", rename = "calendar-data")]
     calendar_data: Option<String>,
 
+    #[serde(rename = "$unflatten=s:sync-token")]
     #[yaserde(prefix = "s", rename = "sync-token")]
     sync_token: Option<i32>,
 
+    #[serde(rename = "$unflatten=cal:supported-calendar-component-set")]
     #[yaserde(prefix = "cal", rename = "supported-calendar-component-set")]
     supported_calendar_component_set: Option<SupportedCalendarComponentSet>,
 
+    #[serde(rename = "$unflatten=cal:schedule-calendar-transp")]
     #[yaserde(prefix = "cal", rename = "schedule-calendar-transp")]
     schedule_calendar_transp: Option<ScheduleCalendarTransp>,
 
+    #[serde(rename = "$unflatten=oc:owner-principal")]
     #[yaserde(prefix = "oc", rename = "owner-principal")]
     owner_principal: Option<String>,
 
+    #[serde(rename = "$unflatten=d:displayname")]
     #[yaserde(prefix = "d", rename = "displayname")]
     displayname: Option<String>,
 
+    #[serde(rename = "$unflatten=cal:calendar-timezone")]
     #[yaserde(prefix = "cal", rename = "calendar-timezone")]
     calendar_timezone: Option<String>,
 
+    #[serde(rename = "$unflatten=x1:calendar-order")]
     #[yaserde(prefix = "x1", rename = "calendar-order")]
     calendar_order: Option<String>,
 
+    #[serde(rename = "$unflatten=x1:calendar-color")]
     #[yaserde(prefix = "x1", rename = "calendar-color")]
     calendar_color: Option<String>,
 
+    #[serde(rename = "$unflatten=x2:owner-displayname")]
     #[yaserde(prefix = "x2", rename = "owner-displayname")]
     owner_displayname: Option<String>,
 
+    #[serde(rename = "$unflatten=d:current-user-principal")]
     #[yaserde(prefix = "d", rename = "current-user-principal")]
     current_user_principal: Option<CurrentUserPrincipal>,
 
+    #[serde(rename = "$unflatten=cal:calendar-home-set")]
     #[yaserde(prefix = "cal", rename = "calendar-home-set")]
     calendar_home_set: Option<CalendarHomeSet>,
 }
@@ -128,6 +147,7 @@ struct Prop {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct CurrentUserPrincipal {
+    #[serde(rename = "$unflatten=d:href")]
     #[yaserde(prefix = "d", rename = "href")]
     href: Option<String>,
 }
@@ -142,6 +162,7 @@ struct CurrentUserPrincipal {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct CalendarHomeSet {
+    #[serde(rename = "$unflatten=d:href")]
     #[yaserde(prefix = "d", rename = "href")]
     href: Option<String>,
 }
@@ -156,6 +177,7 @@ struct CalendarHomeSet {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct SupportedCalendarComponentSet {
+    #[serde(rename = "$unflatten=cal:comp")]
     #[yaserde(prefix = "cal", rename = "comp")]
     comp: Vec<Component>,
 }
@@ -184,6 +206,7 @@ struct Component {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct ScheduleCalendarTransp {
+    #[serde(rename = "$unflatten=cal:opaque")]
     #[yaserde(prefix = "cal", rename = "opaque")]
     opaque: String,
 }
@@ -198,9 +221,11 @@ struct ScheduleCalendarTransp {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct ResourceType {
+    #[serde(rename = "$unflatten=d:collection")]
     #[yaserde(prefix = "d", rename = "collection")]
     collection: Option<Collection>,
 
+    #[serde(rename = "$unflatten=cal:calendar")]
     #[yaserde(prefix = "cal", rename = "calendar")]
     calendar: Option<Calendar>,
 }
@@ -239,9 +264,11 @@ struct Calendar {}
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct Propfind {
+    #[serde(rename = "$unflatten=d:self")]
     #[yaserde(prefix = "d", rename = "self")]
     the_self: Option<TheSelf>,
 
+    #[serde(rename = "$unflatten=d:prop")]
     #[yaserde(prefix = "d", rename = "prop")]
     prop: Prop,
 }
@@ -304,13 +331,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let davclient_response: MultiStatus = from_str(davclient_response_xml.as_str())?;
 
-    let davclient_response2: Result<MultiStatus, quick_xml::DeError> =
-        quick_xml::de::from_str(&davclient_response_xml);
-
     println!("{:#?}", davclient_response);
-    println!("{:#?}", davclient_response2);
-
-    exit(0);
 
     let href = davclient_response
         .response
