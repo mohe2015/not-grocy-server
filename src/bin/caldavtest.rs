@@ -4,11 +4,13 @@ extern crate yaserde;
 #[macro_use]
 extern crate yaserde_derive;
 
+use std::process::exit;
+
 use reqwest::{header::CONTENT_TYPE, Method};
 use url::Url;
 use yaserde::de::from_str;
 
-#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(serde::Deserialize, Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     prefix = "d",
     rename = "multistatus",
@@ -24,7 +26,7 @@ struct MultiStatus {
     response: Vec<Response>,
 }
 
-#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(serde::Deserialize, Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -41,7 +43,7 @@ struct Response {
     propstat: Vec<PropStat>,
 }
 
-#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(serde::Deserialize, Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -58,7 +60,7 @@ struct PropStat {
     status: String,
 }
 
-#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(serde::Deserialize, Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -116,7 +118,7 @@ struct Prop {
     calendar_home_set: Option<CalendarHomeSet>,
 }
 
-#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(serde::Deserialize, Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -130,7 +132,7 @@ struct CurrentUserPrincipal {
     href: Option<String>,
 }
 
-#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(serde::Deserialize, Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -144,7 +146,7 @@ struct CalendarHomeSet {
     href: Option<String>,
 }
 
-#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(serde::Deserialize, Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -158,7 +160,7 @@ struct SupportedCalendarComponentSet {
     comp: Vec<Component>,
 }
 
-#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(serde::Deserialize, Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -172,7 +174,7 @@ struct Component {
     name: String,
 }
 
-#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(serde::Deserialize, Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -186,7 +188,7 @@ struct ScheduleCalendarTransp {
     opaque: String,
 }
 
-#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(serde::Deserialize, Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -203,7 +205,7 @@ struct ResourceType {
     calendar: Option<Calendar>,
 }
 
-#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(serde::Deserialize, Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -214,7 +216,7 @@ struct ResourceType {
 )]
 struct Collection {}
 
-#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(serde::Deserialize, Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -225,7 +227,7 @@ struct Collection {}
 )]
 struct Calendar {}
 
-#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(serde::Deserialize, Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     prefix = "d",
     rename = "propfind",
@@ -244,7 +246,7 @@ struct Propfind {
     prop: Prop,
 }
 
-#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(serde::Deserialize, Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     prefix = "d",
     rename = "propfind",
@@ -302,7 +304,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let davclient_response: MultiStatus = from_str(davclient_response_xml.as_str())?;
 
+    let davclient_response2: Result<MultiStatus, quick_xml::DeError> =
+        quick_xml::de::from_str(&davclient_response_xml);
+
     println!("{:#?}", davclient_response);
+    println!("{:#?}", davclient_response2);
+
+    exit(0);
 
     let href = davclient_response
         .response
