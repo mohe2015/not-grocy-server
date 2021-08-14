@@ -4,6 +4,8 @@ extern crate yaserde;
 #[macro_use]
 extern crate yaserde_derive;
 
+use chrono::{Duration, TimeZone, Utc};
+use icalendar::{Calendar, Class, Component, Event, Property, Todo};
 use reqwest::{header::CONTENT_TYPE, Method};
 use url::Url;
 use yaserde::de::from_str;
@@ -179,7 +181,7 @@ struct CalendarHomeSet {
 struct SupportedCalendarComponentSet {
     #[serde(rename = "$unflatten=cal:comp")]
     #[yaserde(prefix = "cal", rename = "comp")]
-    comp: Vec<Component>,
+    comp: Vec<CalendarComponent>,
 }
 
 #[derive(serde::Deserialize, Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
@@ -191,7 +193,7 @@ struct SupportedCalendarComponentSet {
     namespace = "oc: http://owncloud.org/ns",
     namespace = "nc: http://nextcloud.org/ns"
 )]
-struct Component {
+struct CalendarComponent {
     #[yaserde(attribute)]
     name: String,
 }
@@ -227,7 +229,7 @@ struct ResourceType {
 
     #[serde(rename = "$unflatten=cal:calendar")]
     #[yaserde(prefix = "cal", rename = "calendar")]
-    calendar: Option<Calendar>,
+    calendar: Option<CalDAVCalendar>,
 }
 
 #[derive(serde::Deserialize, Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
@@ -250,7 +252,7 @@ struct Collection {}
     namespace = "oc: http://owncloud.org/ns",
     namespace = "nc: http://nextcloud.org/ns"
 )]
-struct Calendar {}
+struct CalDAVCalendar {}
 
 #[derive(serde::Deserialize, Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
@@ -289,9 +291,17 @@ struct TheSelf {}
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
+    // webdav
+    // https://datatracker.ietf.org/doc/html/rfc4918
+    // webdav principal https://www.ietf.org/rfc/rfc5397.txt
+
+    // caldav
+    // https://datatracker.ietf.org/doc/html/rfc4791
+    // https://datatracker.ietf.org/doc/html/rfc6638
+
     // DONE https://github.com/marshalshi/caldav-client-rust
     // DONE https://marshalshi.medium.com/rust-caldav-client-from-scratch-da173cfc905d
-    // https://sabre.io/dav/building-a-caldav-client/
+    // IMPORTANT https://sabre.io/dav/building-a-caldav-client/
 
     let yaserde_cfg = yaserde::ser::Config {
         perform_indent: true,
@@ -517,6 +527,39 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
     }
+
+    let event = Event::new()
+        .summary("test event")
+        .description("here I have something really important to do")
+        .starts(Utc::now())
+        .class(Class::Confidential)
+        .ends(Utc::now() + Duration::days(1))
+        .append_property(
+            Property::new("TEST", "FOOBAR")
+                .add_parameter("IMPORTANCE", "very")
+                .add_parameter("DUE", "tomorrow")
+                .done(),
+        )
+        .done();
+
+    let bday = Event::new()
+        .all_day(Utc.ymd(2020, 3, 15))
+        .summary("My Birthday")
+        .description(
+            r#"Hey, I'm gonna have a party
+    BYOB: Bring your own beer.
+    Hendrik"#,
+        )
+        .done();
+
+    let todo = Todo::new().summary("Buy some milk").done();
+
+    let mut calendar = Calendar::new();
+    calendar.push(event);
+    calendar.push(todo);
+    calendar.push(bday);
+
+    println!("{}", calendar);
 
     Ok(())
 }
