@@ -1643,6 +1643,7 @@ dependencies = [
  "structopt",
  "thiserror",
  "url 2.2.2",
+ "uuid",
  "yaserde",
  "yaserde_derive",
 ]

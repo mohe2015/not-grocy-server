@@ -8,6 +8,7 @@ use chrono::{Duration, TimeZone, Utc};
 use icalendar::{Calendar, Class, Component, Event, Property, Todo};
 use reqwest::{header::CONTENT_TYPE, Method};
 use url::Url;
+use uuid::Uuid;
 use yaserde::de::from_str;
 //use quick_xml::de::from_str;
 
@@ -523,7 +524,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let reader = ical::IcalParser::new(calendar_data.as_bytes());
 
             for line in reader {
-                println!("{:#?}", line);
+                println!("aaa {:#?}", line);
             }
         }
     }
@@ -552,14 +553,34 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .done();
 
-    let todo = Todo::new().summary("Buy some milk").done();
+    let uid = Uuid::new_v4();
+    let todo = Todo::new()
+        .summary("Buy some milk")
+        .uid(&uid.to_string())
+        .done();
 
     let mut calendar = Calendar::new();
     calendar.push(event);
-    calendar.push(todo);
-    calendar.push(bday);
 
     println!("{}", calendar);
+
+    let mut calendar_put_url = calendar_url.clone();
+
+    calendar_put_url.set_path(&(calendar_put_url.path().to_string() + &uid.to_string() + ".ics"));
+
+    println!("{}", calendar_put_url);
+
+    let calendar_put_xml = client
+        .request(Method::PUT, calendar_put_url.as_str())
+        .header(CONTENT_TYPE, "text/calendar; charset=utf-8")
+        .basic_auth("Moritz.Hedtke", Some(&password))
+        .body(calendar.to_string())
+        .send()
+        .await?
+        .text()
+        .await?;
+
+    println!("{}", calendar_put_xml);
 
     Ok(())
 }

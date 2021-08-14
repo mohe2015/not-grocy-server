@@ -34,3 +34,4 @@ url = "2"
 icalendar = "0.10"
 ical = "0.7"
 quick-xml = { git = "https://github.com/tafia/quick-xml.git", branch = "issue-299", features = [ "encoding", "serialize" ] }
+uuid = { version = "0.8", features = ["v4"] }
