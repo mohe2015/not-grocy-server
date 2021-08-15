@@ -15,6 +15,11 @@
 # Assigned Roles: all roles for permissions
 
 # Client Scopes -> add all perms
+# for each of them add a "realm roles" mapper???
+
+# Client Scopes -> Default Client Scopes -> Add to optional
+
+# Client Scopes -> for each -> Scope -> Add assigned roles??? I THINK THIS DID IT?
 
 "When issuing tokens for a particular user, the client scope is applied only if the user is permitted to use it. In the case that a client scope does not have any role scope mappings defined on itself, then each user is automatically permitted to use this client scope. However, when a client scope has any role scope mappings defined on itself, then the user must be a member of at least one of the roles. In other words, there must be an intersection between the user roles and the roles of the client scope. Composite roles are taken into account when evaluating this intersection."
 
