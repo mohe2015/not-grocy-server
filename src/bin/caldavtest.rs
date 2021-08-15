@@ -543,7 +543,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .done();
 
-    let bday = Event::new()
+    let _bday = Event::new()
         .all_day(Utc.ymd(2020, 3, 15))
         .summary("My Birthday")
         .description(
@@ -554,7 +554,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .done();
 
     let uid = Uuid::new_v4();
-    let todo = Todo::new()
+    let _todo = Todo::new()
         .summary("Buy some milk")
         .uid(&uid.to_string())
         .done();

@@ -1,17 +1,12 @@
 use oauth2::basic::BasicClient;
 use oauth2::reqwest::async_http_client;
-use oauth2::{
-    AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken, PkceCodeChallenge, RedirectUrl,
-    Scope, TokenResponse, TokenUrl,
-};
-use url::Url;
+use oauth2::{AuthUrl, AuthorizationCode, ClientId, ClientSecret, RedirectUrl, TokenUrl};
 
 use serde::Deserialize;
 use std::{env, str};
 
-use crate::api::utils::R2D2Error;
-use crate::api::utils::{DieselError, OAuthError};
-use crate::models::*;
+use crate::api::utils::OAuthError;
+
 use actix_web::{web, HttpResponse};
 use chrono::NaiveDate;
 use chrono::NaiveDateTime;
@@ -21,17 +16,16 @@ use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
 use diesel::types::FromSql;
 use diesel::types::HasSqlType;
-use r2d2::PooledConnection;
 
 #[derive(Deserialize)]
 pub struct Info {
-    state: String,
-    session_state: String,
+    //state: String,
+    //session_state: String,
     code: String,
 }
 
 pub async fn index<T>(
-    pool: web::Data<r2d2::Pool<ConnectionManager<T>>>,
+    _pool: web::Data<r2d2::Pool<ConnectionManager<T>>>,
     info: web::Query<Info>,
 ) -> actix_web::Result<HttpResponse>
 where

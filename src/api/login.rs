@@ -1,16 +1,9 @@
 use oauth2::basic::BasicClient;
-use oauth2::reqwest::async_http_client;
-use oauth2::{
-    AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken, PkceCodeChallenge, RedirectUrl,
-    Scope, TokenResponse, TokenUrl,
-};
-use url::Url;
+
+use oauth2::{AuthUrl, ClientId, ClientSecret, CsrfToken, RedirectUrl, Scope, TokenUrl};
 
 use std::{env, str};
 
-use crate::api::utils::R2D2Error;
-use crate::api::utils::{DieselError, OAuthError};
-use crate::models::*;
 use actix_web::{web, HttpResponse};
 use chrono::NaiveDate;
 use chrono::NaiveDateTime;
@@ -20,10 +13,9 @@ use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
 use diesel::types::FromSql;
 use diesel::types::HasSqlType;
-use r2d2::PooledConnection;
 
 pub async fn index<T>(
-    pool: web::Data<r2d2::Pool<ConnectionManager<T>>>,
+    _pool: web::Data<r2d2::Pool<ConnectionManager<T>>>,
 ) -> actix_web::Result<HttpResponse>
 where
     T: Connection<TransactionManager = AnsiTransactionManager> + 'static,
@@ -61,7 +53,7 @@ where
     .set_redirect_uri(RedirectUrl::new("http://localhost:8080/redirect".to_string()).unwrap());
 
     // Generate the full authorization URL.
-    let (auth_url, csrf_token) = client
+    let (auth_url, _csrf_token) = client
         .authorize_url(CsrfToken::new_random)
         // Set the desired scopes.
         .add_scope(Scope::new("stock:view".to_string()))
@@ -74,7 +66,7 @@ where
     println!("Browse to: {}", auth_url);
 
     Ok(HttpResponse::Found()
-        .header("Location", auth_url.to_string())
+        .append_header(("Location", auth_url.to_string()))
         .finish())
 
     //let connection = pool.get().map_err(R2D2Error)?;
