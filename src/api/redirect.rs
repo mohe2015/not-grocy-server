@@ -69,9 +69,6 @@ where
     // Set the URL the user will be redirected to after the authorization process.
     .set_redirect_uri(RedirectUrl::new("http://localhost:8080/redirect".to_string()).unwrap());
 
-    // Generate a PKCE challenge.
-    let (pkce_challenge, pkce_verifier) = PkceCodeChallenge::new_random_sha256();
-
     // Once the user has been redirected to the redirect URL, you'll have access to the
     // TODO FIXME authorization code. For security reasons, your code should verify that the `state`
     // parameter returned by the server matches `csrf_state`.
@@ -79,8 +76,6 @@ where
     // Now you can trade it for an access token.
     let token_result = client
         .exchange_code(AuthorizationCode::new(info.code.to_string()))
-        // Set the PKCE code verifier.
-        .set_pkce_verifier(pkce_verifier)
         .request_async(async_http_client)
         .await
         .map_err(OAuthError)?;
