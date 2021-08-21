@@ -15,7 +15,7 @@ use yaserde::de::from_str;
 // https://datatracker.ietf.org/doc/html/rfc4791#section-1.2
 // TODO FIXME use RFC namespace names
 
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     prefix = "d",
     rename = "multistatus",
@@ -27,12 +27,11 @@ use yaserde::de::from_str;
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct MultiStatus {
-    // #[serde(rename = "$unflatten=d:response")]
     #[yaserde(prefix = "d", rename = "response")]
     response: Vec<Response>,
 }
 
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -42,16 +41,14 @@ struct MultiStatus {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct Response {
-    // #[serde(rename = "$unflatten=d:href")]
     #[yaserde(prefix = "d", rename = "href")]
     href: String,
 
-    // #[serde(rename = "$unflatten=d:propstat")]
     #[yaserde(prefix = "d", rename = "propstat")]
     propstat: Vec<PropStat>,
 }
 
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -61,16 +58,14 @@ struct Response {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct PropStat {
-    // #[serde(rename = "$unflatten=d:prop")]
     #[yaserde(prefix = "d", rename = "prop")]
     prop: Prop,
 
-    // #[serde(rename = "$unflatten=d:status")]
     #[yaserde(prefix = "d", rename = "status")]
     status: String,
 }
 
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -82,68 +77,53 @@ struct PropStat {
     namespace = "x2: http://nextcloud.com/ns"
 )]
 struct Prop {
-    // #[serde(rename = "$unflatten=d:resourcetype")]
     #[yaserde(prefix = "d", rename = "resourcetype")]
     resourcetype: Option<ResourceType>,
 
-    // #[serde(rename = "$unflatten=cs:getctag")]
     #[yaserde(prefix = "cs", rename = "getctag")]
     getctag: Option<String>,
 
-    // #[serde(rename = "$unflatten=d:getetag")]
     #[yaserde(prefix = "d", rename = "getetag")]
     getetag: Option<String>,
 
-    // #[serde(rename = "$unflatten=cal:calendar-data")]
     #[yaserde(prefix = "cal", rename = "calendar-data")]
     calendar_data: Option<String>,
 
-    // #[serde(rename = "$unflatten=s:sync-token")]
     #[yaserde(prefix = "s", rename = "sync-token")]
     sync_token: Option<i32>,
 
-    // #[serde(rename = "$unflatten=cal:supported-calendar-component-set")]
     #[yaserde(prefix = "cal", rename = "supported-calendar-component-set")]
     supported_calendar_component_set: Option<SupportedCalendarComponentSet>,
 
-    // #[serde(rename = "$unflatten=cal:schedule-calendar-transp")]
     #[yaserde(prefix = "cal", rename = "schedule-calendar-transp")]
     schedule_calendar_transp: Option<ScheduleCalendarTransp>,
 
-    // #[serde(rename = "$unflatten=oc:owner-principal")]
     #[yaserde(prefix = "oc", rename = "owner-principal")]
     owner_principal: Option<String>,
 
-    // #[serde(rename = "$unflatten=d:displayname")]
     #[yaserde(prefix = "d", rename = "displayname")]
     displayname: Option<String>,
 
-    // #[serde(rename = "$unflatten=cal:calendar-timezone")]
     #[yaserde(prefix = "cal", rename = "calendar-timezone")]
     calendar_timezone: Option<String>,
 
-    // #[serde(rename = "$unflatten=x1:calendar-order")]
     #[yaserde(prefix = "x1", rename = "calendar-order")]
     calendar_order: Option<String>,
 
-    // #[serde(rename = "$unflatten=x1:calendar-color")]
     #[yaserde(prefix = "x1", rename = "calendar-color")]
     calendar_color: Option<String>,
 
-    // #[serde(rename = "$unflatten=x2:owner-displayname")]
     #[yaserde(prefix = "x2", rename = "owner-displayname")]
     owner_displayname: Option<String>,
 
-    // #[serde(rename = "$unflatten=d:current-user-principal")]
     #[yaserde(prefix = "d", rename = "current-user-principal")]
     current_user_principal: Option<CurrentUserPrincipal>,
 
-    // #[serde(rename = "$unflatten=cal:calendar-home-set")]
     #[yaserde(prefix = "cal", rename = "calendar-home-set")]
     calendar_home_set: Option<CalendarHomeSet>,
 }
 
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -153,12 +133,11 @@ struct Prop {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct CurrentUserPrincipal {
-    // #[serde(rename = "$unflatten=d:href")]
     #[yaserde(prefix = "d", rename = "href")]
     href: Option<String>,
 }
 
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -168,12 +147,11 @@ struct CurrentUserPrincipal {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct CalendarHomeSet {
-    // #[serde(rename = "$unflatten=d:href")]
     #[yaserde(prefix = "d", rename = "href")]
     href: Option<String>,
 }
 
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -183,12 +161,11 @@ struct CalendarHomeSet {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct SupportedCalendarComponentSet {
-    // #[serde(rename = "$unflatten=cal:comp")]
     #[yaserde(prefix = "cal", rename = "comp")]
     comp: Vec<CalendarComponent>,
 }
 
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -202,7 +179,7 @@ struct CalendarComponent {
     name: String,
 }
 
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -212,12 +189,11 @@ struct CalendarComponent {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct ScheduleCalendarTransp {
-    // #[serde(rename = "$unflatten=cal:opaque")]
     #[yaserde(prefix = "cal", rename = "opaque")]
     opaque: String,
 }
 
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -227,16 +203,14 @@ struct ScheduleCalendarTransp {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct ResourceType {
-    // #[serde(rename = "$unflatten=d:collection")]
     #[yaserde(prefix = "d", rename = "collection")]
     collection: Option<Collection>,
 
-    // #[serde(rename = "$unflatten=cal:calendar")]
     #[yaserde(prefix = "cal", rename = "calendar")]
     calendar: Option<CalDAVCalendar>,
 }
 
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -247,7 +221,7 @@ struct ResourceType {
 )]
 struct Collection {}
 
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
@@ -258,7 +232,7 @@ struct Collection {}
 )]
 struct CalDAVCalendar {}
 
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     prefix = "d",
     rename = "propfind",
@@ -270,16 +244,14 @@ struct CalDAVCalendar {}
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct Propfind {
-    // #[serde(rename = "$unflatten=d:self")]
     #[yaserde(prefix = "d", rename = "self")]
     the_self: Option<TheSelf>,
 
-    // #[serde(rename = "$unflatten=d:prop")]
     #[yaserde(prefix = "d", rename = "prop")]
     prop: Prop,
 }
 
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     prefix = "d",
     rename = "propfind",
@@ -293,7 +265,7 @@ struct Propfind {
 struct TheSelf {}
 
 // https://datatracker.ietf.org/doc/html/rfc4791#section-9.5
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     prefix = "cal",
     rename = "calendar-query",
@@ -305,17 +277,15 @@ struct TheSelf {}
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct CalendarQuery {
-    // #[serde(rename = "$unflatten=d:prop")]
     #[yaserde(prefix = "d", rename = "prop")]
     prop: Prop,
 
-    // #[serde(rename = "$unflatten=d:filter")]
     #[yaserde(prefix = "d", rename = "filter")]
     filter: CalDAVFilter,
 }
 
 // https://datatracker.ietf.org/doc/html/rfc4791#section-9.7
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     prefix = "cal",
     rename = "filter",
@@ -327,13 +297,12 @@ struct CalendarQuery {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct CalDAVFilter {
-    // #[serde(rename = "$unflatten=d:comp-filter")]
     #[yaserde(prefix = "d", rename = "comp-filter")]
-    comp_filter: CalDAVCompFilter
+    comp_filter: CalDAVCompFilter,
 }
 
 // https://datatracker.ietf.org/doc/html/rfc4791#section-9.7.1
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     prefix = "cal",
     rename = "comp-filter",
@@ -348,13 +317,12 @@ struct CalDAVCompFilter {
     #[yaserde(attribute)]
     name: String,
 
-    // #[serde(rename = "$unflatten=d:comp-filter")]
     #[yaserde(prefix = "d", rename = "comp-filter")]
-    comp_filter: Vec<CalDAVCompFilter>
+    comp_filter: Vec<CalDAVCompFilter>,
 }
 
 // https://datatracker.ietf.org/doc/html/rfc4791#section-9.7.2
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     prefix = "cal",
     rename = "prop-filter",
@@ -369,13 +337,12 @@ struct CalDAVPropFilter {
     #[yaserde(attribute)]
     name: String,
 
-    // #[serde(rename = "$unflatten=d:comp-filter")]
     #[yaserde(prefix = "d", rename = "param-filter")]
-    comp_filter: Vec<CalDAVParamFilter>
+    comp_filter: Vec<CalDAVParamFilter>,
 }
 
 // https://datatracker.ietf.org/doc/html/rfc4791#section-9.7.3
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     prefix = "cal",
     rename = "param-filter",
@@ -390,12 +357,11 @@ struct CalDAVParamFilter {
     #[yaserde(attribute)]
     name: String,
 
-    // #[serde(rename = "$unflatten=d:is-not-defined")]
     #[yaserde(prefix = "d", rename = "is-not-defined")]
-    is_not_defined: Option<CalDAVIsNotDefined>
+    is_not_defined: Option<CalDAVIsNotDefined>,
 }
 
-#[derive(/* serde::Deserialize, */Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     prefix = "cal",
     rename = "param-filter",
@@ -406,9 +372,7 @@ struct CalDAVParamFilter {
     namespace = "oc: http://owncloud.org/ns",
     namespace = "nc: http://nextcloud.org/ns"
 )]
-struct CalDAVIsNotDefined {
-
-}
+struct CalDAVIsNotDefined {}
 
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
