@@ -1653,14 +1653,11 @@ dependencies = [
  "icalendar",
  "migrations_internals",
  "oauth2",
- "quick-xml",
- "quote",
  "r2d2",
  "reqwest",
  "serde",
  "serde_json",
  "structopt",
- "syn",
  "thiserror",
  "url 2.2.2",
  "uuid",
@@ -1952,16 +1949,6 @@ name = "quick-error"
 version = "1.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a1d01941d82fa2ab50be1e79e6714289dd7cde78eba4c074bc5a4374f650dfe0"
-
-[[package]]
-name = "quick-xml"
-version = "0.23.0-alpha2"
-source = "git+https://github.com/tafia/quick-xml.git?branch=issue-299#33c4a2b7bdc9a09d44dfbbb52173b63172a3891b"
-dependencies = [
- "encoding_rs",
- "memchr",
- "serde",
-]
 
 [[package]]
 name = "quote"
