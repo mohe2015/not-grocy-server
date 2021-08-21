@@ -9,6 +9,9 @@ include = ["src/**/*", "LICENSE", "README.md"]
 [profile.dev]
 incremental = true
 
+[lib]
+proc-macro = true
+
 [dependencies]
 # https://github.com/actix/actix-web/issues/2249
 actix-web = "4.0.0-beta.8"
@@ -36,3 +39,5 @@ ical = "0.7"
 quick-xml = { git = "https://github.com/tafia/quick-xml.git", branch = "issue-299", features = [ "encoding", "serialize" ] }
 uuid = { version = "0.8", features = ["v4"] }
 oauth2 = "4.1.0"
+syn = "1.0"
+quote = "1.0"

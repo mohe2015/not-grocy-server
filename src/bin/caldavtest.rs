@@ -15,10 +15,30 @@ use yaserde::de::from_str;
 // https://datatracker.ietf.org/doc/html/rfc4791#section-1.2
 // TODO FIXME use RFC namespace names
 
+/*
+#[macro_export]
+macro_rules! yaserde_caldav {
+    ($prefix:expr, $name:expr, $item:item) => {
+        #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+        #[yaserde(
+            prefix = $prefix,
+            rename = $name,
+            namespace = "d: DAV:",
+            namespace = "s: http://sabredav.org/ns",
+            namespace = "cal: urn:ietf:params:xml:ns:caldav",
+            namespace = "cs: http://calendarserver.org/ns/",
+            namespace = "oc: http://owncloud.org/ns",
+            namespace = "nc: http://nextcloud.org/ns"
+        )]
+        $item
+    };
+}*/
+
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     prefix = "d",
     rename = "multistatus",
+    default_namespace = "d",
     namespace = "d: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "cal: urn:ietf:params:xml:ns:caldav",
