@@ -9,9 +9,7 @@ include = ["src/**/*", "LICENSE", "README.md"]
 [dependencies]
 # https://github.com/actix/actix-web/issues/2249
 actix-web = "4.0.0-beta.8"
-actix-files = "0.5"
-futures-util = "0.3"
-diesel = { version = "1", features = ["sqlite", "postgres", "mysql", "chrono", "r2d2"] }
+diesel = { version = "1", features = ["sqlite", "postgres", "mysql", "chrono", "r2d2"] } # TODO FIXME only enable features you need
 diesel_migrations = { version = "1" }
 migrations_internals = "1"
 dotenv = "0.15"
@@ -23,7 +21,6 @@ barrel = { git = "https://github.com/mohe2015/barrel.git", features = ["sqlite3"
 structopt = { version = "0.3" }
 reqwest = "0.11"
 actix-cors = "0.6.0-beta.2"
-thiserror = "1"
 env_logger = "0.9"
 yaserde = "0.7"
 yaserde_derive = "0.7"
