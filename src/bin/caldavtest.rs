@@ -23,7 +23,7 @@ macro_rules! yaserde_caldav {
         #[yaserde(
             prefix = $prefix,
             rename = $name,
-            namespace = "d: DAV:",
+            namespace = "DAV: DAV:",
             namespace = "s: http://sabredav.org/ns",
             namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
             namespace = "cs: http://calendarserver.org/ns/",
@@ -36,10 +36,10 @@ macro_rules! yaserde_caldav {
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
-    prefix = "d",
+    prefix = "DAV",
     rename = "multistatus",
     default_namespace = "d",
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
@@ -47,13 +47,13 @@ macro_rules! yaserde_caldav {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct MultiStatus {
-    #[yaserde(prefix = "d", rename = "response")]
+    #[yaserde(prefix = "DAV", rename = "response")]
     response: Vec<Response>,
 }
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
@@ -61,16 +61,16 @@ struct MultiStatus {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct Response {
-    #[yaserde(prefix = "d", rename = "href")]
+    #[yaserde(prefix = "DAV", rename = "href")]
     href: String,
 
-    #[yaserde(prefix = "d", rename = "propstat")]
+    #[yaserde(prefix = "DAV", rename = "propstat")]
     propstat: Vec<PropStat>,
 }
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
@@ -78,16 +78,16 @@ struct Response {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct PropStat {
-    #[yaserde(prefix = "d", rename = "prop")]
+    #[yaserde(prefix = "DAV", rename = "prop")]
     prop: Prop,
 
-    #[yaserde(prefix = "d", rename = "status")]
+    #[yaserde(prefix = "DAV", rename = "status")]
     status: String,
 }
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
@@ -97,13 +97,13 @@ struct PropStat {
     namespace = "x2: http://nextcloud.com/ns"
 )]
 struct Prop {
-    #[yaserde(prefix = "d", rename = "resourcetype")]
+    #[yaserde(prefix = "DAV", rename = "resourcetype")]
     resourcetype: Option<ResourceType>,
 
     #[yaserde(prefix = "cs", rename = "getctag")]
     getctag: Option<String>,
 
-    #[yaserde(prefix = "d", rename = "getetag")]
+    #[yaserde(prefix = "DAV", rename = "getetag")]
     getetag: Option<String>,
 
     #[yaserde(prefix = "CALDAV", rename = "calendar-data")]
@@ -121,7 +121,7 @@ struct Prop {
     #[yaserde(prefix = "oc", rename = "owner-principal")]
     owner_principal: Option<String>,
 
-    #[yaserde(prefix = "d", rename = "displayname")]
+    #[yaserde(prefix = "DAV", rename = "displayname")]
     displayname: Option<String>,
 
     #[yaserde(prefix = "CALDAV", rename = "calendar-timezone")]
@@ -136,7 +136,7 @@ struct Prop {
     #[yaserde(prefix = "x2", rename = "owner-displayname")]
     owner_displayname: Option<String>,
 
-    #[yaserde(prefix = "d", rename = "current-user-principal")]
+    #[yaserde(prefix = "DAV", rename = "current-user-principal")]
     current_user_principal: Option<CurrentUserPrincipal>,
 
     #[yaserde(prefix = "CALDAV", rename = "calendar-home-set")]
@@ -145,7 +145,7 @@ struct Prop {
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
@@ -153,13 +153,13 @@ struct Prop {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct CurrentUserPrincipal {
-    #[yaserde(prefix = "d", rename = "href")]
+    #[yaserde(prefix = "DAV", rename = "href")]
     href: Option<String>,
 }
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
@@ -167,13 +167,13 @@ struct CurrentUserPrincipal {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct CalendarHomeSet {
-    #[yaserde(prefix = "d", rename = "href")]
+    #[yaserde(prefix = "DAV", rename = "href")]
     href: Option<String>,
 }
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
@@ -187,7 +187,7 @@ struct SupportedCalendarComponentSet {
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
@@ -201,7 +201,7 @@ struct CalendarComponent {
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
@@ -215,7 +215,7 @@ struct ScheduleCalendarTransp {
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
@@ -223,7 +223,7 @@ struct ScheduleCalendarTransp {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct ResourceType {
-    #[yaserde(prefix = "d", rename = "collection")]
+    #[yaserde(prefix = "DAV", rename = "collection")]
     collection: Option<Collection>,
 
     #[yaserde(prefix = "CALDAV", rename = "calendar")]
@@ -232,7 +232,7 @@ struct ResourceType {
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
@@ -243,7 +243,7 @@ struct Collection {}
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
@@ -254,9 +254,9 @@ struct CalDAVCalendar {}
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
-    prefix = "d",
+    prefix = "DAV",
     rename = "propfind",
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
@@ -264,18 +264,18 @@ struct CalDAVCalendar {}
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct Propfind {
-    #[yaserde(prefix = "d", rename = "self")]
+    #[yaserde(prefix = "DAV", rename = "self")]
     the_self: Option<TheSelf>,
 
-    #[yaserde(prefix = "d", rename = "prop")]
+    #[yaserde(prefix = "DAV", rename = "prop")]
     prop: Prop,
 }
 
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
-    prefix = "d",
+    prefix = "DAV",
     rename = "propfind",
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
@@ -289,7 +289,7 @@ struct TheSelf {}
 #[yaserde(
     prefix = "CALDAV",
     rename = "calendar-query",
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
@@ -297,10 +297,10 @@ struct TheSelf {}
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct CalendarQuery {
-    #[yaserde(prefix = "d", rename = "prop")]
+    #[yaserde(prefix = "DAV", rename = "prop")]
     prop: Prop,
 
-    #[yaserde(prefix = "d", rename = "filter")]
+    #[yaserde(prefix = "DAV", rename = "filter")]
     filter: CalDAVFilter,
 }
 
@@ -309,7 +309,7 @@ struct CalendarQuery {
 #[yaserde(
     prefix = "CALDAV",
     rename = "filter",
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
@@ -317,7 +317,7 @@ struct CalendarQuery {
     namespace = "nc: http://nextcloud.org/ns"
 )]
 struct CalDAVFilter {
-    #[yaserde(prefix = "d", rename = "comp-filter")]
+    #[yaserde(prefix = "DAV", rename = "comp-filter")]
     comp_filter: CalDAVCompFilter,
 }
 
@@ -326,7 +326,7 @@ struct CalDAVFilter {
 #[yaserde(
     prefix = "CALDAV",
     rename = "comp-filter",
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
@@ -337,7 +337,7 @@ struct CalDAVCompFilter {
     #[yaserde(attribute)]
     name: String,
 
-    #[yaserde(prefix = "d", rename = "comp-filter")]
+    #[yaserde(prefix = "DAV", rename = "comp-filter")]
     comp_filter: Vec<CalDAVCompFilter>,
 }
 
@@ -346,7 +346,7 @@ struct CalDAVCompFilter {
 #[yaserde(
     prefix = "CALDAV",
     rename = "prop-filter",
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
@@ -357,7 +357,7 @@ struct CalDAVPropFilter {
     #[yaserde(attribute)]
     name: String,
 
-    #[yaserde(prefix = "d", rename = "param-filter")]
+    #[yaserde(prefix = "DAV", rename = "param-filter")]
     comp_filter: Vec<CalDAVParamFilter>,
 }
 
@@ -366,7 +366,7 @@ struct CalDAVPropFilter {
 #[yaserde(
     prefix = "CALDAV",
     rename = "param-filter",
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
@@ -377,7 +377,7 @@ struct CalDAVParamFilter {
     #[yaserde(attribute)]
     name: String,
 
-    #[yaserde(prefix = "d", rename = "is-not-defined")]
+    #[yaserde(prefix = "DAV", rename = "is-not-defined")]
     is_not_defined: Option<CalDAVIsNotDefined>,
 }
 
@@ -385,7 +385,7 @@ struct CalDAVParamFilter {
 #[yaserde(
     prefix = "CALDAV",
     rename = "param-filter",
-    namespace = "d: DAV:",
+    namespace = "DAV: DAV:",
     namespace = "s: http://sabredav.org/ns",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav",
     namespace = "cs: http://calendarserver.org/ns/",
