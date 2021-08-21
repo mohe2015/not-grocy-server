@@ -115,6 +115,8 @@ where
                 "/api/system/config/grocy",
                 web::get().to(api::system::config::grocy::index::<T>),
             )
+            .route("/login", web::get().to(api::login::index::<T>))
+            .route("/redirect", web::get().to(api::redirect::index::<T>))
             .default_service(web::get().to(handler))
     })
     .bind("0.0.0.0:8080")? // TODO FIXME don't listen on all interfaces but docker needs this
@@ -126,6 +128,10 @@ where
 async fn main() -> std::io::Result<()> {
     env_logger::init();
     dotenv().ok();
+
+    // https://lib.rs/crates/yup-oauth2
+    // https://lib.rs/crates/oauth2 use this for now
+    // https://docs.rs/oauth2/4.1.0/oauth2/
 
     println!("init");
 

@@ -1,7 +1,7 @@
 {
   description = "not-grocy-server's development flake";
 
-  inputs.nixpkgs.url = "git+file:///etc/nixos/nixpkgs";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs = { self, nixpkgs, flake-utils }:
@@ -121,6 +121,15 @@
 
                 networking.hostName = "not-grocy";
 
+                services.radicale = {
+                  enable = true;
+                  settings = {
+                    server = {
+                      hosts = "0.0.0.0:5232";
+                    };
+                  };
+                };
+
                 services.mysql = {
                   enable = true;
                   package = pkgs.mariadb;
@@ -173,7 +182,7 @@
                   };
                 };
 
-                networking.firewall.allowedTCPPorts = [ 5432 3306 ];
+                networking.firewall.allowedTCPPorts = [ 5432 3306 5232 ];
 
                 system.stateVersion = "21.11";
           })

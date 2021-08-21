@@ -323,15 +323,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("{}", davclient_xml);
 
+    // http://moritz:moritz@10.233.2.2:5232/.web
+    // URL=http://10.233.2.2:5232/moritz PASSWORD=moritz cargo run --bin caldavtest
     // https://cloud.selfmade4u.de/remote.php/dav/calendars/Moritz.Hedtke/not-grocy/
     let url = std::env::var("URL").expect("URL required");
+    let username = std::env::var("USERNAME").expect("USERNAME required");
     let password = std::env::var("PASSWORD").expect("PASSWORD required");
     let client = reqwest::Client::new();
+
+    /*
     let davclient_response_xml = client
         .request(Method::from_bytes(b"PROPFIND").expect("PROPFIND"), &url)
         .header("Depth", 0)
         .header(CONTENT_TYPE, "application/xml")
-        .basic_auth("Moritz.Hedtke", Some(&password))
+        .basic_auth(&username, Some(&password))
         .body(davclient_xml)
         .send()
         .await?
@@ -381,7 +386,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .header("Depth", 0)
         .header(CONTENT_TYPE, "application/xml")
-        .basic_auth("Moritz.Hedtke", Some(&password))
+        .basic_auth(&username, Some(&password))
         .body(homeset_xml)
         .send()
         .await?
@@ -433,7 +438,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .header("Depth", 1)
         .header(CONTENT_TYPE, "application/xml")
-        .basic_auth("Moritz.Hedtke", Some(&password))
+        .basic_auth(&username, Some(&password))
         .body(cal_xml)
         .send()
         .await?
@@ -470,7 +475,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("{:?}", calendar_href);
 
     let mut calendar_url = Url::parse(&url).unwrap();
-    calendar_url.set_path(&calendar_href.unwrap());
+    calendar_url.set_path(&calendar_href.unwrap());*/
+
+    let calendar_url = Url::parse(&url).unwrap();
 
     // TODO FIXME xml
     let calendar_query = format!(
@@ -499,7 +506,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .header("Depth", 1)
         .header(CONTENT_TYPE, "application/xml")
-        .basic_auth("Moritz.Hedtke", Some(&password))
+        .basic_auth(&username, Some(&password))
         .body(calendar_query)
         .send()
         .await?
@@ -543,7 +550,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .done();
 
-    let bday = Event::new()
+    let _bday = Event::new()
         .all_day(Utc.ymd(2020, 3, 15))
         .summary("My Birthday")
         .description(
@@ -554,7 +561,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .done();
 
     let uid = Uuid::new_v4();
-    let todo = Todo::new()
+    let _todo = Todo::new()
         .summary("Buy some milk")
         .uid(&uid.to_string())
         .done();
@@ -573,7 +580,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let calendar_put_xml = client
         .request(Method::PUT, calendar_put_url.as_str())
         .header(CONTENT_TYPE, "text/calendar; charset=utf-8")
-        .basic_auth("Moritz.Hedtke", Some(&password))
+        .basic_auth(&username, Some(&password))
         .body(calendar.to_string())
         .send()
         .await?
