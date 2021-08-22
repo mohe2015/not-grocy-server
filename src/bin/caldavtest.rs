@@ -74,7 +74,7 @@ struct WebDAVProp {
     calendar_data: Option<String>,
 
     #[yaserde(prefix = "CALDAV", rename = "supported-calendar-component-set")]
-    supported_calendar_component_set: Option<SupportedCalendarComponentSet>,
+    supported_calendar_component_set: Option<CalDAVSupportedCalendarComponentSet>,
 
     #[yaserde(prefix = "CALDAV", rename = "schedule-calendar-transp")]
     schedule_calendar_transp: Option<ScheduleCalendarTransp>,
@@ -92,7 +92,7 @@ struct WebDAVProp {
     current_user_principal: Option<WebDAVCurrentUserPrincipal>,
 
     #[yaserde(prefix = "CALDAV", rename = "calendar-home-set")]
-    calendar_home_set: Option<CalendarHomeSet>,
+    calendar_home_set: Option<CalDAVCalendarHomeSet>,
 }
 
 // https://datatracker.ietf.org/doc/html/rfc5397#section-3
@@ -111,30 +111,38 @@ struct WebDAVCurrentUserPrincipal {
 // https://datatracker.ietf.org/doc/html/rfc4791#section-6.2.1
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
+    prefix = "CALDAV",
+    rename = "calendar-home-set",
     namespace = "DAV: DAV:",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav"
 )]
-struct CalendarHomeSet {
+struct CalDAVCalendarHomeSet {
     #[yaserde(prefix = "DAV", rename = "href")]
     href: Option<String>,
 }
 
+// https://datatracker.ietf.org/doc/html/rfc4791#section-5.2.3
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
+    prefix = "CALDAV",
+    rename = "supported-calendar-component-set",
     namespace = "DAV: DAV:",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav"
 )]
-struct SupportedCalendarComponentSet {
+struct CalDAVSupportedCalendarComponentSet {
     #[yaserde(prefix = "CALDAV", rename = "comp")]
-    comp: Vec<CalendarComponent>,
+    comp: Vec<CalDAVComp>,
 }
 
+// https://datatracker.ietf.org/doc/html/rfc4791#section-9.6.1
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
+    prefix = "CALDAV",
+    rename = "comp",
     namespace = "DAV: DAV:",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav"
 )]
-struct CalendarComponent {
+struct CalDAVComp {
     #[yaserde(attribute)]
     name: String,
 }
@@ -169,6 +177,7 @@ struct ResourceType {
 )]
 struct Collection {}
 
+// https://datatracker.ietf.org/doc/html/rfc4791#section-9.1
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     namespace = "DAV: DAV:",
@@ -176,6 +185,7 @@ struct Collection {}
 )]
 struct CalDAVCalendar {}
 
+// https://datatracker.ietf.org/doc/html/rfc4918#section-14.20
 #[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
 #[yaserde(
     prefix = "DAV",
@@ -183,7 +193,7 @@ struct CalDAVCalendar {}
     namespace = "DAV: DAV:",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav"
 )]
-struct Propfind {
+struct WebDAVPropfind {
     #[yaserde(prefix = "DAV", rename = "self")]
     the_self: Option<TheSelf>,
 
@@ -208,7 +218,7 @@ struct TheSelf {}
     namespace = "DAV: DAV:",
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav"
 )]
-struct CalendarQuery {
+struct CalDAVCalendarQuery {
     #[yaserde(prefix = "DAV", rename = "prop")]
     prop: WebDAVProp,
 
@@ -306,7 +316,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ..Default::default()
     };
 
-    let davclient = Propfind {
+    let davclient = WebDAVPropfind {
         prop: WebDAVProp {
             current_user_principal: Some(WebDAVCurrentUserPrincipal {
                 ..Default::default()
