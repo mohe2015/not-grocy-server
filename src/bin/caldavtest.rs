@@ -3,8 +3,10 @@ extern crate yaserde;
 extern crate yaserde_derive;
 
 use chrono::{Duration, TimeZone, Utc};
+use chrono_tz::UTC;
 use icalendar::{Calendar, Class, Component, Event, Property, Todo};
 use reqwest::{header::CONTENT_TYPE, Method};
+use rrule::{Frequenzy, Options, RRule, Weekday};
 use url::Url;
 use uuid::Uuid;
 use yaserde::de::from_str;
@@ -335,20 +337,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ..Default::default()
     };
 
-    let davclient = WebDAVPropfind {
-        prop: WebDAVProp {
-            current_user_principal: Some(WebDAVCurrentUserPrincipal {
-                ..Default::default()
-            }),
-            ..Default::default()
-        },
-        ..Default::default()
-    };
-
-    let davclient_xml = yaserde::ser::to_string_with_config(&davclient, &yaserde_cfg).unwrap();
-
-    println!("{}", davclient_xml);
-
     // http://moritz:moritz@10.233.2.2:5232/.web
     // URL=http://10.233.2.2:5232/moritz PASSWORD=moritz cargo run --bin caldavtest
     // https://cloud.selfmade4u.de/remote.php/dav/calendars/Moritz.Hedtke/not-grocy/
@@ -371,10 +359,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 comp_filter: vec![CalDAVCompFilter {
                     name: "VEVENT".to_string(),
                     comp_filter: vec![],
-                    time_range: Some(CalDAVTimeRange {
+                    /*time_range: Some(CalDAVTimeRange {
                         start: "20201102T000000Z".to_string(),
                         end: "20251107T000000Z".to_string(),
-                    }),
+                    }),*/
+                    ..Default::default()
                 }],
                 ..Default::default()
             },
@@ -384,7 +373,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let calendar_query_xml =
         yaserde::ser::to_string_with_config(&calendar_query, &yaserde_cfg).unwrap();
 
-    println!("{}", calendar_query_xml);
+    //println!("{}", calendar_query_xml);
 
     let calendar_response_xml = client
         .request(
@@ -400,11 +389,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .text()
         .await?;
 
-    println!("{}", calendar_response_xml);
+    //println!("{}", calendar_response_xml);
 
     let calendar_response: WebDAVMultiStatus = from_str(calendar_response_xml.as_str())?;
 
-    println!("{:#?}", calendar_response);
+    //println!("{:#?}", calendar_response);
 
     // https://crates.io/crates/rrule
     // https://crates.io/crates/icalendar (probably good for generation)
@@ -418,7 +407,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let reader = ical::IcalParser::new(calendar_data.as_bytes());
 
             for line in reader {
-                println!("aaa {:#?}", line);
+                let v = line?;
+                for event in v.events {
+                    let start = event
+                        .properties
+                        .iter()
+                        .find(|e| e.name == "DTSTART")
+                        .ok_or(std::io::Error::new(std::io::ErrorKind::NotFound, "DTSTART"))?;
+                    println!(
+                        "{}",
+                        start
+                            .value
+                            .as_ref()
+                            .ok_or(std::io::Error::new(std::io::ErrorKind::NotFound, ""))?
+                    );
+                    println!("{:?}", event);
+                }
             }
         }
     }
@@ -437,14 +441,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .done();
 
-    let _bday = Event::new()
-        .all_day(Utc.ymd(2020, 3, 15))
+    let mut options = Options::new()
+        .dtstart(UTC.ymd(2020, 1, 1).and_hms(9, 0, 0))
+        .count(5)
+        .freq(Frequenzy::Daily)
+        .build()
+        .unwrap();
+
+    // https://datatracker.ietf.org/doc/html/rfc5545#section-3.3.10
+    // https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.5
+
+    let bday = Event::new()
+        .starts(Utc::now())
+        .ends(Utc::now() + Duration::days(1))
+        .add_property("RRULE", "FREQ=YEARLY")
         .summary("My Birthday")
-        .description(
-            r#"Hey, I'm gonna have a party
-    BYOB: Bring your own beer.
-    Hendrik"#,
-        )
         .done();
 
     let uid = Uuid::new_v4();
@@ -454,7 +465,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .done();
 
     let mut calendar = Calendar::new();
-    calendar.push(event);
+    calendar.push(bday);
 
     println!("{}", calendar);
 
