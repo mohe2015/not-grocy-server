@@ -222,7 +222,7 @@ struct CalDAVCalendarQuery {
     #[yaserde(prefix = "DAV", rename = "prop")]
     prop: WebDAVProp,
 
-    #[yaserde(prefix = "DAV", rename = "filter")]
+    #[yaserde(prefix = "CALDAV", rename = "filter")]
     filter: CalDAVFilter,
 }
 
@@ -235,7 +235,7 @@ struct CalDAVCalendarQuery {
     namespace = "CALDAV: urn:ietf:params:xml:ns:caldav"
 )]
 struct CalDAVFilter {
-    #[yaserde(prefix = "DAV", rename = "comp-filter")]
+    #[yaserde(prefix = "CALDAV", rename = "comp-filter")]
     comp_filter: CalDAVCompFilter,
 }
 
@@ -251,8 +251,27 @@ struct CalDAVCompFilter {
     #[yaserde(attribute)]
     name: String,
 
-    #[yaserde(prefix = "DAV", rename = "comp-filter")]
+    #[yaserde(prefix = "CALDAV", rename = "comp-filter")]
     comp_filter: Vec<CalDAVCompFilter>,
+
+    #[yaserde(prefix = "CALDAV", rename = "time-range")]
+    time_range: Option<CalDAVTimeRange>,
+}
+
+// https://datatracker.ietf.org/doc/html/rfc4791#section-9.9
+#[derive(Default, Debug, YaDeserialize, YaSerialize, PartialEq)]
+#[yaserde(
+    prefix = "CALDAV",
+    rename = "time-range",
+    namespace = "DAV: DAV:",
+    namespace = "CALDAV: urn:ietf:params:xml:ns:caldav"
+)]
+struct CalDAVTimeRange {
+    #[yaserde(attribute)]
+    start: String,
+
+    #[yaserde(attribute)]
+    end: String,
 }
 
 // https://datatracker.ietf.org/doc/html/rfc4791#section-9.7.2
@@ -488,7 +507,34 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // TODO FIXME xml
     // https://datatracker.ietf.org/doc/html/rfc4791#section-7.8
-    let calendar_query = format!(
+    let calendar_query = CalDAVCalendarQuery {
+        prop: WebDAVProp {
+            getetag: Some("".to_string()),
+            calendar_data: Some("".to_string()),
+            ..Default::default()
+        },
+        filter: CalDAVFilter {
+            comp_filter: CalDAVCompFilter {
+                name: "VCALENDAR".to_string(),
+                comp_filter: vec![CalDAVCompFilter {
+                    name: "VEVENT".to_string(),
+                    comp_filter: vec![],
+                    time_range: Some(CalDAVTimeRange {
+                        start: "20201102T000000Z".to_string(),
+                        end: "20251107T000000Z".to_string(),
+                    }),
+                }],
+                ..Default::default()
+            },
+        },
+    };
+
+    let calendar_query_xml =
+        yaserde::ser::to_string_with_config(&calendar_query, &yaserde_cfg).unwrap();
+
+    println!("{}", calendar_query_xml);
+
+    let calendar_query2 = format!(
         r#"
     <c:calendar-query xmlns:d="DAV:" xmlns:c="urn:ietf:params:xml:ns:caldav">
       <d:prop>
@@ -507,6 +553,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "20201102T000000Z", "20251107T000000Z"
     );
 
+    println!("{}", calendar_query2);
+
     let calendar_response_xml = client
         .request(
             Method::from_bytes(b"REPORT").expect("REPORT"),
@@ -515,7 +563,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .header("Depth", 1)
         .header(CONTENT_TYPE, "application/xml")
         .basic_auth(&username, Some(&password))
-        .body(calendar_query)
+        .body(calendar_query_xml)
         .send()
         .await?
         .text()
