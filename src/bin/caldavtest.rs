@@ -343,12 +343,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     // http://moritz:moritz@10.233.2.2:5232/.web
-    // URL=http://10.233.2.2:5232/moritz PASSWORD=moritz cargo run --bin caldavtest
+    // URL=http://10.233.2.2:5232/moritz/ad833d3a-eee2-eabe-94cd-48f2568e1a1a/ USERNAME=moritz PASSWORD=moritz cargo run --bin caldavtest
     // https://cloud.selfmade4u.de/remote.php/dav/calendars/Moritz.Hedtke/not-grocy/
     let url = std::env::var("URL").expect("URL required");
     let username = std::env::var("USERNAME").expect("USERNAME required");
     let password = std::env::var("PASSWORD").expect("PASSWORD required");
     let client = reqwest::Client::new();
+
+    println!("{} {} {}", &url, &username, &password);
 
     let calendar_url = Url::parse(&url).unwrap();
 
@@ -364,10 +366,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 comp_filter: vec![CalDAVCompFilter {
                     name: "VEVENT".to_string(),
                     comp_filter: vec![],
-                    /*time_range: Some(CalDAVTimeRange {
+                    time_range: Some(CalDAVTimeRange {
                         start: "20201102T000000Z".to_string(),
                         end: "20251107T000000Z".to_string(),
-                    }),*/
+                    }),
                     ..Default::default()
                 }],
                 ..Default::default()
@@ -378,7 +380,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let calendar_query_xml =
         yaserde::ser::to_string_with_config(&calendar_query, &yaserde_cfg).unwrap();
 
-    //println!("{}", calendar_query_xml);
+    println!("{}", calendar_query_xml);
 
     let calendar_response_xml = client
         .request(
@@ -394,11 +396,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .text()
         .await?;
 
-    //println!("{}", calendar_response_xml);
+    println!("{}", calendar_response_xml);
 
     let calendar_response: WebDAVMultiStatus = from_str(calendar_response_xml.as_str())?;
 
-    //println!("{:#?}", calendar_response);
+    println!("{:#?}", calendar_response);
 
     // https://crates.io/crates/rrule
     // https://crates.io/crates/icalendar (probably good for generation)
@@ -419,14 +421,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         .iter()
                         .find(|e| e.name == "DTSTART")
                         .ok_or(std::io::Error::new(std::io::ErrorKind::NotFound, "DTSTART"))?;
-                    /*  println!(
+                    println!(
                         "{}",
                         start
                             .value
                             .as_ref()
                             .ok_or(std::io::Error::new(std::io::ErrorKind::NotFound, ""))?
                     );
-                    println!("{:?}", event);*/
+                    println!("{:?}", event);
                 }
             }
         }
@@ -434,7 +436,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let uid = Uuid::new_v4();
 
-    let event = IcalEvent::new();
+    let mut event = IcalEvent::new();
+    event.add_property(Property {
+        name: "DTSTART".to_string(),
+        params: None,
+        value: Some("20210814T221244Z".to_string()),
+    });
 
     /*.summary("test event")
             .description("here I have something really important to do")
