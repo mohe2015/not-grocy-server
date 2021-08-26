@@ -829,21 +829,10 @@ dependencies = [
 
 [[package]]
 name = "ical"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4a9f7215ad0d77e69644570dee000c7678a47ba7441062c1b5f918adde0d73cf"
+version = "0.6.0"
+source = "git+https://github.com/mohe2015/ical-rs.git?branch=my-changes#26a0988b80410563afa7028e691b9d6450551999"
 dependencies = [
  "thiserror",
-]
-
-[[package]]
-name = "icalendar"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9ef924cc883333ecdc23b8c4a677119ec6a2db9ef7748a2ae74e77c91ef14df"
-dependencies = [
- "chrono",
- "uuid",
 ]
 
 [[package]]
@@ -1094,7 +1083,6 @@ dependencies = [
  "dotenv",
  "env_logger",
  "ical",
- "icalendar",
  "migrations_internals",
  "oauth2",
  "r2d2",

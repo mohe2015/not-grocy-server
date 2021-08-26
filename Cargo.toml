@@ -26,8 +26,8 @@ env_logger = "0.9"
 yaserde = "0.7"
 yaserde_derive = "0.7"
 url = "2"
-icalendar = "0.10"
-ical = "0.7"
+#icalendar = "0.10"
+ical = { git = "https://github.com/mohe2015/ical-rs.git", branch = "my-changes", features = ["ical", "vcard", "generator"] }
 rrule = "0.5"
 uuid = { version = "0.8", features = ["v4"] }
 oauth2 = "4.1.0"

@@ -4,7 +4,12 @@ extern crate yaserde_derive;
 
 use chrono::{Duration, TimeZone, Utc};
 use chrono_tz::UTC;
-use icalendar::{Calendar, Class, Component, Event, Property, Todo};
+use ical::generator::Emitter;
+use ical::generator::IcalCalendar;
+use ical::generator::IcalEvent;
+use ical::generator::Property;
+use ical::parser::ical::component::IcalTodo;
+use ical::parser::Component;
 use reqwest::{header::CONTENT_TYPE, Method};
 use rrule::{Frequenzy, Options, RRule, Weekday};
 use url::Url;
@@ -414,33 +419,37 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         .iter()
                         .find(|e| e.name == "DTSTART")
                         .ok_or(std::io::Error::new(std::io::ErrorKind::NotFound, "DTSTART"))?;
-                    println!(
+                    /*  println!(
                         "{}",
                         start
                             .value
                             .as_ref()
                             .ok_or(std::io::Error::new(std::io::ErrorKind::NotFound, ""))?
                     );
-                    println!("{:?}", event);
+                    println!("{:?}", event);*/
                 }
             }
         }
     }
 
-    let event = Event::new()
-        .summary("test event")
-        .description("here I have something really important to do")
-        .starts(Utc::now())
-        .class(Class::Confidential)
-        .ends(Utc::now() + Duration::days(1))
-        .append_property(
-            Property::new("TEST", "FOOBAR")
-                .add_parameter("IMPORTANCE", "very")
-                .add_parameter("DUE", "tomorrow")
-                .done(),
-        )
-        .done();
+    let uid = Uuid::new_v4();
 
+    let event = IcalEvent::new();
+
+    /*.summary("test event")
+            .description("here I have something really important to do")
+            .starts(Utc::now())
+            .class(Class::Confidential)
+            .ends(Utc::now() + Duration::days(1))
+            .append_property(
+                Property::new("TEST", "FOOBAR")
+                    .add_parameter("IMPORTANCE", "very")
+                    .add_parameter("DUE", "tomorrow")
+                    .done(),
+            )
+            .done();
+    */
+    // rrule
     let mut options = Options::new()
         .dtstart(UTC.ymd(2020, 1, 1).and_hms(9, 0, 0))
         .count(5)
@@ -450,36 +459,35 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // https://datatracker.ietf.org/doc/html/rfc5545#section-3.3.10
     // https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.5
+    /*
+        let bday = IcalEvent::new()
+            .starts(Utc::now())
+            .ends(Utc::now() + Duration::days(1))
+            .add_property("RRULE", "FREQ=YEARLY")
+            .summary("My Birthday")
+            .done();
 
-    let bday = Event::new()
-        .starts(Utc::now())
-        .ends(Utc::now() + Duration::days(1))
-        .add_property("RRULE", "FREQ=YEARLY")
-        .summary("My Birthday")
-        .done();
+        let _todo = IcalTodo::new()
+            .summary("Buy some milk")
+            .uid(&uid.to_string())
+            .done();
+    */
+    let mut calendar = IcalCalendar::new();
+    calendar.events.push(event);
 
-    let uid = Uuid::new_v4();
-    let _todo = Todo::new()
-        .summary("Buy some milk")
-        .uid(&uid.to_string())
-        .done();
-
-    let mut calendar = Calendar::new();
-    calendar.push(bday);
-
-    println!("{}", calendar);
+    //println!("{}", calendar);
 
     let mut calendar_put_url = calendar_url.clone();
 
     calendar_put_url.set_path(&(calendar_put_url.path().to_string() + &uid.to_string() + ".ics"));
 
-    println!("{}", calendar_put_url);
+    //println!("{}", calendar_put_url);
 
     let calendar_put_xml = client
         .request(Method::PUT, calendar_put_url.as_str())
         .header(CONTENT_TYPE, "text/calendar; charset=utf-8")
         .basic_auth(&username, Some(&password))
-        .body(calendar.to_string())
+        .body(calendar.generate())
         .send()
         .await?
         .text()
