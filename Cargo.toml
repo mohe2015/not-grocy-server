@@ -6,19 +6,15 @@ include = ["src/**/*", "LICENSE", "README.md"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[profile.dev]
-incremental = true
-
 [dependencies]
 # https://github.com/actix/actix-web/issues/2249
 actix-web = "4.0.0-beta.8"
-actix-files = "0.5"
-futures-util = "0.3"
-diesel = { version = "1", features = ["sqlite", "postgres", "mysql", "chrono", "r2d2"] }
+diesel = { version = "1", features = ["sqlite", "postgres", "mysql", "chrono", "r2d2"] } # TODO FIXME only enable features you need
 diesel_migrations = { version = "1" }
 migrations_internals = "1"
 dotenv = "0.15"
 chrono = { version = "0.4", features = ["serde"] }
+chrono-tz = "0.5"
 r2d2 = "0.8"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
@@ -26,13 +22,12 @@ barrel = { git = "https://github.com/mohe2015/barrel.git", features = ["sqlite3"
 structopt = { version = "0.3" }
 reqwest = "0.11"
 actix-cors = "0.6.0-beta.2"
-thiserror = "1"
 env_logger = "0.9"
 yaserde = "0.7"
 yaserde_derive = "0.7"
 url = "2"
-icalendar = "0.10"
-ical = "0.7"
-quick-xml = { git = "https://github.com/tafia/quick-xml.git", branch = "issue-299", features = [ "encoding", "serialize" ] }
+#icalendar = "0.10"
+ical = { git = "https://github.com/mohe2015/ical-rs.git", branch = "my-changes", features = ["ical", "vcard", "generator"] }
+rrule = "0.5"
 uuid = { version = "0.8", features = ["v4"] }
 oauth2 = "4.1.0"

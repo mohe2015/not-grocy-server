@@ -8,7 +8,7 @@
     flake-utils.lib.eachDefaultSystem
       (system:
         # https://github.com/NixOS/nixpkgs/issues/131557
-        let pkgs = nixpkgs.legacyPackages.${system}; in # pkgsStatic
+        let pkgs = nixpkgs.legacyPackages.${system}; in        # pkgsStatic
         {
           devShell = pkgs.mkShell {
             nativeBuildInputs = [
@@ -58,15 +58,18 @@
               nativeBuildInputs = [ pkgs.pkg-config ];
               buildInputs = [
                 pkgs.sqlite
-                (((pkgs.postgresql.override {
-                  inherit libkrb5;
-                  inherit libossp_uuid;
-                  enableSystemd = false;
-                }).overrideAttrs (old: {
-                  doCheck = false; # would need to patch out two tests
-                })).lib) # https://github.com/NixOS/nixpkgs/issues/61580
+                (
+                  ((pkgs.postgresql.override {
+                    inherit libkrb5;
+                    inherit libossp_uuid;
+                    enableSystemd = false;
+                  }).overrideAttrs (old: {
+                    doCheck = false; # would need to patch out two tests
+                  })).lib
+                ) # https://github.com/NixOS/nixpkgs/issues/61580
                 (pkgs.mariadb-connector-c.override {
-                  curl = pkgs.curl.override { # TODO use minimal curl / only libs
+                  curl = pkgs.curl.override {
+                    # TODO use minimal curl / only libs
                     inherit libkrb5;
                   };
                 })
@@ -82,11 +85,11 @@
             };
 
             container =
-/*
-/nix/store/lld6ww2bivyz8ylhmf4xn3i7s7fk41m8-libkrb5-1.18
-        └───bin/compile_et: …#!/nix/store/b45zavallnsvqwjs9wg9xw167jcs0935-bash-4.4-p23/bin/sh.#.#.AWK=gaw…
-            → /nix/store/b45zavallnsvqwjs9wg9xw167jcs0935-bash-4.4-p23
-*/
+              /*
+                /nix/store/lld6ww2bivyz8ylhmf4xn3i7s7fk41m8-libkrb5-1.18
+                └───bin/compile_et: …#!/nix/store/b45zavallnsvqwjs9wg9xw167jcs0935-bash-4.4-p23/bin/sh.#.#.AWK=gaw…
+                → /nix/store/b45zavallnsvqwjs9wg9xw167jcs0935-bash-4.4-p23
+              */
               # 64.7M
               # nix path-info -rsSh .#not-grocy-server
               # the following command is epic
@@ -142,11 +145,11 @@
                   serviceConfig = {
                     Type = "oneshot";
                     ExecStart = pkgs.writeShellScript "crdt-init.sh" ''
-                    (
-                      echo "CREATE DATABASE IF NOT EXISTS \`not-grocy\`;"
-                      echo "CREATE USER IF NOT EXISTS 'not-grocy'@'%' IDENTIFIED BY 'not-grocy';"
-                      echo "GRANT ALL PRIVILEGES ON \`not-grocy\`.* TO 'not-grocy'@'%';"
-                    ) | ${config.services.mysql.package}/bin/mysql -N
+                      (
+                        echo "CREATE DATABASE IF NOT EXISTS \`not-grocy\`;"
+                        echo "CREATE USER IF NOT EXISTS 'not-grocy'@'%' IDENTIFIED BY 'not-grocy';"
+                        echo "GRANT ALL PRIVILEGES ON \`not-grocy\`.* TO 'not-grocy'@'%';"
+                      ) | ${config.services.mysql.package}/bin/mysql -N
                     '';
                   };
                 };
@@ -191,5 +194,3 @@
         }
       );
 }
-
-

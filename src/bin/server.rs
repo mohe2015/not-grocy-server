@@ -14,9 +14,8 @@ use std::env;
 
 use actix_cors::Cors;
 use actix_web::middleware::Logger;
+use actix_web::web;
 use actix_web::web::Data;
-use actix_web::HttpRequest;
-use actix_web::{web, HttpResponse};
 use actix_web::{App, HttpServer};
 
 use chrono::{NaiveDate, NaiveDateTime};
@@ -40,6 +39,7 @@ $group->get('/recipes', '\Grocy\Controllers\RecipesApiController:GetAll');
 $group->get('/recipes/{recipeId}/get', '\Grocy\Controllers\RecipesApiController:GetRecipe');
 $group->put('/recipes/{recipeId}/edit', '\Grocy\Controllers\RecipesApiController:EditRecipe');
 */
+/*
 async fn handler<'a>(real_request: HttpRequest) -> actix_web::Result<HttpResponse> {
     // https://github.com/actix/actix-web/pull/2113
     // https://github.com/actix/actix-web/issues?q=is%3Aissue+is%3Aopen+client
@@ -62,7 +62,7 @@ async fn handler<'a>(real_request: HttpRequest) -> actix_web::Result<HttpRespons
         .await
         .map_err(|e| actix_web::error::ErrorBadRequest(e.to_string()))?;
     Ok(r.body(bytes.to_vec()))
-}
+}*/
 
 // https://stackoverflow.com/questions/65645622/how-do-i-pass-a-trait-as-application-data-to-actix-web
 async fn run<T>(manager: ConnectionManager<T>) -> Result<(), std::io::Error>
@@ -117,7 +117,7 @@ where
             )
             .route("/login", web::get().to(api::login::index::<T>))
             .route("/redirect", web::get().to(api::redirect::index::<T>))
-            .default_service(web::get().to(handler))
+        //.default_service(web::get().to(handler))
     })
     .bind("0.0.0.0:8080")? // TODO FIXME don't listen on all interfaces but docker needs this
     .run()
