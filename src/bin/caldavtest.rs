@@ -4,12 +4,14 @@ extern crate yaserde_derive;
 
 use chrono::{Duration, TimeZone, Utc};
 use chrono_tz::UTC;
-use ical::generator::Emitter;
 use ical::generator::IcalCalendar;
+use ical::generator::IcalCalendarBuilder;
 use ical::generator::IcalEvent;
+use ical::generator::IcalEventBuilder;
 use ical::generator::Property;
 use ical::parser::ical::component::IcalTodo;
 use ical::parser::Component;
+use ical::{generator::Emitter, ical_property};
 use reqwest::{header::CONTENT_TYPE, Method};
 use rrule::{Frequenzy, Options, RRule, Weekday};
 use url::Url;
@@ -436,12 +438,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let uid = Uuid::new_v4();
 
-    let mut event = IcalEvent::new();
-    event.add_property(Property {
-        name: "DTSTART".to_string(),
-        params: None,
-        value: Some("20210814T221244Z".to_string()),
-    });
+    let event2 = IcalEventBuilder::tzid("Europe/Berlin")
+        .uid(uid.to_string())
+        .changed("20201231T000000")
+        .start_day("20210115")
+        .end_day("20210116")
+        .set(ical_property!("SUMMARY", "New Year"))
+        .build();
 
     /*.summary("test event")
             .description("here I have something really important to do")
@@ -479,10 +482,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .uid(&uid.to_string())
             .done();
     */
-    let mut calendar = IcalCalendar::new();
-    calendar.events.push(event);
 
-    //println!("{}", calendar);
+    let mut calendar = IcalCalendarBuilder::version("2.0")
+        .gregorian()
+        .prodid("-//ical-rs//github.com//")
+        .build();
+    calendar.events.push(event2);
+
+    println!("{:?}", &calendar);
+
+    println!("{}", calendar.generate());
 
     let mut calendar_put_url = calendar_url.clone();
 
