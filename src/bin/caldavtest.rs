@@ -2,18 +2,17 @@ extern crate yaserde;
 #[macro_use]
 extern crate yaserde_derive;
 
-use chrono::{Duration, TimeZone, Utc};
+use chrono::TimeZone;
 use chrono_tz::UTC;
-use ical::generator::IcalCalendar;
+
 use ical::generator::IcalCalendarBuilder;
-use ical::generator::IcalEvent;
+
 use ical::generator::IcalEventBuilder;
 use ical::generator::Property;
-use ical::parser::ical::component::IcalTodo;
-use ical::parser::Component;
+
 use ical::{generator::Emitter, ical_property};
 use reqwest::{header::CONTENT_TYPE, Method};
-use rrule::{Frequenzy, Options, RRule, Weekday};
+use rrule::{Frequenzy, Options};
 use url::Url;
 use uuid::Uuid;
 use yaserde::de::from_str;
@@ -372,7 +371,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         start: "20201102T000000Z".to_string(),
                         end: "20251107T000000Z".to_string(),
                     }),
-                    ..Default::default()
                 }],
                 ..Default::default()
             },
@@ -422,13 +420,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         .properties
                         .iter()
                         .find(|e| e.name == "DTSTART")
-                        .ok_or(std::io::Error::new(std::io::ErrorKind::NotFound, "DTSTART"))?;
+                        .ok_or_else(|| {
+                            std::io::Error::new(std::io::ErrorKind::NotFound, "DTSTART")
+                        })?;
                     println!(
                         "{}",
                         start
                             .value
                             .as_ref()
-                            .ok_or(std::io::Error::new(std::io::ErrorKind::NotFound, ""))?
+                            .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::NotFound, ""))?
                     );
                     println!("{:?}", event);
                 }
@@ -460,7 +460,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .done();
     */
     // rrule
-    let mut options = Options::new()
+    let _options = Options::new()
         .dtstart(UTC.ymd(2020, 1, 1).and_hms(9, 0, 0))
         .count(5)
         .freq(Frequenzy::Daily)

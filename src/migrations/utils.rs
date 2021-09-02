@@ -88,6 +88,7 @@ pub trait CreateOrUpdate {
         table_name: &str,
         columns: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
         foreign_keys: &'static [(&str, &str)],
+        primary_keys: &'static [&str],
     );
 }
 
@@ -97,6 +98,7 @@ impl CreateOrUpdate for Pg {
         table_name: &str,
         columns: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
         foreign_keys: &'static [(&str, &str)],
+        primary_keys: &'static [&str],
     ) {
         migr.create_table_if_not_exists(table_name.to_string(), move |t| {
             for (column_name, column_type) in columns() {
@@ -104,6 +106,10 @@ impl CreateOrUpdate for Pg {
             }
             for (column_name, foreign_table) in foreign_keys {
                 t.add_foreign_key(&[column_name], foreign_table, &["id"]);
+            }
+            if !primary_keys.is_empty() {
+                // TODO FIXME in barrel
+                t.set_primary_key(primary_keys);
             }
         });
 
@@ -122,6 +128,7 @@ impl CreateOrUpdate for MySql {
         table_name: &str,
         columns: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
         foreign_keys: &'static [(&str, &str)],
+        primary_keys: &'static [&str],
     ) {
         migr.create_table_if_not_exists(table_name.to_string(), move |t| {
             for (column_name, column_type) in columns() {
@@ -129,6 +136,10 @@ impl CreateOrUpdate for MySql {
             }
             for (column_name, foreign_table) in foreign_keys {
                 t.add_foreign_key(&[column_name], foreign_table, &["id"]);
+            }
+            if !primary_keys.is_empty() {
+                // TODO FIXME in barrel
+                t.set_primary_key(primary_keys);
             }
         });
 
@@ -147,6 +158,7 @@ impl CreateOrUpdate for Sqlite {
         table_name: &str,
         columns: &'static dyn Fn() -> Vec<(&'static str, barrel::types::Type)>,
         foreign_keys: &'static [(&str, &str)],
+        primary_keys: &'static [&str],
     ) {
         migr.create_table_if_not_exists(format!("new_{}", table_name), move |t| {
             for (column_name, column_type) in columns() {
@@ -154,6 +166,10 @@ impl CreateOrUpdate for Sqlite {
             }
             for (column_name, foreign_table) in foreign_keys {
                 t.add_foreign_key(&[column_name], foreign_table, &["id"]);
+            }
+            if !primary_keys.is_empty() {
+                // TODO FIXME in barrel
+                t.set_primary_key(primary_keys);
             }
         });
 
@@ -165,11 +181,20 @@ impl CreateOrUpdate for Sqlite {
             for (column_name, foreign_table) in foreign_keys {
                 t.add_foreign_key(&[column_name], foreign_table, &["id"]);
             }
+            if !primary_keys.is_empty() {
+                // TODO FIXME in barrel
+                t.set_primary_key(primary_keys);
+            }
         });
 
+        let column_list = columns()
+            .iter()
+            .map(|c| c.0)
+            .collect::<Vec<&str>>()
+            .join(",");
         migr.inject_custom(format!(
-            "INSERT INTO new_{} SELECT * FROM {}",
-            table_name, table_name
+            "INSERT INTO new_{} SELECT {} FROM {}",
+            table_name, column_list, table_name
         ));
 
         //migr.inject_custom(format!("ALTER TABLE {} DISABLE TRIGGER ALL", table_name));

@@ -81,6 +81,9 @@ fn migrate<
 
     println!("RUN\ndiesel print-schema > src/schema.rs");
 
+    // TODO FIXME for sqlite
+    // PRAGMA foreign_key_check;
+
     return_value
 
     // TODO FIXME

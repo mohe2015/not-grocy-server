@@ -29,41 +29,6 @@ use diesel::{backend::UsesAnsiSavepointSyntax, MysqlConnection};
 use dotenv::dotenv;
 use r2d2::Pool;
 
-// added endpoints in fork:
-/*
-$group->get('/system/config/grocy', '\Grocy\Controllers\SystemApiController:GetGrocyConfig');
-$group->get('/system/config/units', '\Grocy\Controllers\SystemApiController:GetQuantitiyUnitConfig');
-$group->get('/stock/products', '\Grocy\Controllers\StockApiController:GetProducts');
-$group->get('/stock/overview', '\Grocy\Controllers\StockApiController:StockOverview');
-$group->get('/recipes', '\Grocy\Controllers\RecipesApiController:GetAll');
-$group->get('/recipes/{recipeId}/get', '\Grocy\Controllers\RecipesApiController:GetRecipe');
-$group->put('/recipes/{recipeId}/edit', '\Grocy\Controllers\RecipesApiController:EditRecipe');
-*/
-/*
-async fn handler<'a>(real_request: HttpRequest) -> actix_web::Result<HttpResponse> {
-    // https://github.com/actix/actix-web/pull/2113
-    // https://github.com/actix/actix-web/issues?q=is%3Aissue+is%3Aopen+client
-    // https://github.com/actix/actix-web/issues/2287
-    // https://github.com/actix/actix-web/issues/2109
-    // https://www.reddit.com/r/learnrust/comments/9hhr0u/actixwebclient_how_to_get_body_of_response/
-    // the following code is ugly but awc is buggy.
-    let request_url = format!("http://localhost:8000{}", real_request.path());
-    let response = reqwest::get(&request_url)
-        .await
-        .map_err(|e| actix_web::error::ErrorBadRequest(e.to_string()))?;
-    let status = response.status();
-    let mut r = &mut HttpResponse::build(status);
-    let headers = response.headers();
-    for (k, v) in headers {
-        r = r.insert_header((k.as_str(), v.as_bytes()));
-    }
-    let bytes = response
-        .bytes()
-        .await
-        .map_err(|e| actix_web::error::ErrorBadRequest(e.to_string()))?;
-    Ok(r.body(bytes.to_vec()))
-}*/
-
 // https://stackoverflow.com/questions/65645622/how-do-i-pass-a-trait-as-application-data-to-actix-web
 async fn run<T>(manager: ConnectionManager<T>) -> Result<(), std::io::Error>
 where

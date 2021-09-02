@@ -28,7 +28,6 @@ table! {
         battery_id -> Integer,
         tracked_time -> Timestamp,
         row_created_timestamp -> Timestamp,
-        undone -> Bool,
         undone_timestamp -> Nullable<Timestamp>,
     }
 }
@@ -42,7 +41,6 @@ table! {
         period_days -> Nullable<Integer>,
         row_created_timestamp -> Timestamp,
         period_config -> Nullable<Text>,
-        track_date_only -> Nullable<Bool>,
         rollover -> Nullable<Bool>,
         assignment_type -> Nullable<Text>,
         assignment_config -> Nullable<Text>,
@@ -62,7 +60,6 @@ table! {
         tracked_time -> Timestamp,
         done_by_user_id -> Integer,
         row_created_timestamp -> Timestamp,
-        undone -> Bool,
         undone_timestamp -> Nullable<Timestamp>,
     }
 }
@@ -152,7 +149,6 @@ table! {
         default_best_before_days_after_freezing -> Integer,
         default_best_before_days_after_thawing -> Integer,
         picture_file_name -> Nullable<Text>,
-        enable_tare_weight_handling -> Bool,
         tare_weight -> Double,
         not_check_stock_fulfillment_for_recipes -> Nullable<Bool>,
         parent_product_id -> Nullable<Integer>,
@@ -283,7 +279,6 @@ table! {
         purchased_date -> Nullable<Date>,
         stock_id -> Text,
         price -> Nullable<Double>,
-        open -> Bool,
         opened_date -> Nullable<Date>,
         row_created_timestamp -> Timestamp,
         location_id -> Nullable<Integer>,
@@ -303,7 +298,6 @@ table! {
         stock_id -> Text,
         transaction_type -> Text,
         price -> Nullable<Double>,
-        undone -> Bool,
         undone_timestamp -> Nullable<Timestamp>,
         opened_date -> Nullable<Timestamp>,
         row_created_timestamp -> Timestamp,
@@ -332,7 +326,6 @@ table! {
         name -> Text,
         description -> Nullable<Text>,
         due_date -> Nullable<Timestamp>,
-        done -> Bool,
         done_timestamp -> Nullable<Timestamp>,
         category_id -> Nullable<Integer>,
         assigned_to_user_id -> Nullable<Integer>,
@@ -341,8 +334,7 @@ table! {
 }
 
 table! {
-    user_permissions (id) {
-        id -> Integer,
+    user_permissions (permission_id, user_id) {
         permission_id -> Integer,
         user_id -> Integer,
     }
@@ -372,8 +364,7 @@ table! {
 }
 
 table! {
-    userfield_values (id) {
-        id -> Integer,
+    userfield_values (field_id, object_id) {
         field_id -> Integer,
         object_id -> Integer,
         value -> Text,
