@@ -459,16 +459,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             )
             .done();
     */
-    // rrule
-    let _options = Options::new()
-        .dtstart(UTC.ymd(2020, 1, 1).and_hms(9, 0, 0))
-        .count(5)
-        .freq(Frequenzy::Daily)
-        .build()
-        .unwrap();
-
-    // https://datatracker.ietf.org/doc/html/rfc5545#section-3.3.10
-    // https://datatracker.ietf.org/doc/html/rfc5545#section-3.8.5
     /*
         let bday = IcalEvent::new()
             .starts(Utc::now())
